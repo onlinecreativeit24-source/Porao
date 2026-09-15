@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView
+} from 'react-native';
+
 import { auth } from './firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from 'firebase/auth';
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -12,17 +24,40 @@ export default function App() {
 
   const handleAuth = async () => {
     setError('');
+
+    if (!email.trim() || !password) {
+      setError('ইমেইল এবং পাসওয়ার্ড দিন।');
+      return;
+    }
+
     try {
       if (isLogin) {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
         setUser(userCredential.user);
       } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
         setUser(userCredential.user);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err?.message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।');
     }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setEmail('');
+    setPassword('');
+    setError('');
   };
 
   if (user) {
@@ -30,8 +65,15 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>স্বাগতম Porao অ্যাপে!</Text>
-          <Text style={styles.subtitle}>লগইন করা ইমেইল: {user.email}</Text>
-          <TouchableOpacity style={styles.button} onPress={() => setUser(null)}>
+
+          <Text style={styles.subtitle}>
+            লগইন করা ইমেইল: {user.email}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleLogout}
+          >
             <Text style={styles.buttonText}>লগআউট</Text>
           </TouchableOpacity>
         </View>
@@ -41,12 +83,22 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.card}>
           <Text style={styles.title}>Porao App</Text>
-          <Text style={styles.subtitle}>{isLogin ? 'একাউন্টে প্রবেশ করুন' : 'নতুন একাউন্ট খুলুন'}</Text>
-          
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          <Text style={styles.subtitle}>
+            {isLogin
+              ? 'একাউন্টে প্রবেশ করুন'
+              : 'নতুন একাউন্ট খুলুন'}
+          </Text>
+
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
 
           <TextInput
             style={styles.input}
@@ -55,6 +107,7 @@ export default function App() {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
           />
 
           <TextInput
@@ -63,15 +116,29 @@ export default function App() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            autoCapitalize="none"
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleAuth}>
-            <Text style={styles.buttonText}>{isLogin ? 'লগইন' : 'সাইন আপ'}</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleAuth}
+          >
+            <Text style={styles.buttonText}>
+              {isLogin ? 'লগইন' : 'সাইন আপ'}
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.switchBtn}>
+          <TouchableOpacity
+            onPress={() => {
+              setIsLogin(!isLogin);
+              setError('');
+            }}
+            style={styles.switchBtn}
+          >
             <Text style={styles.switchText}>
-              {isLogin ? 'একাউন্ট নেই? সাইন আপ করুন' : 'আগে থেকেই একাউন্ট আছে? লগইন করুন'}
+              {isLogin
+                ? 'একাউন্ট নেই? সাইন আপ করুন'
+                : 'আগে থেকেই একাউন্ট আছে? লগইন করুন'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -86,21 +153,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
   },
+
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },
+
   card: {
     backgroundColor: '#ffffff',
     padding: 24,
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -108,12 +181,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
+
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
     marginBottom: 24,
   },
+
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -121,7 +196,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     marginBottom: 16,
+    backgroundColor: '#fff',
   },
+
   button: {
     backgroundColor: '#007AFF',
     padding: 14,
@@ -129,22 +206,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
+
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
+
   switchBtn: {
     marginTop: 16,
     alignItems: 'center',
   },
+
   switchText: {
     color: '#007AFF',
     fontSize: 14,
   },
+
   errorText: {
-    color: 'red',
+    color: '#d32f2f',
     marginBottom: 12,
     textAlign: 'center',
+    fontSize: 14,
   },
 });
