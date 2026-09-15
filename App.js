@@ -1,79 +1,69 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  SafeAreaView,
-  ScrollView
-} from 'react-native';
-
-import { auth } from './firebase';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
-} from 'firebase/auth';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native';
+import { auth, db } from './firebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('student'); // 'student' অথবা 'tutor'
   const [isLogin, setIsLogin] = useState(true);
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
 
   const handleAuth = async () => {
     setError('');
-
-    if (!email.trim() || !password) {
-      setError('ইমেইল এবং পাসওয়ার্ড দিন।');
-      return;
-    }
-
     try {
       if (isLogin) {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password
-        );
-
-        setUser(userCredential.user);
+        // লগইন
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Firestore থেকে ইউজার প্রোফাইল সংগ্রহ
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          setUserData(userDoc.data());
+        } else {
+          setUserData({ email: user.email, name: 'ব্যবহারকারী', role: 'নট সেট' });
+        }
       } else {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password
-        );
+        // সাইন-আপ
+        if (!name) {
+          setError('অনুগ্রহ করে আপনার পুরো নাম লিখুন');
+          return;
+        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-        setUser(userCredential.user);
+        // Firestore-এ ইউজার ডাটা সেভ
+        const newUserData = {
+          uid: user.uid,
+          name: name,
+          email: email,
+          role: role,
+          createdAt: new Date().toISOString()
+        };
+
+        await setDoc(doc(db, "users", user.uid), newUserData);
+        setUserData(newUserData);
       }
     } catch (err) {
-      setError(err?.message || 'একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      setError(err.message);
     }
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setEmail('');
-    setPassword('');
-    setError('');
-  };
-
-  if (user) {
+  if (userData) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>স্বাগতম Porao অ্যাপে!</Text>
-
-          <Text style={styles.subtitle}>
-            লগইন করা ইমেইল: {user.email}
-          </Text>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleLogout}
-          >
+          <Text style={styles.subtitle}>নাম: {userData.name}</Text>
+          <Text style={styles.subtitle}>ইমেইল: {userData.email}</Text>
+          <Text style={styles.roleBadge}>রোল: {userData.role === 'tutor' ? '👨‍🏫 টিউটর' : '🎓 শিক্ষার্থী'}</Text>
+          
+          <TouchableOpacity style={styles.button} onPress={() => setUserData(null)}>
             <Text style={styles.buttonText}>লগআউট</Text>
           </TouchableOpacity>
         </View>
@@ -83,22 +73,36 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.card}>
           <Text style={styles.title}>Porao App</Text>
+          <Text style={styles.subtitle}>{isLogin ? 'একাউন্টে প্রবেশ করুন' : 'নতুন একাউন্ট তৈরি করুন'}</Text>
+          
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-          <Text style={styles.subtitle}>
-            {isLogin
-              ? 'একাউন্টে প্রবেশ করুন'
-              : 'নতুন একাউন্ট খুলুন'}
-          </Text>
-
-          {error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : null}
+          {!isLogin && (
+            <>
+              <TextInput
+                style={styles.input}
+                placeholder="আপনার পুরো নাম"
+                value={name}
+                onChangeText={setName}
+              />
+              <Text style={styles.label}>আপনি কি হিসেবে যুক্ত হতে চান?</Text>
+              <View style={styles.roleContainer}>
+                <TouchableOpacity 
+                  style={[styles.roleButton, role === 'student' && styles.activeRole]} 
+                  onPress={() => setRole('student')}>
+                  <Text style={role === 'student' ? styles.activeRoleText : styles.roleText}>🎓 শিক্ষার্থী</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.roleButton, role === 'tutor' && styles.activeRole]} 
+                  onPress={() => setRole('tutor')}>
+                  <Text style={role === 'tutor' ? styles.activeRoleText : styles.roleText}>👨‍🏫 টিউটর</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
 
           <TextInput
             style={styles.input}
@@ -107,7 +111,6 @@ export default function App() {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            autoCorrect={false}
           />
 
           <TextInput
@@ -116,29 +119,15 @@ export default function App() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            autoCapitalize="none"
           />
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleAuth}
-          >
-            <Text style={styles.buttonText}>
-              {isLogin ? 'লগইন' : 'সাইন আপ'}
-            </Text>
+          <TouchableOpacity style={styles.button} onPress={handleAuth}>
+            <Text style={styles.buttonText}>{isLogin ? 'লগইন' : 'সাইন আপ করুন'}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => {
-              setIsLogin(!isLogin);
-              setError('');
-            }}
-            style={styles.switchBtn}
-          >
+          <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={styles.switchBtn}>
             <Text style={styles.switchText}>
-              {isLogin
-                ? 'একাউন্ট নেই? সাইন আপ করুন'
-                : 'আগে থেকেই একাউন্ট আছে? লগইন করুন'}
+              {isLogin ? 'নতুন একাউন্ট খুলতে চান? সাইন আপ করুন' : 'আগে থেকেই একাউন্ট আছে? লগইন করুন'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -153,27 +142,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     justifyContent: 'center',
   },
-
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
   },
-
   card: {
     backgroundColor: '#ffffff',
     padding: 24,
     borderRadius: 12,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-
   title: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -181,14 +164,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 8,
   },
-
   subtitle: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
   },
-
+  label: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -196,9 +183,39 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
     marginBottom: 16,
-    backgroundColor: '#fff',
   },
-
+  roleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  roleButton: {
+    flex: 0.48,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  activeRole: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  roleText: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  activeRoleText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  roleBadge: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
   button: {
     backgroundColor: '#007AFF',
     padding: 14,
@@ -206,27 +223,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
   },
-
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-
   switchBtn: {
     marginTop: 16,
     alignItems: 'center',
   },
-
   switchText: {
     color: '#007AFF',
     fontSize: 14,
   },
-
   errorText: {
-    color: '#d32f2f',
+    color: 'red',
     marginBottom: 12,
     textAlign: 'center',
-    fontSize: 14,
   },
 });
