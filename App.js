@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, Text, View, TextInput, TouchableOpacity, 
-  SafeAreaView, ScrollView, ActivityIndicator, Alert, FlatList 
+  SafeAreaView, ScrollView, ActivityIndicator, Alert, Modal 
 } from 'react-native';
 import { auth, db } from './firebase';
 import { 
@@ -9,7 +9,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { 
+  doc, setDoc, getDoc, collection, addDoc, onSnapshot, query, orderBy 
+} from 'firebase/firestore';
 
 export default function App() {
   const [email, setEmail] = useState('');
@@ -20,23 +22,74 @@ export default function App() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('tuition'); // 'tuition', 'books', 'tutors'
+  const [activeTab, setActiveTab] = useState('tuition'); // 'tuition', 'books'
 
-  // ডামি ডাটা - হোম পেজ টেস্ট করার জন্য
-  const tuitionPosts = [
-    { id: '1', title: 'ক্লাস ৯-১০ পদার্থবিজ্ঞান টিউটর চাই', location: 'জিইসি মোড়, চট্টগ্রাম', salary: '৳ ৫,০০০/মাস', days: 'সপ্তাহে ৩ দিন' },
-    { id: '2', title: 'HSC ২য় বর্ষ উচ্চতর গণিত', location: 'আগ্রাবাদ, চট্টগ্রাম', salary: '৳ ৬,০০০/মাস', days: 'সপ্তাহে ৪ দিন' },
-  ];
+  // পোস্টের ডাটা ও মোডাল স্টেট
+  const [tuitionPosts, setTuitionPosts] = useState([]);
+  const [bookPosts, setBookPosts] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // নতুন পোস্ট ফর্ম স্টেট
+  const [postTitle, setPostTitle] = useState('');
+  const [postLocation, setPostLocation] = useState('');
+  const [postPrice, setPostPrice] = useState('');
+  const [postDetails, setPostDetails] = useState('');
+  const [postType, setPostType] = useState('tuition'); // 'tuition' or 'book'
 
-  const bookPosts = [
-    { id: '1', title: 'HSC পদার্থবিজ্ঞান ১ম পত্র (ইসহাক স্যার)', condition: 'ভালো', price: 'বিনামূল্যে / বিনিময়', location: 'চকবাজার' },
-    { id: '2', title: 'Class 10 English Grammar Guide', condition: 'মোটামুটি', price: '৳ ১৫০', location: 'হালিশহর' },
-  ];
+  // ১. ফায়ারস্টোর থেকে রিয়েল-টাইম ডাটা ফেচ করা
+  useEffect(() => {
+    if (!userData) return;
 
-  const topTutors = [
-    { id: '1', name: 'মোঃ সাব্বির হোসেন', varsity: 'চুয়েট (CSE)', subject: 'গণিত ও পদার্থবিজ্ঞান', verified: true },
-    { id: '2', name: 'আনিকা তাহসিন', varsity: 'চট্টগ্রাম বিশ্ববিদ্যালয় (English)', subject: 'ইংরেজি ও বাংলা', verified: true },
-  ];
+    // টিউশন পোস্ট লোড
+    const qTuition = query(collection(db, "tuition_posts"), orderBy("createdAt", "desc"));
+    const unsubscribeTuition = onSnapshot(qTuition, (snapshot) => {
+      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTuitionPosts(posts);
+    });
+
+    // বইয়ের পোস্ট লোড
+    const qBooks = query(collection(db, "book_posts"), orderBy("createdAt", "desc"));
+    const unsubscribeBooks = onSnapshot(qBooks, (snapshot) => {
+      const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBookPosts(posts);
+    });
+
+    return () => {
+      unsubscribeTuition();
+      unsubscribeBooks();
+    };
+  }, [userData]);
+
+  // ২. নতুন পোস্ট ফায়ারস্টোরে সেভ করার ফাংশন
+  const handleCreatePost = async () => {
+    if (!postTitle || !postLocation || !postPrice) {
+      Alert.alert("ভুল!", "শিরোনাম, লোকেশন এবং বাজেট প্রদান করুন");
+      return;
+    }
+
+    try {
+      const collectionName = postType === 'tuition' ? "tuition_posts" : "book_posts";
+      await addDoc(collection(db, collectionName), {
+        title: postTitle,
+        location: postLocation,
+        price: postPrice,
+        details: postDetails,
+        userName: userData.name,
+        userEmail: userData.email,
+        createdAt: new Date().toISOString()
+      });
+
+      Alert.alert("সফল!", "আপনার পোস্টটি সফলভাবে তৈরি হয়েছে।");
+      setModalVisible(false);
+      // ফর্ম রিসেট
+      setPostTitle('');
+      setPostLocation('');
+      setPostPrice('');
+      setPostDetails('');
+    } catch (err) {
+      Alert.alert("এরর", err.message);
+    }
+  };
 
   const handleAuth = async () => {
     setError('');
@@ -105,7 +158,7 @@ export default function App() {
         <View style={styles.dashboardHeader}>
           <View>
             <Text style={styles.dashLogo}>📚 Porao</Text>
-            <Text style={styles.welcomeUser}>হ্যালো, {userData.name} 👋</Text>
+            <Text style={styles.welcomeUser}>হ্যালো, {userData.name} ({userData.role === 'tutor' ? 'টিউটর' : 'শিক্ষার্থী'})</Text>
           </View>
           <TouchableOpacity style={styles.logoutSmallBtn} onPress={() => setUserData(null)}>
             <Text style={styles.logoutSmallText}>লগআউট</Text>
@@ -124,70 +177,121 @@ export default function App() {
             onPress={() => setActiveTab('books')}>
             <Text style={activeTab === 'books' ? styles.activeFeatureText : styles.featureText}>📚 বই শেয়ার</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={[styles.featureTab, activeTab === 'tutors' && styles.activeFeatureTab]}
-            onPress={() => setActiveTab('tutors')}>
-            <Text style={activeTab === 'tutors' ? styles.activeFeatureText : styles.featureText}>👨‍🏫 টিউটরগণ</Text>
-          </TouchableOpacity>
         </View>
+
+        {/* Create Post FAB Button */}
+        <TouchableOpacity style={styles.fabBtn} onPress={() => setModalVisible(true)}>
+          <Text style={styles.fabBtnText}>+ নতুন পোস্ট</Text>
+        </TouchableOpacity>
 
         {/* Dynamic Content List */}
         <ScrollView style={styles.feedContainer} showsVerticalScrollIndicator={false}>
           {activeTab === 'tuition' && (
             <View>
-              <Text style={styles.sectionTitle}>সর্বশেষ টিউশন পোস্টসমূহ</Text>
-              {tuitionPosts.map((item) => (
-                <View key={item.id} style={styles.postCard}>
-                  <Text style={styles.postTitle}>{item.title}</Text>
-                  <Text style={styles.postSub}>📍 {item.location} • 📅 {item.days}</Text>
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.salaryText}>{item.salary}</Text>
-                    <TouchableOpacity style={styles.actionBtn}>
-                      <Text style={styles.actionBtnText}>বিড করুন (Bid)</Text>
-                    </TouchableOpacity>
+              <Text style={styles.sectionTitle}>সর্বশেষ টিউশন পোস্টসমূহ ({tuitionPosts.length})</Text>
+              {tuitionPosts.length === 0 ? (
+                <Text style={styles.emptyText}>কোনো টিউশন পোস্ট পাওয়া যায়নি। নতুন পোস্ট করুন!</Text>
+              ) : (
+                tuitionPosts.map((item) => (
+                  <View key={item.id} style={styles.postCard}>
+                    <Text style={styles.postTitle}>{item.title}</Text>
+                    <Text style={styles.postSub}>📍 {item.location} • 👤 {item.userName}</Text>
+                    {item.details ? <Text style={styles.postDetails}>{item.details}</Text> : null}
+                    <View style={styles.cardFooter}>
+                      <Text style={styles.salaryText}>{item.price}</Text>
+                      <TouchableOpacity style={styles.actionBtn}>
+                        <Text style={styles.actionBtnText}>বিড করুন (Bid)</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              ))}
+                ))
+              )}
             </View>
           )}
 
           {activeTab === 'books' && (
             <View>
-              <Text style={styles.sectionTitle}>বিনিময় বা কম দামে বই</Text>
-              {bookPosts.map((item) => (
-                <View key={item.id} style={styles.postCard}>
-                  <Text style={styles.postTitle}>{item.title}</Text>
-                  <Text style={styles.postSub}>অবস্থা: {item.condition} • 📍 {item.location}</Text>
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.priceText}>{item.price}</Text>
-                    <TouchableOpacity style={[styles.actionBtn, {backgroundColor: '#10B981'}]}>
-                      <Text style={styles.actionBtnText}>রিকোয়েস্ট দিন</Text>
-                    </TouchableOpacity>
+              <Text style={styles.sectionTitle}>বিনিময় বা কম দামে বই ({bookPosts.length})</Text>
+              {bookPosts.length === 0 ? (
+                <Text style={styles.emptyText}>কোনো বইয়ের পোস্ট পাওয়া যায়নি।</Text>
+              ) : (
+                bookPosts.map((item) => (
+                  <View key={item.id} style={styles.postCard}>
+                    <Text style={styles.postTitle}>{item.title}</Text>
+                    <Text style={styles.postSub}>📍 {item.location} • 👤 {item.userName}</Text>
+                    {item.details ? <Text style={styles.postDetails}>{item.details}</Text> : null}
+                    <View style={styles.cardFooter}>
+                      <Text style={styles.priceText}>{item.price}</Text>
+                      <TouchableOpacity style={[styles.actionBtn, {backgroundColor: '#10B981'}]}>
+                        <Text style={styles.actionBtnText}>রিকোয়েস্ট দিন</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {activeTab === 'tutors' && (
-            <View>
-              <Text style={styles.sectionTitle}>সেরা ভেরিফাইড টিউটরবৃন্দ</Text>
-              {topTutors.map((item) => (
-                <View key={item.id} style={styles.postCard}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={styles.postTitle}>{item.name} </Text>
-                    {item.verified && <Text style={{color: '#2563EB', fontWeight: 'bold'}}>☑️ Verified</Text>}
-                  </View>
-                  <Text style={styles.postSub}>🎓 {item.varsity}</Text>
-                  <Text style={styles.postSub}>📖 বিষয়: {item.subject}</Text>
-                  <TouchableOpacity style={[styles.actionBtn, {marginTop: 10, alignSelf: 'flex-start'}]}>
-                    <Text style={styles.actionBtnText}>প্রোফাইল দেখুন</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
+                ))
+              )}
             </View>
           )}
         </ScrollView>
+
+        {/* Modal for Creating New Post */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>নতুন পোস্ট করুন</Text>
+
+              {/* Type Switcher */}
+              <View style={styles.roleContainer}>
+                <TouchableOpacity 
+                  style={[styles.roleChip, postType === 'tuition' && styles.activeRoleChip]} 
+                  onPress={() => setPostType('tuition')}>
+                  <Text style={postType === 'tuition' ? styles.activeRoleText : styles.roleText}>📢 টিউশন পোস্ট</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.roleChip, postType === 'book' && styles.activeRoleChip]} 
+                  onPress={() => setPostType('book')}>
+                  <Text style={postType === 'book' ? styles.activeRoleText : styles.roleText}>📚 বই বিনিময়</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TextInput 
+                style={styles.input} 
+                placeholder={postType === 'tuition' ? "বিষয়/ক্লাস (যেমন: ৯ম শ্রেণী গণিত)" : "বইয়ের নাম"} 
+                value={postTitle} 
+                onChangeText={setPostTitle} 
+              />
+              <TextInput 
+                style={styles.input} 
+                placeholder="এলাকা/লোকেশন (যেমন: চকবাজার, চট্টগ্রাম)" 
+                value={postLocation} 
+                onChangeText={setPostLocation} 
+              />
+              <TextInput 
+                style={styles.input} 
+                placeholder={postType === 'tuition' ? "বাজেট (যেমন: ৫,০০০ টাকা/মাস)" : "মূল্য (যেমন: ২০০ টাকা / বিনিময়)"} 
+                value={postPrice} 
+                onChangeText={setPostPrice} 
+              />
+              <TextInput 
+                style={[styles.input, {height: 60}]} 
+                placeholder="বিস্তারিত বিবরণ (ঐচ্ছিক)" 
+                value={postDetails} 
+                onChangeText={setPostDetails} 
+                multiline 
+              />
+
+              <View style={{flexDirection: 'row', gap: 10, marginTop: 10}}>
+                <TouchableOpacity style={[styles.submitBtn, {flex: 1, backgroundColor: '#64748B'}]} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.submitBtnText}>বাতিল</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.submitBtn, {flex: 1}]} onPress={handleCreatePost}>
+                  <Text style={styles.submitBtnText}>পোস্ট করুন</Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+          </View>
+        </Modal>
+
       </SafeAreaView>
     );
   }
@@ -196,7 +300,6 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
         <View style={styles.header}>
           <Text style={styles.logoText}>📚 Porao</Text>
           <Text style={styles.tagline}>টিউশন খুঁজুন ও বই বিনিময় করুন সহজে</Text>
@@ -280,25 +383,32 @@ const styles = StyleSheet.create({
   submitBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
   errorText: { color: '#EF4444', fontSize: 13, marginBottom: 12, textAlign: 'center' },
   
-  // Dashboard Styles
+  // Dashboard & Modal Styles
   dashboardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, backgroundColor: '#FFF', borderBottomWidth: 1, borderColor: '#E2E8F0' },
   dashLogo: { fontSize: 22, fontWeight: '800', color: '#1E293B' },
-  welcomeUser: { fontSize: 14, color: '#64748B' },
+  welcomeUser: { fontSize: 13, color: '#64748B' },
   logoutSmallBtn: { backgroundColor: '#FEE2E2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
   logoutSmallText: { color: '#DC2626', fontWeight: '600', fontSize: 12 },
   featureTabNav: { flexDirection: 'row', backgroundColor: '#FFF', paddingHorizontal: 10, borderBottomWidth: 1, borderColor: '#E2E8F0' },
   featureTab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
   activeFeatureTab: { borderBottomWidth: 3, borderColor: '#2563EB' },
-  featureText: { color: '#64748B', fontWeight: '600', fontSize: 13 },
-  activeFeatureText: { color: '#2563EB', fontWeight: '700', fontSize: 13 },
+  featureText: { color: '#64748B', fontWeight: '600', fontSize: 14 },
+  activeFeatureText: { color: '#2563EB', fontWeight: '700', fontSize: 14 },
   feedContainer: { padding: 16 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1E293B', marginBottom: 12 },
+  emptyText: { textAlign: 'center', color: '#94A3B8', marginTop: 20, fontSize: 14 },
   postCard: { backgroundColor: '#FFF', padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2 },
   postTitle: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 4 },
-  postSub: { fontSize: 13, color: '#64748B', marginBottom: 10 },
+  postSub: { fontSize: 13, color: '#64748B', marginBottom: 6 },
+  postDetails: { fontSize: 13, color: '#334155', marginBottom: 10, backgroundColor: '#F8FAFC', padding: 8, borderRadius: 6 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 },
   salaryText: { fontSize: 15, fontWeight: '700', color: '#2563EB' },
   priceText: { fontSize: 15, fontWeight: '700', color: '#10B981' },
   actionBtn: { backgroundColor: '#2563EB', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8 },
   actionBtnText: { color: '#FFF', fontWeight: '600', fontSize: 12 },
+  fabBtn: { position: 'absolute', bottom: 20, right: 20, backgroundColor: '#2563EB', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 30, elevation: 5, zIndex: 99 },
+  fabBtnText: { color: '#FFF', fontWeight: 'bold', fontSize: 15 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#FFF', padding: 20, borderRadius: 16 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center', color: '#1E293B' },
 });
