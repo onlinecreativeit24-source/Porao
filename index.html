@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porao - প্রবেশ করুন</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
+        .logo { text-align: center; font-size: 32px; font-weight: 800; color: #1E6091; margin-bottom: 20px; }
+        .form-toggle { display: flex; justify-content: space-around; margin-bottom: 25px; border-bottom: 2px solid #e4e6eb; }
+        .form-toggle button { background: none; border: none; font-size: 16px; font-weight: 600; padding: 10px; cursor: pointer; color: #65676b; width: 50%; }
+        .form-toggle button.active { color: #1E6091; border-bottom: 3px solid #1E6091; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #333; font-size: 14px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; }
+        .form-group input:focus { border-color: #1E6091; }
+        .btn { width: 100%; padding: 14px; background-color: #1E6091; border: none; color: white; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn:hover { background-color: #184e77; }
+        .form-box { display: none; }
+        .form-box.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">পড়াঅ</div>
+    
+    <div class="form-toggle">
+        <button id="loginTab" class="active" onclick="switchTab('login')">লগইন</button>
+        <button id="signupTab" onclick="switchTab('signup')">সাইনআপ</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" class="form-box active" onsubmit="handleLogin(event)">
+        <div class="form-group">
+            <label for="loginEmail">ইমেইল বা ফোন নম্বর</label>
+            <input type="text" id="loginEmail" placeholder="আপনার ইমেইল/ফোন দিন" required>
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">পাসওয়ার্ড</label>
+            <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড দিন" required>
+        </div>
+        <button type="submit" class="btn">প্রবেশ করুন</button>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" class="form-box" onsubmit="handleSignup(event)">
+        <div class="form-group">
+            <label for="fullName">পূর্ণ নাম</label>
+            <input type="text" id="fullName" placeholder="আপনার নাম লিখুন" required>
+        </div>
+        <div class="form-group">
+            <label for="signupEmail">ইমেইল</label>
+            <input type="email" id="signupEmail" placeholder="example@email.com" required>
+        </div>
+        <div class="form-group">
+            <label for="userRole">শ্রেণী / পরিচয়</label>
+            <select id="userRole" required>
+                <option value="student">শিক্ষার্থী</option>
+                <option value="teacher">শিক্ষক</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="signupPassword">পাসওয়ার্ড</label>
+            <input type="password" id="signupPassword" placeholder="নতুন পাসওয়ার্ড দিন" required>
+        </div>
+        <button type="submit" class="btn">একাউন্ট তৈরি করুন</button>
+    </form>
+</div>
+
+<script>
+    function switchTab(tab) {
+        if (tab === 'login') {
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('signupForm').classList.remove('active');
+            document.getElementById('loginTab').classList.add('active');
+            document.getElementById('signupTab').classList.remove('active');
+        } else {
+            document.getElementById('signupForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+            document.getElementById('signupTab').classList.add('active');
+            document.getElementById('loginTab').classList.remove('active');
+        }
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        window.location.href = 'home.html';
+    }
+
+    function handleSignup(event) {
+        event.preventDefault();
+        alert('সাইনআপ সফল হয়েছে! এখন লগইন করুন।');
+        switchTab('login');
+    }
+</script>
+
+</body>
+</html>
