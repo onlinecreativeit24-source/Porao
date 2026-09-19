@@ -3,139 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>পড়াও - প্রবেশ করুন</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .container { background: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 100%; max-width: 400px; }
-        .logo { text-align: center; font-size: 32px; font-weight: 800; color: #1E6091; margin-bottom: 20px; }
-        .form-toggle { display: flex; justify-content: space-around; margin-bottom: 20px; border-bottom: 2px solid #e4e6eb; }
-        .form-toggle button { background: none; border: none; font-size: 16px; font-weight: 600; padding: 10px; cursor: pointer; color: #65676b; width: 50%; }
-        .form-toggle button.active { color: #1E6091; border-bottom: 3px solid #1E6091; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; color: #333; font-size: 14px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
-        .form-group input:focus, .form-group select:focus { border-color: #1E6091; }
-        .btn { width: 100%; padding: 13px; background-color: #1E6091; border: none; color: white; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 5px; transition: 0.3s; }
-        .btn:hover { background-color: #184e77; }
-        
-        /* Divider & Google Button */
-        .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: #888; font-size: 13px; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #e0e0e0; }
-        .divider span { padding: 0 10px; }
-        
-        .google-btn { width: 100%; padding: 11px; background-color: #ffffff; border: 1px solid #dadce0; color: #3c4043; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background-color 0.2s; }
-        .google-btn:hover { background-color: #f8f9fa; border-color: #d2e3fc; }
-        .google-icon { width: 18px; height: 18px; }
-
-        .form-box { display: none; }
-        .form-box.active { display: block; }
-    </style>
+    <title>পড়াও - অল ইন ওয়ান</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-    <!-- Shothik Banan -->
-    <div class="logo">পড়াও</div>
-    
-    <div class="form-toggle">
-        <button id="loginTab" class="active" onclick="switchTab('login')">লগইন</button>
-        <button id="signupTab" onclick="switchTab('signup')">সাইনআপ</button>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo" onclick="showPage('home')">পড়াও</div>
+        <div class="coin-badge" onclick="showPage('buyCoins')">
+            🪙 <span id="userCoinCount">1</span> MHR GOLD COIN
+        </div>
     </div>
 
-    <!-- Login Form -->
-    <form id="loginForm" class="form-box active" onsubmit="handleLogin(event)">
-        <div class="form-group">
-            <label for="loginEmail">ইমেইল বা ফোন নম্বর</label>
-            <input type="text" id="loginEmail" placeholder="আপনার ইমেইল/ফোন দিন" required>
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page-view active">
+        <div class="section-title">Services</div>
+        <div class="grid">
+            <div class="card highlight">
+                <div>
+                    <div style="font-size:30px;">📍</div>
+                    <h4 style="color: #1E6091;">Local Tutor / Student</h4>
+                    <p>এলাকাভিত্তিক শিক্ষক বা শিক্ষার্থী খুঁজুন</p>
+                </div>
+                <button onclick="showPage('localSearch')" class="res-btn primary">খুঁজুন 🔍</button>
+            </div>
+            <div class="card">
+                <div>
+                    <div style="font-size:30px;">🪙</div>
+                    <h4>MHR Gold Coins</h4>
+                    <p>কয়েন রিচার্জ করুন</p>
+                </div>
+                <button onclick="showPage('buyCoins')" class="res-btn">Buy Coins</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="loginPassword">পাসওয়ার্ড</label>
-            <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড দিন" required>
+    </div>
+
+    <!-- LOCAL SEARCH PAGE -->
+    <div id="localSearchPage" class="page-view">
+        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ড্যাশবোর্ড</div>
+        
+        <div class="form-box">
+            <div class="form-group">
+                <label>আপনার এলাকা টাইপ করুন</label>
+                <input type="text" id="searchLocation" placeholder="যেমন: ধানমন্ডি, ঢাকা">
+            </div>
+            <button onclick="searchLocalData()" class="res-btn primary">খুঁজুন</button>
         </div>
-        <button type="submit" class="btn">প্রবেশ করুন</button>
 
-        <div class="divider"><span>অথবা</span></div>
+        <div class="section-title" style="font-size:15px;">টিউটর ও শিক্ষার্থী তালিকা:</div>
+        <div id="localDataList"></div>
+    </div>
 
-        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            Google দিয়ে সাইন ইন করুন
-        </button>
-    </form>
+    <!-- BUY MHR GOLD COINS PAGE -->
+    <div id="buyCoinsPage" class="page-view">
+        <div class="section-title">🪙 MHR GOLD COIN রিচার্জ কেন্দ্র</div>
+        <div class="form-box" style="text-align:center;">
+            <p style="font-size:13px; color:#555; margin-bottom:15px;">টিউটর বা শিক্ষার্থীর নম্বর আনলক করতে প্রতি নম্বরে ১টি করে <b>MHR GOLD COIN</b> প্রয়োজন।</p>
+            
+            <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
+                <h4>🥉 Standard Pack</h4>
+                <h3 style="color:#b8860b; margin:5px 0;">৫ টি MHR GOLD COIN</h3>
+                <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
+                <button onclick="addCoins(5)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            </div>
 
-    <!-- Signup Form -->
-    <form id="signupForm" class="form-box" onsubmit="handleSignup(event)">
-        <div class="form-group">
-            <label for="fullName">পূর্ণ নাম</label>
-            <input type="text" id="fullName" placeholder="আপনার নাম লিখুন" required>
+            <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; margin-bottom:12px; background:#fff8e7;">
+                <h4>🥇 Value Pack</h4>
+                <h3 style="color:#b8860b; margin:5px 0;">১২ টি MHR GOLD COIN</h3>
+                <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
+                <button onclick="addCoins(12)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="signupEmail">ইমেইল</label>
-            <input type="email" id="signupEmail" placeholder="example@email.com" required>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <div id="navHome" class="nav-item active" onclick="showPage('home')">
+            <span class="nav-icon">🏠</span>Home
         </div>
-        <div class="form-group">
-            <label for="userRole">শ্রেণী / পরিচয়</label>
-            <select id="userRole" required>
-                <option value="student">শিক্ষার্থী</option>
-                <option value="teacher">শিক্ষক</option>
-                <option value="guardian">অভিভাবক</option>
-            </select>
+        <div id="navSearch" class="nav-item" onclick="showPage('localSearch')">
+            <span class="nav-icon">📍</span>Find Tutor
         </div>
-        <div class="form-group">
-            <label for="signupPassword">পাসওয়ার্ড</label>
-            <input type="password" id="signupPassword" placeholder="নতুন পাসওয়ার্ড দিন" required>
+        <div id="navCoin" class="nav-item" onclick="showPage('buyCoins')">
+            <span class="nav-icon">🪙</span>Buy Coins
         </div>
-        <button type="submit" class="btn">একাউন্ট তৈরি করুন</button>
+    </div>
 
-        <div class="divider"><span>অথবা</span></div>
-
-        <button type="button" class="google-btn" onclick="handleGoogleAuth()">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            Google দিয়ে সাইনআপ করুন
-        </button>
-    </form>
-</div>
-
-<script>
-    function switchTab(tab) {
-        if (tab === 'login') {
-            document.getElementById('loginForm').classList.add('active');
-            document.getElementById('signupForm').classList.remove('active');
-            document.getElementById('loginTab').classList.add('active');
-            document.getElementById('signupTab').classList.remove('active');
-        } else {
-            document.getElementById('signupForm').classList.add('active');
-            document.getElementById('loginForm').classList.remove('active');
-            document.getElementById('signupTab').classList.add('active');
-            document.getElementById('loginTab').classList.remove('active');
-        }
-    }
-
-    function handleLogin(event) {
-        event.preventDefault();
-        window.location.href = 'home.html';
-    }
-
-    function handleSignup(event) {
-        event.preventDefault();
-        alert('সাইনআপ সফল হয়েছে! এখন প্রবেশ করুন।');
-        switchTab('login');
-    }
-
-    function handleGoogleAuth() {
-        window.location.href = 'home.html';
-    }
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
