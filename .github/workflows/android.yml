@@ -29,11 +29,29 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Decode Keystore
+        working-directory: android/app
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+
+      - name: Build Release AAB
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
       - name: Build Debug APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: porao-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: porao-debug-apk
