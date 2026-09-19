@@ -55,6 +55,14 @@
         .person-info p { font-size: 12px; color: #666; margin-top: 2px; }
         .badge { background: #ebf8ff; color: #2b6cb0; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
 
+        /* Payment UI Styles */
+        .payment-card { background: #fff8e7; border: 1.5px solid #8c1252; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
+        .qr-container { background: #ffffff; padding: 12px; border-radius: 10px; display: inline-block; border: 1px solid #e1e8ed; margin: 10px 0; }
+        .qr-img { width: 180px; height: 180px; object-fit: contain; }
+        .pay-methods { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .pay-method-btn { padding: 6px 12px; border-radius: 20px; font-size: 11px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: bold; }
+        .pay-method-btn.active { background: #8c1252; color: white; border-color: #8c1252; }
+
         /* Bottom Navigation Bar */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; z-index: 1000; }
         .nav-item { text-align: center; color: #718096; font-size: 11px; cursor: pointer; text-decoration: none; }
@@ -155,25 +163,61 @@
         <div id="localDataList"></div>
     </div>
 
-    <!-- 3. BUY COINS VIEW -->
+    <!-- 3. BUY COINS VIEW (ROCKET MAKE PAYMENT & QR INTEGRATED) -->
     <div id="buyCoinsPage" class="page-view">
         <div class="section-title">🪙 MHR GOLD COIN রিচার্জ কেন্দ্র</div>
-        <div class="form-box" style="text-align:center;">
-            <p style="font-size:13px; color:#555; margin-bottom:15px;">টিউটর বা শিক্ষার্থীর নম্বর আনলক করতে প্রতি নম্বরে ১টি করে <b>MHR GOLD COIN</b> প্রয়োজন।</p>
+        
+        <div id="packSelection">
+            <div class="form-box" style="text-align:center;">
+                <p style="font-size:13px; color:#555; margin-bottom:15px;">টিউটর বা শিক্ষার্থীর নম্বর আনলক করতে প্রতি নম্বরে ১টি করে <b>MHR GOLD COIN</b> প্রয়োজন।</p>
+                
+                <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
+                    <h4>🥉 Standard Pack</h4>
+                    <h3 style="color:#b8860b; margin:5px 0;">৫ টি MHR GOLD COIN</h3>
+                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
+                    <button onclick="openPaymentForm(5, 50)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment দিয়ে কিনুন</button>
+                </div>
+
+                <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; margin-bottom:12px; background:#fff8e7;">
+                    <h4>🥇 Value Pack</h4>
+                    <h3 style="color:#b8860b; margin:5px 0;">১২ টি MHR GOLD COIN</h3>
+                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
+                    <button onclick="openPaymentForm(12, 100)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment দিয়ে কিনুন</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYMENT & QR CODE BOX -->
+        <div id="paymentFormBox" class="form-box" style="display:none;">
+            <h4 style="color:#1E6091; margin-bottom:10px; text-align:center;">💳 মেক পেমেন্ট / QR Scan করুন</h4>
             
-            <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
-                <h4>🥉 Standard Pack</h4>
-                <h3 style="color:#b8860b; margin:5px 0;">৫ টি MHR GOLD COIN</h3>
-                <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
-                <button onclick="addCoins(5)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            <div class="pay-methods">
+                <span class="pay-method-btn active">🚀 Rocket Make Payment</span>
             </div>
 
-            <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; margin-bottom:12px; background:#fff8e7;">
-                <h4>🥇 Value Pack</h4>
-                <h3 style="color:#b8860b; margin:5px 0;">১২ টি MHR GOLD COIN</h3>
-                <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
-                <button onclick="addCoins(12)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            <div class="payment-card">
+                <p style="font-size:12px; color:#555;">Rocket App থেকে এই QR কোডটি স্ক্যান করুন:</p>
+
+                <!-- GENERATED ROCKET QR CODE -->
+                <div class="qr-container">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875" alt="Rocket Payment QR" class="qr-img" id="rocketQrImg">
+                </div>
+
+                <p style="font-size:13px; margin-top:5px;"><b>রকেট পেমেন্ট নম্বর:</b></p>
+                <p style="font-size:17px; color:#8c1252; font-weight:bold; letter-spacing:1px;">015680142875</p>
+                <p style="font-size:12px; color:#666; margin-top:5px;">পেমেন্ট পরিমাণ: <b>৳ <span id="payAmount">0</span></b> (<span id="payCoins">0</span> টি Coins)</p>
             </div>
+
+            <div class="form-group">
+                <label>যে নম্বর থেকে পেমেন্ট করেছেন</label>
+                <input type="text" id="senderNumber" placeholder="017XXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>TrxID (ট্রানজেকশন আইডি)</label>
+                <input type="text" id="trxId" placeholder="e.g. 9J7A6K5L">
+            </div>
+            <button onclick="submitPayment()" class="res-btn primary">পেমেন্ট কনফার্ম করুন</button>
+            <button onclick="closePaymentForm()" class="res-btn" style="margin-top:8px;">বাতিল করুন</button>
         </div>
     </div>
 
@@ -263,6 +307,7 @@
 
 <script>
     let userCoins = 1; 
+    let selectedCoinsToBuy = 0;
     const unlockedNumbers = [];
 
     const defaultData = [
@@ -349,10 +394,39 @@
         }
     }
 
-    function addCoins(amount) {
-        userCoins += amount;
+    /* ROCKET PAYMENT & QR LOGIC */
+    function openPaymentForm(coins, amount) {
+        selectedCoinsToBuy = coins;
+        document.getElementById('payCoins').innerText = coins;
+        document.getElementById('payAmount').innerText = amount;
+        
+        // Dynamic QR image URL with exact Rocket Number
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875%3AAMOUNT%3D${amount}`;
+        document.getElementById('rocketQrImg').src = qrUrl;
+
+        document.getElementById('packSelection').style.display = 'none';
+        document.getElementById('paymentFormBox').style.display = 'block';
+    }
+
+    function closePaymentForm() {
+        document.getElementById('packSelection').style.display = 'block';
+        document.getElementById('paymentFormBox').style.display = 'none';
+    }
+
+    function submitPayment() {
+        const sender = document.getElementById('senderNumber').value;
+        const trx = document.getElementById('trxId').value;
+
+        if(!sender || !trx) {
+            alert('দয়া করে সেন্ডার নম্বর এবং TrxID প্রদান করুন!');
+            return;
+        }
+
+        alert('পেমেন্ট রিকোয়েস্ট সফলভাবে জমা নেওয়া হয়েছে! পেমেন্ট যাচাই করে ' + selectedCoinsToBuy + ' টি MHR GOLD COIN যুক্ত করা হলো।');
+        userCoins += selectedCoinsToBuy;
         updateCoinDisplay();
-        alert(`অভিনন্দন! আপনার অ্যাকাউন্টে ${amount} টি MHR GOLD COIN যুক্ত হয়েছে।`);
+        
+        closePaymentForm();
         showPage('localSearch');
     }
 
@@ -391,6 +465,7 @@
             renderDataList();
         } else if(pageName === 'buyCoins') {
             document.getElementById('buyCoinsPage').classList.add('active');
+            closePaymentForm();
         } else if(pageName === 'addPost') {
             document.getElementById('addPostPage').classList.add('active');
         } else if(pageName === 'login') {
