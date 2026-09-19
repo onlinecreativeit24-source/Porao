@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porao - হোম</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f7f9fc; color: #333; padding-bottom: 70px; }
+        
+        /* Top Header */
+        .header { background: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .logo { font-size: 26px; font-weight: 800; color: #1E6091; }
+        .notification-btn { background: #f0f4f8; border: none; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+
+        /* Search Box */
+        .search-container { padding: 15px 20px; }
+        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #e1e8ed; border-radius: 25px; background: #fff; font-size: 14px; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+
+        /* Banner */
+        .banner-container { padding: 0 20px; margin-bottom: 20px; }
+        .banner { background: linear-gradient(135deg, #1E6091, #184E77); color: white; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .banner h3 { font-size: 18px; margin-bottom: 8px; }
+        .banner button { background: #fff; color: #1E6091; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* Section Titles */
+        .section-title { font-size: 18px; font-weight: 700; color: #1E6091; margin: 15px 20px 10px 20px; }
+
+        /* Subjects Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; padding: 0 20px; }
+        .card { background: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #edf2f7; }
+        .card-icon { font-size: 32px; margin-bottom: 8px; }
+        .card h4 { font-size: 14px; color: #2d3748; margin-bottom: 4px; }
+        .card p { font-size: 11px; color: #718096; margin-bottom: 8px; }
+        .card button { background: #1E6091; color: white; border: none; padding: 6px 14px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        /* Categories Scroll */
+        .categories { display: flex; gap: 10px; padding: 0 20px; overflow-x: auto; margin-bottom: 15px; }
+        .category-chip { background: #fff; padding: 10px 18px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; }
+        .nav-item { text-align: center; color: #718096; text-decoration: none; font-size: 11px; }
+        .nav-item.active { color: #1E6091; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">পড়াও</div>
+        <button class="notification-btn">🔔</button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <input type="text" class="search-box" placeholder="Khunjun... (e.g. Physics, Class 10)">
+    </div>
+
+    <!-- Banner -->
+    <div class="banner-container">
+        <div class="banner">
+            <div>
+                <h3>Digital Learning<br>Platform</h3>
+                <button>Start Learning</button>
+            </div>
+            <div style="font-size: 50px;">🎓</div>
+        </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="section-title">Subjects</div>
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon">🧮</div>
+            <h4>Mathematics</h4>
+            <p>Chapter 1-12</p>
+            <button>Start</button>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔬</div>
+            <h4>Science</h4>
+            <p>Physics & Chem</p>
+            <button>Start</button>
+        </div>
+        <div class="card">
+            <div class="card-icon">📚</div>
+            <h4>English</h4>
+            <p>Grammar & Writing</p>
+            <button>Start</button>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="section-title">Categories</div>
+    <div class="categories">
+        <div class="category-chip">📄 Class Notes</div>
+        <div class="category-chip">🎥 Videos</div>
+        <div class="category-chip">📅 Routine</div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item active">
+            <span class="nav-icon">🏠</span>Home
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">📖</span>My Classes
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">👤</span>Profile
+        </a>
+        <a href="#" class="nav-item">
+            <span class="nav-icon">⚙️</span>Settings
+        </a>
+    </div>
+
+</body>
+</html>
