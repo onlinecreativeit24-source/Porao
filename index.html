@@ -3,274 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>পড়াও - অল ইন ওয়ান</title>
+    <title>পড়াও - অল ইন ওয়ান এডুটেক</title>
+    
+    <!-- Firebase SDK (Version 10.8.0 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f7f9fc; color: #333; padding-bottom: 70px; }
+        body { background-color: #f7f9fc; color: #333; padding-bottom: 75px; }
 
         /* Header */
-        .header { background: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .logo { font-size: 26px; font-weight: 800; color: #1E6091; cursor: pointer; }
+        .header { background: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 26px; font-weight: 800; color: #1E6091; cursor: pointer; user-select: none; }
         .header-btns { display: flex; gap: 8px; align-items: center; }
-        .coin-badge { background: #fff8e7; border: 1.5px solid #d4af37; color: #b8860b; padding: 5px 10px; border-radius: 20px; font-weight: bold; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .auth-btn { background: #1E6091; color: white; border: none; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+        .coin-badge { background: #fff8e7; border: 1.5px solid #d4af37; color: #b8860b; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .auth-btn { background: #1E6091; color: white; border: none; padding: 7px 14px; border-radius: 18px; font-size: 12px; cursor: pointer; font-weight: bold; }
 
-        /* Page Views */
+        /* Views */
         .page-view { display: none; }
         .page-view.active { display: block; }
 
-        /* Home View Styles */
-        .search-container { padding: 15px 20px; }
-        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #e1e8ed; border-radius: 25px; background: #fff; font-size: 14px; outline: none; }
+        /* Forms & Cards */
+        .form-box { background: white; margin: 15px 20px; padding: 20px; border-radius: 14px; border: 1px solid #e1e8ed; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .form-group { margin-bottom: 14px; text-align: left; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #4a5568; }
+        .form-group input, .form-group select { width: 100%; padding: 11px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #1E6091; }
 
-        .banner-container { padding: 0 20px; margin-bottom: 20px; }
-        .banner { background: linear-gradient(135deg, #1E6091, #184E77); color: white; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .banner h3 { font-size: 18px; margin-bottom: 8px; }
-        .banner button { background: #fff; color: #1E6091; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
-        .section-title { font-size: 18px; font-weight: 700; color: #1E6091; margin: 15px 20px 10px 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 0 20px; }
-        .card { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; }
-        .card-icon { font-size: 32px; margin-bottom: 8px; }
-        .card h4 { font-size: 14px; color: #2d3748; margin-bottom: 4px; }
-        .card p { font-size: 11px; color: #718096; margin-bottom: 8px; }
-        .card button { background: #1E6091; color: white; border: none; padding: 8px 14px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 6px; }
-
-        .card.highlight { background: #f0f7ff; border: 1.5px solid #1E6091; }
-
-        /* Forms & Inputs */
-        .form-box { background: white; margin: 15px 20px; padding: 20px; border-radius: 12px; border: 1px solid #e1e8ed; }
-        .form-group { margin-bottom: 12px; text-align: left; }
-        .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #4a5568; }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; }
-        .forgot-link { font-size: 12px; color: #1E6091; text-align: right; display: block; margin-top: 6px; cursor: pointer; text-decoration: underline; }
-
-        .res-btn { padding: 10px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 6px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; }
-        .res-btn.primary { background: #1E6091; color: white; }
+        .res-btn { padding: 12px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; transition: 0.2s; }
+        .res-btn.primary { background: #1E6091; color: white; border: none; }
         .res-btn.coin-btn { background: #d4af37; color: white; border: none; }
         .res-btn.danger { background: #e53e3e; color: white; border: none; }
         .res-btn.success { background: #38a169; color: white; border: none; }
+        .res-btn.admin-btn { background: #2d3748; color: white; border: none; }
 
-        /* Listing Cards */
+        /* Auth Tabs */
+        .auth-tabs { display: flex; border-bottom: 2px solid #edf2f7; margin-bottom: 18px; }
+        .auth-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; font-weight: bold; cursor: pointer; color: #718096; }
+        .auth-tab.active { color: #1E6091; border-bottom: 2px solid #1E6091; }
+
+        /* Section Titles & Cards */
+        .section-title { font-size: 18px; font-weight: 700; color: #1E6091; margin: 15px 20px 10px 20px; }
         .person-card { background: white; border-radius: 12px; padding: 15px; margin: 12px 20px; border: 1px solid #edf2f7; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; }
         .person-info h4 { color: #1E6091; font-size: 15px; }
-        .person-info p { font-size: 12px; color: #666; margin-top: 2px; }
-        .badge { background: #ebf8ff; color: #2b6cb0; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+        .person-info p { font-size: 12px; color: #666; margin-top: 3px; }
+        .badge { background: #ebf8ff; color: #2b6cb0; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: bold; }
 
-        /* Payment UI Styles */
+        /* Payment QR UI */
         .payment-card { background: #fff8e7; border: 1.5px solid #8c1252; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
         .qr-container { background: #ffffff; padding: 12px; border-radius: 10px; display: inline-block; border: 1px solid #e1e8ed; margin: 10px 0; }
         .qr-img { width: 180px; height: 180px; object-fit: contain; }
-        .pay-methods { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
-        .pay-method-btn { padding: 6px 12px; border-radius: 20px; font-size: 11px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; font-weight: bold; }
-        .pay-method-btn.active { background: #8c1252; color: white; border-color: #8c1252; }
 
-        /* Auth Tabs */
-        .auth-tabs { display: flex; border-bottom: 2px solid #edf2f7; margin-bottom: 15px; }
-        .auth-tab { flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: bold; cursor: pointer; color: #718096; }
-        .auth-tab.active { color: #1E6091; border-bottom: 2px solid #1E6091; }
-
-        /* Table */
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        th, td { padding: 8px; border: 1px solid #cbd5e0; text-align: left; }
-        th { background: #f7f9fc; }
-
-        /* Bottom Navigation Bar */
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; z-index: 1000; }
         .nav-item { text-align: center; color: #718096; font-size: 11px; cursor: pointer; text-decoration: none; }
         .nav-item.active { color: #1E6091; font-weight: bold; }
         .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+        /* Admin Table */
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        th, td { padding: 8px; border: 1px solid #cbd5e0; text-align: left; }
+        th { background: #f7f9fc; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Unified Header -->
     <div class="header">
-        <div class="logo" onclick="showPage('home')">পড়াও</div>
+        <div class="logo" onclick="navigateTo('home')">পড়াও</div>
         <div class="header-btns">
-            <div class="coin-badge" onclick="showPage('buyCoins')">
-                🪙 <span id="userCoinCount">0</span> MHR GOLD COIN
+            <div class="coin-badge" onclick="navigateTo('buyCoins')">
+                🪙 <span id="userCoinCount">0</span> MHR COIN
             </div>
-            <button class="auth-btn" id="loginHeaderBtn" onclick="showPage('login')">Login / Sign Up</button>
+            <button class="auth-btn" id="loginHeaderBtn" onclick="navigateTo('login')">Login / Sign Up</button>
         </div>
     </div>
 
-    <!-- 1. MAIN HOME PAGE VIEW -->
+    <!-- 1. HOME PAGE -->
     <div id="homePage" class="page-view active">
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Khunjun... (e.g. Physics, Class 10)">
-        </div>
-
-        <div class="banner-container">
-            <div class="banner">
-                <div>
-                    <h3>Digital Learning<br>Platform</h3>
-                    <button onclick="showPage('subjects')">Start Learning</button>
-                </div>
-                <div style="font-size: 50px;">🎓</div>
-            </div>
-        </div>
-
-        <div class="section-title">Subjects & Local Search</div>
-        <div class="grid">
-            <div class="card">
-                <div>
-                    <div class="card-icon">🧮</div>
-                    <h4>Mathematics</h4>
-                    <p>Chapter 1-12</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
-            <div class="card">
-                <div>
-                    <div class="card-icon">🔬</div>
-                    <h4>Science</h4>
-                    <p>Physics & Chem</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
-            <div class="card">
-                <div>
-                    <div class="card-icon">📚</div>
-                    <h4>English</h4>
-                    <p>Grammar & Writing</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
-            <div class="card highlight">
-                <div>
-                    <div class="card-icon">📍</div>
-                    <h4 style="color: #1E6091;">Local Tutor / Student</h4>
-                    <p>আপনার এলাকায় শিক্ষক বা শিক্ষার্থী খুঁজুন</p>
-                </div>
-                <button onclick="showPage('localSearch')" style="background-color: #184E77;">খুঁজুন 🔍</button>
-            </div>
+        <div class="section-title">স্বাগতম পড়ুন ও পড়ান ডিজিটাল প্ল্যাটফর্মে</div>
+        <div class="form-box" style="text-align:center;">
+            <p style="font-size:14px; color:#555; margin-bottom:15px;">আপনার এলাকায় অভিজ্ঞ টিউটর অথবা শিক্ষার্থী খুঁজুন সহজেই।</p>
+            <button onclick="navigateTo('localSearch')" class="res-btn primary">📍 টিউটর / শিক্ষার্থী খুঁজুন</button>
         </div>
     </div>
 
-    <!-- 2. LOCAL SEARCH VIEW -->
-    <div id="localSearchPage" class="page-view">
-        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ও শিক্ষার্থী</div>
-        
-        <div class="form-box">
-            <div class="form-group">
-                <label>আপনি কী খুঁজছেন?</label>
-                <select id="searchRole">
-                    <option value="Teacher">শিক্ষক (Teacher)</option>
-                    <option value="Student">শিক্ষার্থী (Student)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>আপনার জেলা / এলাকা</label>
-                <input type="text" id="searchLocation" placeholder="যেমন: ধানমন্ডি, ঢাকা">
-            </div>
-            <button onclick="searchLocalData()" class="res-btn primary">অনুসন্ধান করুন</button>
-            <button onclick="showPage('addPost')" class="res-btn" style="margin-top:8px;">+ আপনার তথ্য যোগ করুন (Post Request)</button>
-        </div>
-
-        <div class="section-title" style="font-size:15px;">তালিকা:</div>
-        <div id="localDataList"></div>
-    </div>
-
-    <!-- 3. BUY COINS VIEW -->
-    <div id="buyCoinsPage" class="page-view">
-        <div class="section-title">🪙 MHR GOLD COIN রিচার্জ কেন্দ্র</div>
-        
-        <div id="packSelection">
-            <div class="form-box" style="text-align:center;">
-                <p style="font-size:13px; color:#555; margin-bottom:15px;">টিউটর বা শিক্ষার্থীর নম্বর আনলক করতে প্রতি নম্বরে ১টি করে <b>MHR GOLD COIN</b> প্রয়োজন।</p>
-                
-                <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
-                    <h4>🥉 Standard Pack</h4>
-                    <h3 style="color:#b8860b; margin:5px 0;">৫ টি MHR GOLD COIN</h3>
-                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
-                    <button onclick="openPaymentForm(5, 50)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment দিয়ে কিনুন</button>
-                </div>
-
-                <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; margin-bottom:12px; background:#fff8e7;">
-                    <h4>🥇 Value Pack</h4>
-                    <h3 style="color:#b8860b; margin:5px 0;">১২ টি MHR GOLD COIN</h3>
-                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
-                    <button onclick="openPaymentForm(12, 100)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment দিয়ে কিনুন</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAYMENT & QR CODE BOX -->
-        <div id="paymentFormBox" class="form-box" style="display:none;">
-            <h4 style="color:#1E6091; margin-bottom:10px; text-align:center;">💳 মেক পেমেন্ট / QR Scan করুন</h4>
-            
-            <div class="pay-methods">
-                <span class="pay-method-btn active">🚀 Rocket Make Payment</span>
-            </div>
-
-            <div class="payment-card">
-                <p style="font-size:12px; color:#555;">Rocket App থেকে এই QR কোডটি স্ক্যান করুন:</p>
-
-                <div class="qr-container">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875" alt="Rocket Payment QR" class="qr-img" id="rocketQrImg">
-                </div>
-
-                <p style="font-size:13px; margin-top:5px;"><b>রকেট পেমেন্ট নম্বর:</b></p>
-                <p style="font-size:17px; color:#8c1252; font-weight:bold; letter-spacing:1px;">015680142875</p>
-                <p style="font-size:12px; color:#666; margin-top:5px;">পেমেন্ট পরিমাণ: <b>৳ <span id="payAmount">0</span></b> (<span id="payCoins">0</span> টি Coins)</p>
-            </div>
-
-            <div class="form-group">
-                <label>আপনার নাম বা আইডি</label>
-                <input type="text" id="payerName" placeholder="যেমন: রহিম আহমেদ">
-            </div>
-            <div class="form-group">
-                <label>যে নম্বর থেকে পেমেন্ট করেছেন</label>
-                <input type="text" id="senderNumber" placeholder="017XXXXXXXX">
-            </div>
-            <div class="form-group">
-                <label>TrxID (ট্রানজেকশন আইডি)</label>
-                <input type="text" id="trxId" placeholder="e.g. 9J7A6K5L">
-            </div>
-            <button onclick="submitPaymentRequest()" class="res-btn primary">পেমেন্ট রিকোয়েস্ট জমা দিন</button>
-            <button onclick="closePaymentForm()" class="res-btn" style="margin-top:8px;">বাতিল করুন</button>
-        </div>
-    </div>
-
-    <!-- 4. ADD POST VIEW -->
-    <div id="addPostPage" class="page-view">
-        <div class="section-title">📝 আপনার তথ্য জমা দিন</div>
-        <div class="form-box">
-            <div class="form-group">
-                <label>আপনার নাম</label>
-                <input type="text" id="postName" placeholder="পূর্ণ নাম">
-            </div>
-            <div class="form-group">
-                <label>টাইপ</label>
-                <select id="postRole">
-                    <option value="Teacher">শিক্ষক (Teacher)</option>
-                    <option value="Student">শিক্ষার্থী (Student)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>এলাকা</label>
-                <input type="text" id="postArea" placeholder="যেমন: মিরপুর, ঢাকা">
-            </div>
-            <div class="form-group">
-                <label>বিষয় / ক্লাস</label>
-                <input type="text" id="postDetails" placeholder="যেমন: Math (Class 9-10)">
-            </div>
-            <div class="form-group">
-                <label>মোবাইল নম্বর</label>
-                <input type="text" id="postPhone" placeholder="017xxxxxxxx">
-            </div>
-            <button onclick="saveUserPost()" class="res-btn primary">তথ্য সেভ করুন (Save)</button>
-        </div>
-    </div>
-
-    <!-- 5. LOGIN & SIGN UP VIEW WITH TABS -->
+    <!-- 2. LOGIN & SIGN UP PAGE (WITH PARENT, TEACHER, STUDENT ROLES) -->
     <div id="loginPage" class="page-view">
         <div class="section-title">🔐 অ্যাকাউন্ট অ্যাক্সেস</div>
-        
         <div class="form-box">
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">Login</div>
@@ -286,16 +108,23 @@
                 <div class="form-group">
                     <label>পাসওয়ার্ড</label>
                     <input type="password" id="loginPass" placeholder="******">
-                    <span class="forgot-link" onclick="toggleForgot(true)">Forgot Password?</span>
                 </div>
-                <button onclick="handleLogin()" class="res-btn primary">Login</button>
+                <button onclick="handleLogin()" class="res-btn primary">লগইন করুন</button>
             </div>
 
-            <!-- SIGN UP FORM -->
+            <!-- SIGN UP FORM (INCLUDES PARENT/TEACHER/STUDENT ROLES) -->
             <div id="signUpForm" style="display:none;">
                 <div class="form-group">
+                    <label>আপনার পরিচয় (Role)</label>
+                    <select id="regRole">
+                        <option value="Student">Student (শিক্ষার্থী)</option>
+                        <option value="Teacher">Teacher (শিক্ষক)</option>
+                        <option value="Parent">Parent (অভিভাবক)</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>পূর্ণ নাম</label>
-                    <input type="text" id="regName" placeholder="রহিম আহমেদ">
+                    <input type="text" id="regName" placeholder="যেমন: রহিম আহমেদ">
                 </div>
                 <div class="form-group">
                     <label>মোবাইল নম্বর</label>
@@ -305,340 +134,172 @@
                     <label>পাসওয়ার্ড</label>
                     <input type="password" id="regPass" placeholder="******">
                 </div>
-                <button onclick="handleSignUp()" class="res-btn primary">নতুন অ্যাকাউন্ট তৈরি করুন (Sign Up)</button>
+                <button onclick="handleSignUp()" class="res-btn primary">রেজিস্ট্রেশন নিশ্চিত করুন</button>
             </div>
 
-            <!-- FORGOT FORM -->
-            <div id="forgotBox" style="display:none;">
-                <h4 style="color:#1E6091; margin-bottom:10px;">🔑 ID / Password Recovery</h4>
-                <div class="form-group">
-                    <label>আপনার মোবাইল নম্বর বা ইমেইল দিন</label>
-                    <input type="text" id="recoveryInput" placeholder="017xxxxxxxx / email@domain.com">
+            <!-- ADMIN ACCESS BUTTON -->
+            <div style="margin-top:25px; text-align:center; border-top:1px dashed #cbd5e0; padding-top:15px;">
+                <button onclick="openAdminPanel()" class="res-btn admin-btn">🛡️ Admin Panel Access</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. LOCAL SEARCH PAGE -->
+    <div id="localSearchPage" class="page-view">
+        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ও শিক্ষার্থী</div>
+        <div class="form-box">
+            <div class="form-group">
+                <label>ফিল্টার করুন</label>
+                <select id="searchRole">
+                    <option value="Teacher">Teacher (শিক্ষক)</option>
+                    <option value="Student">Student (শিক্ষার্থী)</option>
+                    <option value="Parent">Parent (অভিভাবক)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>জেলা / এলাকা</label>
+                <input type="text" id="searchLocation" placeholder="যেমন: ধানমন্ডি, ঢাকা">
+            </div>
+            <button onclick="searchLocalData()" class="res-btn primary">অনুসন্ধান করুন</button>
+            <button onclick="navigateTo('addPost')" class="res-btn" style="margin-top:8px;">+ তথ্য যোগ করুন</button>
+        </div>
+        <div id="localDataList"></div>
+    </div>
+
+    <!-- 4. BUY COINS & ROCKET PAYMENT PAGE -->
+    <div id="buyCoinsPage" class="page-view">
+        <div class="section-title">🪙 MHR GOLD COIN Recharge</div>
+        <div id="packSelection">
+            <div class="form-box" style="text-align:center;">
+                <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
+                    <h4>🥉 Standard Pack</h4>
+                    <h3 style="color:#b8860b; margin:5px 0;">5 MHR COIN</h3>
+                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
+                    <button onclick="openPaymentForm(5, 50)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment</button>
                 </div>
-                <button onclick="sendRecoveryCode()" class="res-btn primary">Send Verification Code (OTP)</button>
-                <span class="forgot-link" onclick="toggleForgot(false)" style="text-align:center; margin-top:10px;">Back to Login</span>
+                <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; background:#fff8e7;">
+                    <h4>🥇 Value Pack</h4>
+                    <h3 style="color:#b8860b; margin:5px 0;">12 MHR COIN</h3>
+                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
+                    <button onclick="openPaymentForm(12, 100)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment</button>
+                </div>
             </div>
+        </div>
 
-            <div style="margin-top:20px; text-align:center; border-top:1px dashed #ccc; padding-top:10px;">
-                <span class="forgot-link" onclick="openAdminPanel()" style="color:#e53e3e;">🔑 Admin Panel Access</span>
+        <div id="paymentFormBox" class="form-box" style="display:none;">
+            <h4 style="color:#1E6091; margin-bottom:10px; text-align:center;">🚀 Rocket QR Payment</h4>
+            <div class="payment-card">
+                <div class="qr-container">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875" alt="Rocket Payment QR" class="qr-img">
+                </div>
+                <p style="font-size:13px; margin-top:5px;"><b>রকেট পেমেন্ট নম্বর:</b></p>
+                <p style="font-size:17px; color:#8c1252; font-weight:bold;">015680142875</p>
+                <p style="font-size:12px; color:#666; margin-top:5px;">পরিমাণ: <b>৳ <span id="payAmount">0</span></b> (<span id="payCoins">0</span> Coins)</p>
             </div>
+            <div class="form-group">
+                <label>আপনার নাম</label>
+                <input type="text" id="payerName" placeholder="রহিম আহমেদ">
+            </div>
+            <div class="form-group">
+                <label>যে নম্বর থেকে পেমেন্ট করেছেন</label>
+                <input type="text" id="senderNumber" placeholder="017XXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>TrxID (ট্রানজেকশন আইডি)</label>
+                <input type="text" id="trxId" placeholder="e.g. 9J7A6K5L">
+            </div>
+            <button onclick="submitPaymentRequest()" class="res-btn primary">পেমেন্ট রিকোয়েস্ট পাঠান</button>
+            <button onclick="closePaymentForm()" class="res-btn" style="margin-top:8px;">বাতিল করুন</button>
         </div>
     </div>
 
-    <!-- 6. ADMIN DASHBOARD VIEW -->
+    <!-- 5. ADD POST PAGE -->
+    <div id="addPostPage" class="page-view">
+        <div class="section-title">📝 তথ্য পোস্ট করুন</div>
+        <div class="form-box">
+            <div class="form-group">
+                <label>নাম</label>
+                <input type="text" id="postName" placeholder="পূর্ণ নাম">
+            </div>
+            <div class="form-group">
+                <label>আপনার রোল (Role)</label>
+                <select id="postRole">
+                    <option value="Teacher">Teacher (শিক্ষক)</option>
+                    <option value="Student">Student (শিক্ষার্থী)</option>
+                    <option value="Parent">Parent (অভিভাবক)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>এলাকা</label>
+                <input type="text" id="postArea" placeholder="যেমন: ধানমন্ডি, ঢাকা">
+            </div>
+            <div class="form-group">
+                <label>বিস্তারিত বিবরণ</label>
+                <input type="text" id="postDetails" placeholder="যেমন: গণিত শিক্ষক প্রয়োজন (Class 9)">
+            </div>
+            <div class="form-group">
+                <label>মোবাইল নম্বর</label>
+                <input type="text" id="postPhone" placeholder="017xxxxxxxx">
+            </div>
+            <button onclick="saveUserPost()" class="res-btn primary">পোস্ট সেভ করুন</button>
+        </div>
+    </div>
+
+    <!-- 6. ADMIN PANEL DASHBOARD -->
     <div id="adminPage" class="page-view">
-        <div class="section-title">🛡️ Admin Dashboard (পেন্ডিং পেমেন্ট লিস্ট)</div>
+        <div class="section-title">🛡️ Admin Dashboard (পেন্ডিং পেমেন্ট যাচাই)</div>
         <div class="form-box">
-            <p style="font-size:12px; color:#666; margin-bottom:10px;">ইউজারদের ট্রানজেকশন আইডেন্টিফাই করে নিশ্চিত হওয়ার পর 'Approve' বাটনে ক্লিক করলে তবেই ইউজার কয়েন পাবে।</p>
             <div id="adminPendingList"></div>
-            <button onclick="showPage('home')" class="res-btn" style="margin-top:15px;">হোম পেজে ফিরুন</button>
-        </div>
-    </div>
-
-    <!-- 7. CLASSES & LESSONS VIEW -->
-    <div id="subjectsPage" class="page-view">
-        <div class="section-title">Classes & Lessons</div>
-        <div class="form-box">
-            <h4>অধ্যায় ১: সেট ও ফাংশন</h4>
-            <p style="font-size:12px; color:#666; margin: 5px 0 10px 0;">৩টি ভিডিও লেকচার • ২টি PDF নোট</p>
-            <button class="res-btn primary">🎥 Start Video</button>
+            <button onclick="navigateTo('home')" class="res-btn" style="margin-top:15px;">হোম পেজে ফিরুন</button>
         </div>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <div class="bottom-nav">
-        <div id="navHome" class="nav-item active" onclick="showPage('home')">
+        <div id="navHome" class="nav-item active" onclick="navigateTo('home')">
             <span class="nav-icon">🏠</span>Home
         </div>
-        <div id="navClasses" class="nav-item" onclick="showPage('subjects')">
-            <span class="nav-icon">📖</span>Classes
-        </div>
-        <div id="navSearch" class="nav-item" onclick="showPage('localSearch')">
+        <div id="navSearch" class="nav-item" onclick="navigateTo('localSearch')">
             <span class="nav-icon">📍</span>Find Tutor
         </div>
-        <div id="navProfile" class="nav-item" onclick="showPage('login')">
+        <div id="navProfile" class="nav-item" onclick="navigateTo('login')">
             <span class="nav-icon">👤</span>Profile / ID
         </div>
     </div>
 
 <script>
+    // 1. FIREBASE CONFIGURATION (Firebase Console থেকে আপনার আসল API Key দিন)
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    // Firebase Initialize
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
     let userCoins = 0; 
     let selectedCoinsToBuy = 0;
     const unlockedNumbers = [];
-
-    const defaultData = [
-        { id: 1, name: "আরিফুর রহমান", role: "Teacher", area: "ধানমন্ডি, ঢাকা", details: "গণিত ও পদার্থবিজ্ঞান (Class 8 - 10)", phone: "01700000000" },
-        { id: 2, name: "তানভীর আহমেদ", role: "Student", area: "জিইসি, চট্টগ্রাম", details: "ইংরেজি বিষয় টিউটর প্রয়োজন (Class 9)", phone: "01800000000" }
-    ];
 
     function updateCoinDisplay() {
         document.getElementById('userCoinCount').innerText = userCoins;
     }
 
-    function renderDataList(filterArea = '') {
-        const listContainer = document.getElementById('localDataList');
-        if(!listContainer) return;
-        listContainer.innerHTML = '';
-
-        const posts = getStoredPosts();
-        const filtered = posts.filter(p => p.area.toLowerCase().includes(filterArea.toLowerCase()));
-
-        if(filtered.length === 0) {
-            listContainer.innerHTML = `<p style="padding:20px; text-align:center; color:#777;">কোনো তথ্য পাওয়া যায়নি।</p>`;
-            return;
-        }
-
-        filtered.forEach((item, index) => {
-            const itemId = item.id || (index + 1);
-            const isUnlocked = unlockedNumbers.includes(itemId);
-            const maskedPhone = item.phone ? item.phone.substring(0, 3) + "******" + item.phone.substring(item.phone.length - 2) : "017******00";
-
-            const buttonHtml = isUnlocked 
-                ? `<button class="res-btn primary" onclick="alert('যোগাযোগ নম্বর: ${item.phone}')">📞 Call (${item.phone})</button>`
-                : `<button class="res-btn coin-btn" onclick="unlockWithCoin(${itemId})">🔓 Unlock (1 Coin)</button>`;
-
-            listContainer.innerHTML += `
-                <div class="person-card">
-                    <div class="person-info">
-                        <h4>${item.name} <span class="badge">${item.role}</span></h4>
-                        <p>📍 ${item.area}</p>
-                        <p>📚 ${item.details}</p>
-                        <p style="font-weight:bold; margin-top:4px; color:#777;">📱 ${isUnlocked ? item.phone : maskedPhone}</p>
-                    </div>
-                    <div style="width:130px;">${buttonHtml}</div>
-                </div>
-            `;
-        });
-    }
-
-    function getStoredPosts() {
-        const stored = localStorage.getItem('porao_posts');
-        return stored ? JSON.parse(stored) : defaultData;
-    }
-
-    function saveUserPost() {
-        const name = document.getElementById('postName').value;
-        const role = document.getElementById('postRole').value;
-        const area = document.getElementById('postArea').value;
-        const details = document.getElementById('postDetails').value;
-        const phone = document.getElementById('postPhone').value;
-
-        if(!name || !area || !phone) {
-            alert('দয়া করে আপনার নাম, এলাকা এবং ফোন নম্বর দিন!');
-            return;
-        }
-
-        const newPost = { id: Date.now(), name, role, area, details, phone };
-        const currentPosts = getStoredPosts();
-        currentPosts.push(newPost);
-        localStorage.setItem('porao_posts', JSON.stringify(currentPosts));
-
-        alert('আপনার তথ্য সফলভাবে সেভ হয়েছে!');
-        showPage('localSearch');
-    }
-
-    function unlockWithCoin(id) {
-        if (userCoins >= 1) {
-            userCoins -= 1;
-            unlockedNumbers.push(id);
-            updateCoinDisplay();
-            alert('১ টি MHR GOLD COIN ব্যবহার করে নম্বরটি আনলক করা হয়েছে!');
-            renderDataList();
-        } else {
-            alert('আপনার কাছে পর্যাপ্ত MHR GOLD COIN নেই! দয়া করে কয়েন রিচার্জ করুন।');
-            showPage('buyCoins');
-        }
-    }
-
-    /* ROCKET PAYMENT REAL SYSTEM (ADMIN APPROVAL MANDATORY) */
-    function openPaymentForm(coins, amount) {
-        selectedCoinsToBuy = coins;
-        document.getElementById('payCoins').innerText = coins;
-        document.getElementById('payAmount').innerText = amount;
-        
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875%3AAMOUNT%3D${amount}`;
-        document.getElementById('rocketQrImg').src = qrUrl;
-
-        document.getElementById('packSelection').style.display = 'none';
-        document.getElementById('paymentFormBox').style.display = 'block';
-    }
-
-    function closePaymentForm() {
-        document.getElementById('packSelection').style.display = 'block';
-        document.getElementById('paymentFormBox').style.display = 'none';
-    }
-
-    function submitPaymentRequest() {
-        const name = document.getElementById('payerName').value;
-        const sender = document.getElementById('senderNumber').value;
-        const trx = document.getElementById('trxId').value;
-
-        if(!name || !sender || !trx) {
-            alert('দয়া করে আপনার নাম, সেন্ডার নম্বর এবং TrxID প্রদান করুন!');
-            return;
-        }
-
-        const newReq = {
-            id: Date.now(),
-            name: name,
-            phone: sender,
-            trxId: trx,
-            coins: selectedCoinsToBuy,
-            amount: document.getElementById('payAmount').innerText,
-            status: 'Pending'
-        };
-
-        const pendingList = JSON.parse(localStorage.getItem('porao_pending_payments') || '[]');
-        pendingList.push(newReq);
-        localStorage.setItem('porao_pending_payments', JSON.stringify(pendingList));
-
-        alert('পেমেন্ট রিকোয়েস্টটি অ্যাডমিনের কাছে পাঠানো হয়েছে! অ্যাডমিন পেমেন্ট যাচাই (Verify) করে কয়েন কনফার্ম করলে তা আপনার ব্যালেন্সে যোগ হবে।');
-        
-        closePaymentForm();
-        showPage('home');
-    }
-
-    /* ADMIN DASHBOARD LOGIC */
-    function openAdminPanel() {
-        const pin = prompt('অ্যাডমিন সিক্রেট পিন দিন: (ডিফল্ট: 1234)');
-        if(pin === '1234') {
-            showPage('admin');
-            renderAdminPendingList();
-        } else {
-            alert('ভুল সিক্রেট পিন!');
-        }
-    }
-
-    function renderAdminPendingList() {
-        const container = document.getElementById('adminPendingList');
-        const list = JSON.parse(localStorage.getItem('porao_pending_payments') || '[]');
-
-        if(list.length === 0) {
-            container.innerHTML = '<p style="text-align:center; padding:15px; color:#777;">কোনো পেন্ডিং পেমেন্ট রিকোয়েস্ট নেই।</p>';
-            return;
-        }
-
-        let html = `<table>
-            <tr>
-                <th>ইউজার</th>
-                <th>পেমেন্ট নম্বর</th>
-                <th>TrxID</th>
-                <th>কয়েন</th>
-                <th>অ্যাকশন</th>
-            </tr>`;
-
-        list.forEach((item, index) => {
-            html += `<tr>
-                <td>${item.name}</td>
-                <td>${item.phone}</td>
-                <td><b>${item.trxId}</b></td>
-                <td>${item.coins} Coins (৳${item.amount})</td>
-                <td>
-                    <button class="res-btn success" style="padding:4px 8px; margin-bottom:4px;" onclick="approvePayment(${item.id})">Approve</button>
-                    <button class="res-btn danger" style="padding:4px 8px;" onclick="rejectPayment(${item.id})">Reject</button>
-                </td>
-            </tr>`;
-        });
-
-        html += `</table>`;
-        container.innerHTML = html;
-    }
-
-    function approvePayment(id) {
-        let list = JSON.parse(localStorage.getItem('porao_pending_payments') || '[]');
-        const target = list.find(x => x.id === id);
-        
-        if(target) {
-            userCoins += parseInt(target.coins);
-            updateCoinDisplay();
-            list = list.filter(x => x.id !== id);
-            localStorage.setItem('porao_pending_payments', JSON.stringify(list));
-            alert(`পেমেন্ট সফলভাবে এপ্রুভ হয়েছে! ${target.coins} টি কয়েন অ্যাকাউন্টে যোগ করা হয়েছে।`);
-            renderAdminPendingList();
-        }
-    }
-
-    function rejectPayment(id) {
-        let list = JSON.parse(localStorage.getItem('porao_pending_payments') || '[]');
-        list = list.filter(x => x.id !== id);
-        localStorage.setItem('porao_pending_payments', JSON.stringify(list));
-        alert('পেমেন্ট রিকোয়েস্ট রিজেক্ট করা হয়েছে!');
-        renderAdminPendingList();
-    }
-
-    /* AUTH LOGIC (LOGIN / SIGN UP) */
-    function switchAuthTab(tab) {
-        document.getElementById('tabLoginBtn').classList.remove('active');
-        document.getElementById('tabSignUpBtn').classList.remove('active');
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('signUpForm').style.display = 'none';
-        document.getElementById('forgotBox').style.display = 'none';
-
-        if(tab === 'login') {
-            document.getElementById('tabLoginBtn').classList.add('active');
-            document.getElementById('loginForm').style.display = 'block';
-        } else if(tab === 'signup') {
-            document.getElementById('tabSignUpBtn').classList.add('active');
-            document.getElementById('signUpForm').style.display = 'block';
-        }
-    }
-
-    function handleLogin() {
-        const user = document.getElementById('loginUser').value;
-        const pass = document.getElementById('loginPass').value;
-        if(!user || !pass) {
-            alert('দয়া করে নম্বর এবং পাসওয়ার্ড দিন!');
-            return;
-        }
-        document.getElementById('loginHeaderBtn').innerText = user;
-        alert('লগইন সফল হয়েছে!');
-        showPage('home');
-    }
-
-    function handleSignUp() {
-        const name = document.getElementById('regName').value;
-        const phone = document.getElementById('regPhone').value;
-        const pass = document.getElementById('regPass').value;
-
-        if(!name || !phone || !pass) {
-            alert('সবগুলো ঘর পূরণ করুন!');
-            return;
-        }
-
-        alert('অ্যাকাউন্ট সফলভাবে রেজিস্টার হয়েছে! এখন লগইন করুন।');
-        switchAuthTab('login');
-    }
-
-    function toggleForgot(isForgot) {
-        document.getElementById('loginForm').style.display = isForgot ? 'none' : 'block';
-        document.getElementById('signUpForm').style.display = 'none';
-        document.getElementById('forgotBox').style.display = isForgot ? 'block' : 'none';
-    }
-
-    function sendRecoveryCode() {
-        const input = document.getElementById('recoveryInput').value;
-        if(!input) {
-            alert('আপনার নম্বর বা ইমেইল লিখুন!');
-            return;
-        }
-        alert(`একটি ভেরিফিকেশন কোড (OTP) ${input} এ পাঠানো হয়েছে।`);
-    }
-
-    function searchLocalData() {
-        const area = document.getElementById('searchLocation').value;
-        renderDataList(area);
-    }
-
-    function showPage(pageName) {
+    // Navigation Router
+    function navigateTo(pageName) {
         document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
 
         if(pageName === 'home') {
             document.getElementById('homePage').classList.add('active');
             document.getElementById('navHome').classList.add('active');
-        } else if(pageName === 'subjects') {
-            document.getElementById('subjectsPage').classList.add('active');
-            document.getElementById('navClasses').classList.add('active');
         } else if(pageName === 'localSearch') {
             document.getElementById('localSearchPage').classList.add('active');
             document.getElementById('navSearch').classList.add('active');
@@ -651,15 +312,237 @@
         } else if(pageName === 'login') {
             document.getElementById('loginPage').classList.add('active');
             document.getElementById('navProfile').classList.add('active');
-            switchAuthTab('login');
         } else if(pageName === 'admin') {
             document.getElementById('adminPage').classList.add('active');
         }
         window.scrollTo(0, 0);
     }
 
+    // Firebase Post Data Fetch & Save
+    function saveUserPost() {
+        const name = document.getElementById('postName').value;
+        const role = document.getElementById('postRole').value;
+        const area = document.getElementById('postArea').value;
+        const details = document.getElementById('postDetails').value;
+        const phone = document.getElementById('postPhone').value;
+
+        if(!name || !area || !phone) {
+            alert('দয়া করে নাম, এলাকা এবং ফোন নম্বর প্রদান করুন!');
+            return;
+        }
+
+        db.collection("posts").add({
+            name: name,
+            role: role,
+            area: area,
+            details: details,
+            phone: phone,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert('আপনার তথ্য সফলভাবে Firebase এ সেভ হয়েছে!');
+            navigateTo('localSearch');
+        }).catch((err) => {
+            alert('Error: ' + err.message);
+        });
+    }
+
+    function renderDataList() {
+        const listContainer = document.getElementById('localDataList');
+        if(!listContainer) return;
+        listContainer.innerHTML = '<p style="text-align:center; padding:10px;">ডাটা লোড হচ্ছে...</p>';
+
+        db.collection("posts").orderBy("createdAt", "desc").get().then((snapshot) => {
+            listContainer.innerHTML = '';
+            if(snapshot.empty) {
+                listContainer.innerHTML = '<p style="text-align:center; padding:15px;">কোনো তথ্য পাওয়া যায়নি।</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                const itemId = doc.id;
+                const isUnlocked = unlockedNumbers.includes(itemId);
+                const maskedPhone = item.phone ? item.phone.substring(0, 3) + "******" + item.phone.substring(item.phone.length - 2) : "017******00";
+
+                const buttonHtml = isUnlocked 
+                    ? `<button class="res-btn primary" onclick="alert('Phone: ${item.phone}')">📞 Call (${item.phone})</button>`
+                    : `<button class="res-btn coin-btn" onclick="unlockWithCoin('${itemId}')">🔓 Unlock (1 Coin)</button>`;
+
+                listContainer.innerHTML += `
+                    <div class="person-card">
+                        <div class="person-info">
+                            <h4>${item.name} <span class="badge">${item.role}</span></h4>
+                            <p>📍 ${item.area}</p>
+                            <p>📚 ${item.details}</p>
+                            <p style="font-weight:bold; margin-top:4px; color:#777;">📱 ${isUnlocked ? item.phone : maskedPhone}</p>
+                        </div>
+                        <div style="width:130px;">${buttonHtml}</div>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // Payment Submission to Firebase
+    function submitPaymentRequest() {
+        const name = document.getElementById('payerName').value;
+        const sender = document.getElementById('senderNumber').value;
+        const trx = document.getElementById('trxId').value;
+
+        if(!name || !sender || !trx) {
+            alert('সবগুলো ঘর সঠিকভাবে পূরণ করুন!');
+            return;
+        }
+
+        db.collection("payments").add({
+            name: name,
+            phone: sender,
+            trxId: trx,
+            coins: selectedCoinsToBuy,
+            amount: document.getElementById('payAmount').innerText,
+            status: "Pending",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert('পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন যাচাই করে এপ্রুভ করার সাথে সাথে কয়েন পাবেন।');
+            closePaymentForm();
+            navigateTo('home');
+        }).catch((err) => {
+            alert('Firebase Error: ' + err.message);
+        });
+    }
+
+    // Admin Dashboard Approval
+    function openAdminPanel() {
+        const pin = prompt('অ্যাডমিন পিন কোড লিখুন (Default Pin: 1234):');
+        if(pin === '1234') {
+            navigateTo('admin');
+            renderAdminPendingList();
+        } else {
+            alert('ভুল সিক্রেট পিন!');
+        }
+    }
+
+    function renderAdminPendingList() {
+        const container = document.getElementById('adminPendingList');
+        container.innerHTML = 'লোড হচ্ছে...';
+
+        db.collection("payments").where("status", "==", "Pending").get().then((snapshot) => {
+            if(snapshot.empty) {
+                container.innerHTML = '<p style="text-align:center; padding:15px;">কোনো পেন্ডিং পেমেন্ট রিকোয়েস্ট নেই।</p>';
+                return;
+            }
+
+            let html = `<table><tr><th>নাম</th><th>পেমেন্ট নম্বর</th><th>TrxID</th><th>কয়েন</th><th>অ্যাকশন</th></tr>`;
+            snapshot.forEach((doc) => {
+                const item = doc.data();
+                html += `<tr>
+                    <td>${item.name}</td>
+                    <td>${item.phone}</td>
+                    <td><b>${item.trxId}</b></td>
+                    <td>${item.coins} Coins (৳${item.amount})</td>
+                    <td>
+                        <button class="res-btn success" style="padding:4px; margin-bottom:2px;" onclick="approvePayment('${doc.id}', ${item.coins})">Approve</button>
+                        <button class="res-btn danger" style="padding:4px;" onclick="rejectPayment('${doc.id}')">Reject</button>
+                    </td>
+                </tr>`;
+            });
+            html += `</table>`;
+            container.innerHTML = html;
+        });
+    }
+
+    function approvePayment(docId, coins) {
+        db.collection("payments").doc(docId).update({
+            status: "Approved"
+        }).then(() => {
+            userCoins += parseInt(coins);
+            updateCoinDisplay();
+            alert(`পেমেন্ট সফলভাবে এপ্রুভ করা হয়েছে! ${coins} টি কয়েন যোগ হলো।`);
+            renderAdminPendingList();
+        });
+    }
+
+    function rejectPayment(docId) {
+        db.collection("payments").doc(docId).update({
+            status: "Rejected"
+        }).then(() => {
+            alert('রিকোয়েস্ট বাতিল করা হয়েছে!');
+            renderAdminPendingList();
+        });
+    }
+
+    // Helper Functions
+    function switchAuthTab(tab) {
+        document.getElementById('tabLoginBtn').classList.remove('active');
+        document.getElementById('tabSignUpBtn').classList.remove('active');
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('signUpForm').style.display = 'none';
+
+        if(tab === 'login') {
+            document.getElementById('tabLoginBtn').classList.add('active');
+            document.getElementById('loginForm').style.display = 'block';
+        } else {
+            document.getElementById('tabSignUpBtn').classList.add('active');
+            document.getElementById('signUpForm').style.display = 'block';
+        }
+    }
+
+    function openPaymentForm(coins, amount) {
+        selectedCoinsToBuy = coins;
+        document.getElementById('payCoins').innerText = coins;
+        document.getElementById('payAmount').innerText = amount;
+        document.getElementById('packSelection').style.display = 'none';
+        document.getElementById('paymentFormBox').style.display = 'block';
+    }
+
+    function closePaymentForm() {
+        document.getElementById('packSelection').style.display = 'block';
+        document.getElementById('paymentFormBox').style.display = 'none';
+    }
+
+    function handleSignUp() {
+        const role = document.getElementById('regRole').value;
+        const name = document.getElementById('regName').value;
+        const phone = document.getElementById('regPhone').value;
+
+        if(!name || !phone) {
+            alert('সবগুলো ফিল্ড পূরণ করুন!');
+            return;
+        }
+
+        db.collection("users").add({
+            role: role,
+            name: name,
+            phone: phone,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert(`নিবন্ধন সফল হয়েছে! (${role} হিসেবে)`);
+            switchAuthTab('login');
+        });
+    }
+
+    function handleLogin() {
+        const user = document.getElementById('loginUser').value;
+        if(!user) return alert('নম্বর প্রদান করুন!');
+        document.getElementById('loginHeaderBtn').innerText = user;
+        alert('লগইন সফল!');
+        navigateTo('home');
+    }
+
+    function unlockWithCoin(id) {
+        if (userCoins >= 1) {
+            userCoins -= 1;
+            unlockedNumbers.push(id);
+            updateCoinDisplay();
+            alert('১টি MHR COIN কেটে নম্বরটি অনলক করা হলো!');
+            renderDataList();
+        } else {
+            alert('পর্যাপ্ত কয়েন নেই! দয়া করে কয়েন রিচার্জ করুন।');
+            navigateTo('buyCoins');
+        }
+    }
+
     updateCoinDisplay();
-    renderDataList();
 </script>
 
 </body>
