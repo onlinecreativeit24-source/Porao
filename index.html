@@ -1,549 +1,759 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>পড়াও - অল ইন ওয়ান এডুটেক</title>
-    
-    <!-- Firebase SDK (Version 10.8.0 Compat) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#173A32">
+<title>পড়াও – টিউটর ও শিক্ষার্থী খুঁজুন</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --board:#173A32; --board-deep:#0F2B25; --chalk:#F4F7F3; --paper:#fff;
+  --ink:#16221F; --muted:#55645E; --line:#D3DDD7;
+  --pencil:#F0B429; --pencil-ink:#2E2200;
+  --wanted:#E0A100; --offer:#2F8F6B; --book:#4F79A8; --danger:#B3261E;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:'Hind Siliguri',system-ui,sans-serif;background:var(--chalk);color:var(--ink);font-size:16px;line-height:1.6;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+h1,h2,h3{margin:0;line-height:1.3}
+h1,h2{font-family:'Noto Serif Bengali','Hind Siliguri',serif}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.board :focus-visible,.nav :focus-visible,.top :focus-visible{outline-color:var(--pencil)}
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f7f9fc; color: #333; padding-bottom: 75px; }
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--board-deep);color:var(--chalk);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
+.brand{font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;color:var(--chalk);text-decoration:none}
+.top-r{display:flex;gap:8px;align-items:center}
+.chip{background:transparent;border:1.5px solid var(--pencil);color:var(--pencil);border-radius:999px;padding:3px 12px;cursor:pointer}
+.chip b{font-weight:700}
 
-        /* Header */
-        .header { background: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 26px; font-weight: 800; color: #1E6091; cursor: pointer; user-select: none; }
-        .header-btns { display: flex; gap: 8px; align-items: center; }
-        .coin-badge { background: #fff8e7; border: 1.5px solid #d4af37; color: #b8860b; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-        .auth-btn { background: #1E6091; color: white; border: none; padding: 7px 14px; border-radius: 18px; font-size: 12px; cursor: pointer; font-weight: bold; }
+/* buttons */
+.btn{background:var(--pencil);color:var(--pencil-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer}
+.btn.sm{padding:6px 12px;font-size:.92rem}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.line{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
+.btn.danger{background:transparent;border:1.5px solid var(--danger);color:var(--danger)}
+.link{background:none;border:0;padding:4px 0;color:var(--board);text-decoration:underline;cursor:pointer}
 
-        /* Views */
-        .page-view { display: none; }
-        .page-view.active { display: block; }
+.warn{background:#FFF3CD;color:#5B4300;padding:10px 16px;font-size:.92rem;border-bottom:1px solid #E8D48A}
 
-        /* Forms & Cards */
-        .form-box { background: white; margin: 15px 20px; padding: 20px; border-radius: 14px; border: 1px solid #e1e8ed; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .form-group { margin-bottom: 14px; text-align: left; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #4a5568; }
-        .form-group input, .form-group select { width: 100%; padding: 11px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: #1E6091; }
+main{max-width:760px;margin:0 auto}
+.view{display:none}.view.on{display:block}
 
-        .res-btn { padding: 12px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 8px; font-size: 13px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; transition: 0.2s; }
-        .res-btn.primary { background: #1E6091; color: white; border: none; }
-        .res-btn.coin-btn { background: #d4af37; color: white; border: none; }
-        .res-btn.danger { background: #e53e3e; color: white; border: none; }
-        .res-btn.success { background: #38a169; color: white; border: none; }
-        .res-btn.admin-btn { background: #2d3748; color: white; border: none; }
+/* hero = the chalkboard */
+.board{background:var(--board);color:var(--chalk);padding:26px 16px 22px;border-bottom:8px solid #7A5C3A}
+.board h1{font-size:1.65rem;font-weight:800;max-width:20em}
+.board p{margin:8px 0 16px;color:#C9DBD2;max-width:34em}
+.filters{display:grid;gap:8px}
+@media(min-width:620px){.filters{grid-template-columns:1fr 1fr 1fr}}
+.filters select,.filters input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #3F6A5D;background:var(--board-deep);color:var(--chalk)}
+.filters input::placeholder{color:#8FB0A3}
 
-        /* Auth Tabs */
-        .auth-tabs { display: flex; border-bottom: 2px solid #edf2f7; margin-bottom: 18px; }
-        .auth-tab { flex: 1; text-align: center; padding: 12px; font-size: 14px; font-weight: bold; cursor: pointer; color: #718096; }
-        .auth-tab.active { color: #1E6091; border-bottom: 2px solid #1E6091; }
+.feed-head{display:flex;justify-content:space-between;align-items:center;padding:18px 16px 8px}
+.feed-head h2{font-size:1.15rem}
+#feed{padding:0 16px}
 
-        /* Section Titles & Cards */
-        .section-title { font-size: 18px; font-weight: 700; color: #1E6091; margin: 15px 20px 10px 20px; }
-        .person-card { background: white; border-radius: 12px; padding: 15px; margin: 12px 20px; border: 1px solid #edf2f7; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; }
-        .person-info h4 { color: #1E6091; font-size: 15px; }
-        .person-info p { font-size: 12px; color: #666; margin-top: 3px; }
-        .badge { background: #ebf8ff; color: #2b6cb0; font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: bold; }
+/* index-card posts */
+.post{--c:var(--wanted);background:var(--paper);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:6px;padding:14px 16px 12px;margin-bottom:12px}
+.post.t-offer{--c:var(--offer)}.post.t-book{--c:var(--book)}
+.post .meta{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
+.post .tag{font-weight:600;color:var(--ink)}
+.post h3{font-size:1.1rem;margin:4px 0 6px}
+.facts{display:flex;flex-wrap:wrap;gap:2px 16px;margin:0 0 6px;font-size:.92rem}
+.facts div{display:flex;gap:6px}
+.facts dt{color:var(--muted)}.facts dd{margin:0;font-weight:500}
+.post .details{margin:0 0 10px;color:#2B3A35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line}
+.post .foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-top:1px dashed var(--line);padding-top:10px}
+.post .who{flex:1 1 100%;font-size:.88rem;color:var(--muted)}
+.post .tools{margin-left:auto;display:flex;gap:10px}
+.empty{text-align:center;color:var(--muted);padding:32px 16px}
+.empty .btn{margin-top:10px}
 
-        /* Payment QR UI */
-        .payment-card { background: #fff8e7; border: 1.5px solid #8c1252; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
-        .qr-container { background: #ffffff; padding: 12px; border-radius: 10px; display: inline-block; border: 1px solid #e1e8ed; margin: 10px 0; }
-        .qr-img { width: 180px; height: 180px; object-fit: contain; }
+/* sections */
+.pad{padding:18px 16px}
+.sec-title{font-size:1.15rem;margin:22px 0 8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.row .grow{flex:1 1 200px;min-width:0}
+.row small{color:var(--muted)}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:.82rem;background:#fff}
+.profile-head{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.profile-head h2{font-size:1.3rem}
+.coins-big{font-family:'Noto Serif Bengali',serif;font-size:2rem;font-weight:800}
 
-        /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; z-index: 1000; }
-        .nav-item { text-align: center; color: #718096; font-size: 11px; cursor: pointer; text-decoration: none; }
-        .nav-item.active { color: #1E6091; font-weight: bold; }
-        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--board-deep);display:flex;justify-content:space-around;align-items:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:#B7CCC3;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;border-bottom:3px solid transparent}
+.nav button.on{color:var(--chalk);border-bottom-color:var(--pencil)}
+.nav .post-cta{background:var(--pencil);color:var(--pencil-ink);font-weight:700;border-bottom:0;padding:9px 20px}
 
-        /* Admin Table */
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        th, td { padding: 8px; border: 1px solid #cbd5e0; text-align: left; }
-        th { background: #f7f9fc; }
-    </style>
+/* dialogs */
+dialog{border:0;border-radius:12px;padding:0;width:min(480px,94vw);max-height:92vh;color:var(--ink);background:var(--paper)}
+dialog::backdrop{background:rgba(10,25,21,.6)}
+dialog form,dialog .dlg{padding:20px;display:block;max-height:92vh;overflow:auto}
+dialog h2{font-size:1.25rem;margin-bottom:12px;padding-right:32px}
+.x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted)}
+label{display:block;font-weight:500;margin:12px 0 4px}
+.in,dialog input:not([type=radio]),dialog select,dialog textarea{width:100%;padding:10px 12px;border:1.5px solid #B9C7C0;border-radius:8px;background:#fff}
+dialog textarea{min-height:96px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{margin:0;font-weight:500}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:block;padding:8px 14px;border:1.5px solid #B9C7C0;border-radius:999px;cursor:pointer;background:#fff}
+.seg input:checked+span{background:var(--board);border-color:var(--board);color:var(--chalk)}
+.seg input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
+.tabs{display:flex;gap:6px;margin-bottom:6px}
+.tabs button{flex:1;padding:8px;border:0;border-bottom:3px solid var(--line);background:none;cursor:pointer;font-weight:600;color:var(--muted)}
+.tabs button.on{border-bottom-color:var(--pencil);color:var(--ink)}
+.note{font-size:.88rem;color:var(--muted);margin:8px 0 0}
+.submit{width:100%;margin-top:18px;padding:12px}
+.bigphone{font-family:'Noto Serif Bengali',serif;font-size:1.7rem;font-weight:800;margin:6px 0 14px;letter-spacing:.02em}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.acts a{text-decoration:none;display:inline-block}
+
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;font-size:.95rem}
+#toast.on{opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
 
-    <!-- Unified Header -->
-    <div class="header">
-        <div class="logo" onclick="navigateTo('home')">পড়াও</div>
-        <div class="header-btns">
-            <div class="coin-badge" onclick="navigateTo('buyCoins')">
-                🪙 <span id="userCoinCount">0</span> MHR COIN
-            </div>
-            <button class="auth-btn" id="loginHeaderBtn" onclick="navigateTo('login')">Login / Sign Up</button>
-        </div>
+<header class="top">
+  <a class="brand" href="#" data-v="home">পড়াও</a>
+  <div class="top-r">
+    <button id="coinChip" class="chip" data-act="recharge" hidden>কয়েন <b id="coinN">০</b></button>
+    <button id="loginBtn" class="btn sm" data-act="login">লগইন / সাইন আপ</button>
+  </div>
+</header>
+
+<div id="cfgWarn" class="warn" hidden>ফাইলের ভেতরে <b>firebaseConfig</b> বসানো হয়নি। নিজের Firebase প্রজেক্টের কনফিগ পেস্ট করলে অ্যাপ কাজ করবে।</div>
+
+<main>
+  <!-- HOME -->
+  <section id="v-home" class="view on">
+    <div class="board">
+      <h1>আপনার এলাকার টিউটর বা শিক্ষার্থী খুঁজে নিন</h1>
+      <p>অ্যাকাউন্ট খুলে শিক্ষক, শিক্ষার্থী ও অভিভাবক যে কেউ বিনামূল্যে পোস্ট দিতে পারবেন।</p>
+      <div class="filters">
+        <select id="fType" aria-label="পোস্টের ধরন">
+          <option value="">সব ধরনের পোস্ট</option>
+          <option value="wanted">টিউটর চাই</option>
+          <option value="offer">টিউশন দিতে চাই</option>
+          <option value="book">বই শেয়ার / বিনিময়</option>
+        </select>
+        <input id="fDistrict" list="dl-district" placeholder="জেলা বা এলাকা" aria-label="জেলা বা এলাকা">
+        <input id="fSubject" placeholder="বিষয় বা শ্রেণি" aria-label="বিষয় বা শ্রেণি">
+      </div>
     </div>
+    <div class="feed-head"><h2>নতুন পোস্ট</h2><button class="link" data-act="refresh">রিফ্রেশ</button></div>
+    <div id="feed"></div>
+  </section>
 
-    <!-- 1. HOME PAGE -->
-    <div id="homePage" class="page-view active">
-        <div class="section-title">স্বাগতম পড়ুন ও পড়ান ডিজিটাল প্ল্যাটফর্মে</div>
-        <div class="form-box" style="text-align:center;">
-            <p style="font-size:14px; color:#555; margin-bottom:15px;">আপনার এলাকায় অভিজ্ঞ টিউটর অথবা শিক্ষার্থী খুঁজুন সহজেই।</p>
-            <button onclick="navigateTo('localSearch')" class="res-btn primary">📍 টিউটর / শিক্ষার্থী খুঁজুন</button>
-        </div>
+  <!-- PROFILE -->
+  <section id="v-profile" class="view"><div class="pad" id="profileBody"></div></section>
+
+  <!-- ADMIN -->
+  <section id="v-admin" class="view"><div class="pad" id="adminBody"></div></section>
+</main>
+
+<nav class="nav" aria-label="মূল মেনু">
+  <button data-v="home" class="on">হোম</button>
+  <button class="post-cta" data-act="newpost">+ পোস্ট করুন</button>
+  <button data-v="profile">প্রোফাইল</button>
+  <button data-v="admin" id="navAdmin" hidden>অ্যাডমিন</button>
+</nav>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<datalist id="dl-district">
+  <option value="ঢাকা"><option value="গাজীপুর"><option value="নারায়ণগঞ্জ"><option value="নরসিংদী"><option value="মানিকগঞ্জ"><option value="মুন্সীগঞ্জ"><option value="শরীয়তপুর"><option value="মাদারীপুর"><option value="গোপালগঞ্জ"><option value="ফরিদপুর"><option value="রাজবাড়ী"><option value="কিশোরগঞ্জ"><option value="টাঙ্গাইল">
+  <option value="ময়মনসিংহ"><option value="নেত্রকোনা"><option value="জামালপুর"><option value="শেরপুর">
+  <option value="চট্টগ্রাম"><option value="কক্সবাজার"><option value="কুমিল্লা"><option value="ব্রাহ্মণবাড়িয়া"><option value="চাঁদপুর"><option value="ফেনী"><option value="নোয়াখালী"><option value="লক্ষ্মীপুর"><option value="খাগড়াছড়ি"><option value="রাঙ্গামাটি"><option value="বান্দরবান">
+  <option value="সিলেট"><option value="মৌলভীবাজার"><option value="হবিগঞ্জ"><option value="সুনামগঞ্জ">
+  <option value="রাজশাহী"><option value="নাটোর"><option value="নওগাঁ"><option value="চাঁপাইনবাবগঞ্জ"><option value="পাবনা"><option value="সিরাজগঞ্জ"><option value="বগুড়া"><option value="জয়পুরহাট">
+  <option value="রংপুর"><option value="দিনাজপুর"><option value="নীলফামারী"><option value="গাইবান্ধা"><option value="কুড়িগ্রাম"><option value="লালমনিরহাট"><option value="ঠাকুরগাঁও"><option value="পঞ্চগড়">
+  <option value="খুলনা"><option value="বাগেরহাট"><option value="সাতক্ষীরা"><option value="যশোর"><option value="নড়াইল"><option value="মাগুরা"><option value="ঝিনাইদহ"><option value="কুষ্টিয়া"><option value="চুয়াডাঙ্গা"><option value="মেহেরপুর">
+  <option value="বরিশাল"><option value="ভোলা"><option value="পটুয়াখালী"><option value="পিরোজপুর"><option value="বরগুনা"><option value="ঝালকাঠি">
+</datalist>
+
+<!-- AUTH -->
+<dialog id="dAuth">
+  <form id="fAuth" autocomplete="on">
+    <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
+    <h2 id="authTitle">লগইন</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tabLogin" class="on" data-authmode="login">লগইন</button>
+      <button type="button" id="tabSignup" data-authmode="signup">নতুন অ্যাকাউন্ট</button>
     </div>
-
-    <!-- 2. LOGIN & SIGN UP PAGE (WITH PARENT, TEACHER, STUDENT ROLES) -->
-    <div id="loginPage" class="page-view">
-        <div class="section-title">🔐 অ্যাকাউন্ট অ্যাক্সেস</div>
-        <div class="form-box">
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">Login</div>
-                <div class="auth-tab" id="tabSignUpBtn" onclick="switchAuthTab('signup')">Sign Up / Register</div>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <div id="loginForm">
-                <div class="form-group">
-                    <label>মোবাইল নম্বর / ইমেইল</label>
-                    <input type="text" id="loginUser" placeholder="017xxxxxxxx">
-                </div>
-                <div class="form-group">
-                    <label>পাসওয়ার্ড</label>
-                    <input type="password" id="loginPass" placeholder="******">
-                </div>
-                <button onclick="handleLogin()" class="res-btn primary">লগইন করুন</button>
-            </div>
-
-            <!-- SIGN UP FORM (INCLUDES PARENT/TEACHER/STUDENT ROLES) -->
-            <div id="signUpForm" style="display:none;">
-                <div class="form-group">
-                    <label>আপনার পরিচয় (Role)</label>
-                    <select id="regRole">
-                        <option value="Student">Student (শিক্ষার্থী)</option>
-                        <option value="Teacher">Teacher (শিক্ষক)</option>
-                        <option value="Parent">Parent (অভিভাবক)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>পূর্ণ নাম</label>
-                    <input type="text" id="regName" placeholder="যেমন: রহিম আহমেদ">
-                </div>
-                <div class="form-group">
-                    <label>মোবাইল নম্বর</label>
-                    <input type="text" id="regPhone" placeholder="017xxxxxxxx">
-                </div>
-                <div class="form-group">
-                    <label>পাসওয়ার্ড</label>
-                    <input type="password" id="regPass" placeholder="******">
-                </div>
-                <button onclick="handleSignUp()" class="res-btn primary">রেজিস্ট্রেশন নিশ্চিত করুন</button>
-            </div>
-
-            <!-- ADMIN ACCESS BUTTON -->
-            <div style="margin-top:25px; text-align:center; border-top:1px dashed #cbd5e0; padding-top:15px;">
-                <button onclick="openAdminPanel()" class="res-btn admin-btn">🛡️ Admin Panel Access</button>
-            </div>
-        </div>
+    <div data-signup hidden>
+      <label for="aName">পূর্ণ নাম</label>
+      <input id="aName" autocomplete="name" maxlength="60">
+      <label>আপনি কে?</label>
+      <div class="seg">
+        <label><input type="radio" name="arole" value="student" checked><span>শিক্ষার্থী</span></label>
+        <label><input type="radio" name="arole" value="teacher"><span>শিক্ষক</span></label>
+        <label><input type="radio" name="arole" value="parent"><span>অভিভাবক</span></label>
+      </div>
     </div>
+    <label for="aId">মোবাইল নম্বর বা ইমেইল</label>
+    <input id="aId" inputmode="email" autocomplete="username" required>
+    <label for="aPass">পাসওয়ার্ড</label>
+    <input id="aPass" type="password" autocomplete="current-password" required>
+    <p class="note" data-signup hidden>পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে। নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</p>
+    <button class="btn submit" id="authGo" type="submit">লগইন করুন</button>
+    <p class="note"><button type="button" class="link" id="forgot">পাসওয়ার্ড ভুলে গেছেন?</button></p>
+  </form>
+</dialog>
 
-    <!-- 3. LOCAL SEARCH PAGE -->
-    <div id="localSearchPage" class="page-view">
-        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ও শিক্ষার্থী</div>
-        <div class="form-box">
-            <div class="form-group">
-                <label>ফিল্টার করুন</label>
-                <select id="searchRole">
-                    <option value="Teacher">Teacher (শিক্ষক)</option>
-                    <option value="Student">Student (শিক্ষার্থী)</option>
-                    <option value="Parent">Parent (অভিভাবক)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>জেলা / এলাকা</label>
-                <input type="text" id="searchLocation" placeholder="যেমন: ধানমন্ডি, ঢাকা">
-            </div>
-            <button onclick="searchLocalData()" class="res-btn primary">অনুসন্ধান করুন</button>
-            <button onclick="navigateTo('addPost')" class="res-btn" style="margin-top:8px;">+ তথ্য যোগ করুন</button>
-        </div>
-        <div id="localDataList"></div>
+<!-- NEW POST -->
+<dialog id="dPost">
+  <form id="fPost">
+    <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
+    <h2>নতুন পোস্ট</h2>
+    <label>পোস্টের ধরন</label>
+    <div class="seg" id="pTypes">
+      <label><input type="radio" name="type" value="wanted" checked><span>টিউটর চাই</span></label>
+      <label><input type="radio" name="type" value="offer"><span>টিউশন দিতে চাই</span></label>
+      <label><input type="radio" name="type" value="book"><span>বই শেয়ার / বিনিময়</span></label>
     </div>
-
-    <!-- 4. BUY COINS & ROCKET PAYMENT PAGE -->
-    <div id="buyCoinsPage" class="page-view">
-        <div class="section-title">🪙 MHR GOLD COIN Recharge</div>
-        <div id="packSelection">
-            <div class="form-box" style="text-align:center;">
-                <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
-                    <h4>🥉 Standard Pack</h4>
-                    <h3 style="color:#b8860b; margin:5px 0;">5 MHR COIN</h3>
-                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
-                    <button onclick="openPaymentForm(5, 50)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment</button>
-                </div>
-                <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; background:#fff8e7;">
-                    <h4>🥇 Value Pack</h4>
-                    <h3 style="color:#b8860b; margin:5px 0;">12 MHR COIN</h3>
-                    <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
-                    <button onclick="openPaymentForm(12, 100)" class="res-btn coin-btn" style="margin-top:8px;">Rocket Make Payment</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="paymentFormBox" class="form-box" style="display:none;">
-            <h4 style="color:#1E6091; margin-bottom:10px; text-align:center;">🚀 Rocket QR Payment</h4>
-            <div class="payment-card">
-                <div class="qr-container">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ROCKET%3A015680142875" alt="Rocket Payment QR" class="qr-img">
-                </div>
-                <p style="font-size:13px; margin-top:5px;"><b>রকেট পেমেন্ট নম্বর:</b></p>
-                <p style="font-size:17px; color:#8c1252; font-weight:bold;">015680142875</p>
-                <p style="font-size:12px; color:#666; margin-top:5px;">পরিমাণ: <b>৳ <span id="payAmount">0</span></b> (<span id="payCoins">0</span> Coins)</p>
-            </div>
-            <div class="form-group">
-                <label>আপনার নাম</label>
-                <input type="text" id="payerName" placeholder="রহিম আহমেদ">
-            </div>
-            <div class="form-group">
-                <label>যে নম্বর থেকে পেমেন্ট করেছেন</label>
-                <input type="text" id="senderNumber" placeholder="017XXXXXXXX">
-            </div>
-            <div class="form-group">
-                <label>TrxID (ট্রানজেকশন আইডি)</label>
-                <input type="text" id="trxId" placeholder="e.g. 9J7A6K5L">
-            </div>
-            <button onclick="submitPaymentRequest()" class="res-btn primary">পেমেন্ট রিকোয়েস্ট পাঠান</button>
-            <button onclick="closePaymentForm()" class="res-btn" style="margin-top:8px;">বাতিল করুন</button>
-        </div>
+    <label for="pTitle">শিরোনাম</label>
+    <input id="pTitle" maxlength="80" required placeholder="যেমন: ক্লাস ৯-এর জন্য গণিত টিউটর দরকার">
+    <div class="two">
+      <div><label for="pSubject">বিষয়</label><input id="pSubject" maxlength="60"></div>
+      <div><label for="pLevel">শ্রেণি</label><input id="pLevel" maxlength="40" placeholder="যেমন: ৯ম শ্রেণি"></div>
     </div>
-
-    <!-- 5. ADD POST PAGE -->
-    <div id="addPostPage" class="page-view">
-        <div class="section-title">📝 তথ্য পোস্ট করুন</div>
-        <div class="form-box">
-            <div class="form-group">
-                <label>নাম</label>
-                <input type="text" id="postName" placeholder="পূর্ণ নাম">
-            </div>
-            <div class="form-group">
-                <label>আপনার রোল (Role)</label>
-                <select id="postRole">
-                    <option value="Teacher">Teacher (শিক্ষক)</option>
-                    <option value="Student">Student (শিক্ষার্থী)</option>
-                    <option value="Parent">Parent (অভিভাবক)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>এলাকা</label>
-                <input type="text" id="postArea" placeholder="যেমন: ধানমন্ডি, ঢাকা">
-            </div>
-            <div class="form-group">
-                <label>বিস্তারিত বিবরণ</label>
-                <input type="text" id="postDetails" placeholder="যেমন: গণিত শিক্ষক প্রয়োজন (Class 9)">
-            </div>
-            <div class="form-group">
-                <label>মোবাইল নম্বর</label>
-                <input type="text" id="postPhone" placeholder="017xxxxxxxx">
-            </div>
-            <button onclick="saveUserPost()" class="res-btn primary">পোস্ট সেভ করুন</button>
-        </div>
+    <div class="two">
+      <div><label for="pDistrict">জেলা</label><input id="pDistrict" list="dl-district" maxlength="40" required></div>
+      <div><label for="pArea">এলাকা</label><input id="pArea" maxlength="60" placeholder="থানা / মহল্লা"></div>
     </div>
-
-    <!-- 6. ADMIN PANEL DASHBOARD -->
-    <div id="adminPage" class="page-view">
-        <div class="section-title">🛡️ Admin Dashboard (পেন্ডিং পেমেন্ট যাচাই)</div>
-        <div class="form-box">
-            <div id="adminPendingList"></div>
-            <button onclick="navigateTo('home')" class="res-btn" style="margin-top:15px;">হোম পেজে ফিরুন</button>
-        </div>
+    <label for="pBudget">বেতন / মূল্য</label>
+    <input id="pBudget" maxlength="40" placeholder="যেমন: ৪০০০ টাকা/মাস বা আলোচনা সাপেক্ষে">
+    <div class="two tuition-only">
+      <div><label for="pDays">সপ্তাহে কত দিন</label><input id="pDays" type="number" min="1" max="7"></div>
+      <div><label for="pMode">মাধ্যম</label>
+        <select id="pMode"><option value="">বেছে নিন</option><option>বাসায়</option><option>অনলাইন</option><option>উভয়</option></select>
+      </div>
     </div>
+    <label for="pDetails">বিস্তারিত</label>
+    <textarea id="pDetails" maxlength="600" required></textarea>
+    <label for="pPhone">যোগাযোগের মোবাইল নম্বর</label>
+    <input id="pPhone" inputmode="tel" required placeholder="০১XXXXXXXXX">
+    <p class="note">নম্বরটি সবার সামনে দেখানো হয় না। কেউ ১ কয়েন খরচ করলে তবেই দেখতে পায়।</p>
+    <button class="btn submit" id="postGo" type="submit">পোস্ট করুন</button>
+  </form>
+</dialog>
 
-    <!-- Bottom Navigation Bar -->
-    <div class="bottom-nav">
-        <div id="navHome" class="nav-item active" onclick="navigateTo('home')">
-            <span class="nav-icon">🏠</span>Home
-        </div>
-        <div id="navSearch" class="nav-item" onclick="navigateTo('localSearch')">
-            <span class="nav-icon">📍</span>Find Tutor
-        </div>
-        <div id="navProfile" class="nav-item" onclick="navigateTo('login')">
-            <span class="nav-icon">👤</span>Profile / ID
-        </div>
+<!-- RECHARGE -->
+<dialog id="dRecharge">
+  <form id="fRecharge">
+    <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
+    <h2>কয়েন রিচার্জ</h2>
+    <div class="seg">
+      <label><input type="radio" name="pack" value="5" checked><span>৫ কয়েন — ৳৫০</span></label>
+      <label><input type="radio" name="pack" value="12"><span>১২ কয়েন — ৳১০০ (২টি ফ্রি)</span></label>
     </div>
+    <p class="note">Rocket-এ পেমেন্ট করুন: <b id="rNum"></b> <button type="button" class="link" data-act="copynum">কপি</button></p>
+    <label for="rName">আপনার নাম</label>
+    <input id="rName" maxlength="60" required>
+    <label for="rSender">যে নম্বর থেকে পাঠিয়েছেন</label>
+    <input id="rSender" inputmode="tel" maxlength="20" required>
+    <label for="rTrx">TrxID</label>
+    <input id="rTrx" maxlength="30" required autocapitalize="characters">
+    <button class="btn submit" type="submit">পেমেন্ট রিকোয়েস্ট পাঠান</button>
+    <p class="note">অ্যাডমিন যাচাই করলে কয়েন আপনার অ্যাকাউন্টে যোগ হবে। একই TrxID দুইবার ব্যবহার করা যায় না।</p>
+  </form>
+</dialog>
 
+<!-- CONTACT -->
+<dialog id="dContact">
+  <div class="dlg">
+    <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
+    <h2 id="cName"></h2>
+    <div class="bigphone" id="cPhone"></div>
+    <div class="acts">
+      <a class="btn" id="cCall">কল করুন</a>
+      <a class="btn line" id="cWa" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+      <button class="btn line" type="button" data-act="copyphone">কপি</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-    // 1. FIREBASE CONFIGURATION (Firebase Console থেকে আপনার আসল API Key দিন)
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
+'use strict';
 
-    // Firebase Initialize
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
+/* ============ ১) নিজের Firebase কনফিগ এখানে বসান ============ */
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE_PROJECT_ID.appspot.com",
+  messagingSenderId: "PASTE",
+  appId: "PASTE"
+};
+const RECHARGE_NUMBER = '015680142875';
+/* ============================================================= */
+
+const CONFIGURED = !/PASTE/.test(firebaseConfig.apiKey);
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toBn = s => String(s).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const enDigits = s => String(s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
+
+const TYPES = { wanted: 'টিউটর চাই', offer: 'টিউশন দিতে চাই', book: 'বই শেয়ার / বিনিময়' };
+const ROLES = { student: 'শিক্ষার্থী', teacher: 'শিক্ষক', parent: 'অভিভাবক' };
+const PAY_STATUS = { pending: 'যাচাই চলছে', approved: 'অনুমোদিত', rejected: 'বাতিল' };
+
+let auth, db, TS, FV;
+let me = null, profile = null, isAdmin = false, unsubProfile = null;
+let allPosts = [], unlocked = new Set();
+let authMode = 'login', pendingProfile = null, creating = false, lastPostAt = 0, lastContact = '';
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3400);
+}
+
+function errMsg(e) {
+  const c = (e && e.code) || '';
+  const map = {
+    'auth/email-already-in-use': 'এই নম্বর বা ইমেইল দিয়ে আগেই অ্যাকাউন্ট খোলা আছে। লগইন করুন।',
+    'auth/invalid-credential': 'নম্বর/ইমেইল বা পাসওয়ার্ড ভুল।',
+    'auth/wrong-password': 'নম্বর/ইমেইল বা পাসওয়ার্ড ভুল।',
+    'auth/user-not-found': 'নম্বর/ইমেইল বা পাসওয়ার্ড ভুল।',
+    'auth/invalid-email': 'ইমেইল বা নম্বরটি সঠিক নয়।',
+    'auth/weak-password': 'পাসওয়ার্ড আরও শক্ত দিন।',
+    'auth/too-many-requests': 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।',
+    'auth/network-request-failed': 'ইন্টারনেট সংযোগ চেক করুন।',
+    'permission-denied': 'এই কাজের অনুমতি নেই (বা আগেই করা হয়েছে)।'
+  };
+  return map[c] || (e && e.message) || 'কিছু একটা ভুল হয়েছে।';
+}
+
+/* ---------- phone / email helpers ---------- */
+function normPhone(v) {
+  let d = enDigits(v).replace(/[^\d]/g, '');
+  if (d.startsWith('880')) d = d.slice(2);
+  if (/^1[3-9]\d{8}$/.test(d)) d = '0' + d;
+  return /^01[3-9]\d{8}$/.test(d) ? d : null;
+}
+function toEmail(v) {
+  v = v.trim();
+  if (v.includes('@')) return v.toLowerCase();
+  const p = normPhone(v);
+  return p ? p + '@porao.app' : null;
+}
+const contactOf = email => (email || '').endsWith('@porao.app') ? email.replace('@porao.app', '') : (email || '');
+
+function ago(ts) {
+  const d = ts && ts.toDate ? ts.toDate() : null; if (!d) return '';
+  const s = (Date.now() - d.getTime()) / 1000;
+  if (s < 60) return 'এইমাত্র';
+  if (s < 3600) return toBn(Math.floor(s / 60)) + ' মিনিট আগে';
+  if (s < 86400) return toBn(Math.floor(s / 3600)) + ' ঘণ্টা আগে';
+  return toBn(Math.floor(s / 86400)) + ' দিন আগে';
+}
+
+/* ---------- init ---------- */
+function init() {
+  $('#rNum').textContent = RECHARGE_NUMBER;
+  if (!CONFIGURED) { $('#cfgWarn').hidden = false; renderFeed(); return; }
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth(); db = firebase.firestore();
+  TS = () => firebase.firestore.FieldValue.serverTimestamp();
+  FV = firebase.firestore.FieldValue;
+  auth.onAuthStateChanged(onAuth);
+  loadPosts();
+}
+
+async function onAuth(u) {
+  me = u; profile = null; isAdmin = false; unlocked = new Set();
+  if (unsubProfile) { unsubProfile(); unsubProfile = null; }
+  if (u) {
+    unsubProfile = db.collection('users').doc(u.uid).onSnapshot(snap => {
+      if (!snap.exists) { ensureProfile(u); return; }
+      profile = snap.data(); renderChrome();
+    }, err => console.error(err));
+    try { isAdmin = (await db.collection('admins').doc(u.uid).get()).exists; } catch (e) { isAdmin = false; }
+    try {
+      const s = await db.collection('unlocks').where('uid', '==', u.uid).get();
+      s.forEach(d => unlocked.add(d.data().postId));
+    } catch (e) { /* ignore */ }
+  }
+  renderChrome(); renderFeed();
+  const cur = $('.view.on').id;
+  if (cur === 'v-profile') renderProfile();
+  if (cur === 'v-admin') isAdmin ? renderAdmin() : show('home');
+}
+
+async function ensureProfile(u) {
+  if (creating) return; creating = true;
+  const p = pendingProfile || {};
+  try {
+    await db.collection('users').doc(u.uid).set({
+      name: (p.name || u.displayName || 'ব্যবহারকারী').slice(0, 60),
+      role: p.role || 'student',
+      contact: contactOf(u.email).slice(0, 100),
+      coins: 3,
+      createdAt: TS()
+    });
+  } catch (e) { toast('প্রোফাইল তৈরি হয়নি: ' + errMsg(e)); }
+  finally { creating = false; pendingProfile = null; }
+}
+
+function renderChrome() {
+  $('#loginBtn').hidden = !!me;
+  $('#coinChip').hidden = !me;
+  $('#coinN').textContent = toBn(profile ? profile.coins || 0 : 0);
+  $('#navAdmin').hidden = !isAdmin;
+}
+
+/* ---------- views ---------- */
+function show(v) {
+  $$('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
+  $$('.nav [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  if (v === 'profile') renderProfile();
+  if (v === 'admin') renderAdmin();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- feed ---------- */
+async function loadPosts() {
+  $('#feed').innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  if (!CONFIGURED) { allPosts = []; renderFeed(); return; }
+  try {
+    const s = await db.collection('posts').orderBy('createdAt', 'desc').limit(100).get();
+    allPosts = s.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    $('#feed').innerHTML = '<p class="empty">পোস্ট লোড হয়নি। ইন্টারনেট বা Firestore Rules চেক করুন।</p>'; return;
+  }
+  renderFeed();
+}
+
+function card(p) {
+  const mine = me && p.uid === me.uid;
+  const facts = [
+    ['এলাকা', [p.district, p.area].filter(Boolean).join(', ')],
+    ['বিষয়', p.subject], ['শ্রেণি', p.level], ['বেতন / মূল্য', p.budget],
+    ['সপ্তাহে', p.days ? toBn(p.days) + ' দিন' : ''], ['মাধ্যম', p.mode]
+  ].filter(f => f[1]);
+  const btn = mine ? 'আমার নম্বর' : (unlocked.has(p.id) || isAdmin) ? 'নম্বর দেখুন' : 'যোগাযোগ দেখুন (১ কয়েন)';
+  return `<article class="post t-${esc(p.type)}">
+    <div class="meta"><span class="tag">${esc(TYPES[p.type] || 'পোস্ট')}</span><span>${esc(ago(p.createdAt))}</span></div>
+    <h3>${esc(p.title)}</h3>
+    <dl class="facts">${facts.map(f => `<div><dt>${esc(f[0])}:</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl>
+    <p class="details">${esc(p.details)}</p>
+    <div class="foot">
+      <span class="who">${esc(p.name)} (${esc(ROLES[p.role] || '')})</span>
+      <button class="btn sm" data-act="contact" data-id="${esc(p.id)}">${btn}</button>
+      <span class="tools">
+        <button class="link" data-act="share" data-id="${esc(p.id)}">শেয়ার</button>
+        ${mine ? '' : `<button class="link" data-act="report" data-id="${esc(p.id)}">রিপোর্ট</button>`}
+      </span>
+    </div>
+  </article>`;
+}
+
+function renderFeed() {
+  const t = $('#fType').value, d = $('#fDistrict').value.trim(), s = $('#fSubject').value.trim().toLowerCase();
+  const list = allPosts.filter(p => p.status !== 'closed'
+    && (!t || p.type === t)
+    && (!d || ((p.district || '') + ' ' + (p.area || '')).includes(d))
+    && (!s || ((p.subject || '') + ' ' + (p.title || '') + ' ' + (p.level || '')).toLowerCase().includes(s)));
+  $('#feed').innerHTML = list.length ? list.map(card).join('')
+    : `<div class="empty"><p>${allPosts.length ? 'এই ফিল্টারে কোনো পোস্ট পাওয়া যায়নি।' : 'এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনার হতে পারে।'}</p><button class="btn" data-act="newpost">পোস্ট করুন</button></div>`;
+}
+['#fType', '#fDistrict', '#fSubject'].forEach(id => $(id).addEventListener('input', renderFeed));
+
+/* ---------- auth ---------- */
+function setAuthMode(m) {
+  authMode = m;
+  $$('#dAuth [data-signup]').forEach(el => el.hidden = m !== 'signup');
+  $('#authTitle').textContent = m === 'signup' ? 'নতুন অ্যাকাউন্ট' : 'লগইন';
+  $('#authGo').textContent = m === 'signup' ? 'অ্যাকাউন্ট খুলুন' : 'লগইন করুন';
+  $('#tabLogin').classList.toggle('on', m === 'login');
+  $('#tabSignup').classList.toggle('on', m === 'signup');
+  $('#aPass').autocomplete = m === 'signup' ? 'new-password' : 'current-password';
+  $('#forgot').parentElement.hidden = m === 'signup';
+}
+function openAuth(m = 'login') { setAuthMode(m); $('#dAuth').showModal(); }
+$$('[data-authmode]').forEach(b => b.addEventListener('click', () => setAuthMode(b.dataset.authmode)));
+
+$('#fAuth').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!CONFIGURED) return toast('আগে firebaseConfig বসান।');
+  const email = toEmail($('#aId').value), pass = $('#aPass').value;
+  if (!email) return toast('সঠিক মোবাইল নম্বর (০১XXXXXXXXX) বা ইমেইল দিন।');
+  const btn = $('#authGo');
+  if (authMode === 'signup') {
+    const name = $('#aName').value.trim();
+    if (name.length < 2) return toast('আপনার নাম লিখুন।');
+    if (pass.length < 8) return toast('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের দিন।');
+    pendingProfile = { name, role: $('input[name=arole]:checked').value };
+  }
+  btn.disabled = true;
+  try {
+    if (authMode === 'signup') {
+      const cred = await auth.createUserWithEmailAndPassword(email, pass);
+      await cred.user.updateProfile({ displayName: pendingProfile.name });
+    } else {
+      await auth.signInWithEmailAndPassword(email, pass);
     }
-    const db = firebase.firestore();
+    $('#dAuth').close(); e.target.reset(); setAuthMode('login');
+  } catch (err) { pendingProfile = null; toast(errMsg(err)); }
+  finally { btn.disabled = false; }
+});
 
-    let userCoins = 0; 
-    let selectedCoinsToBuy = 0;
-    const unlockedNumbers = [];
+$('#forgot').addEventListener('click', async () => {
+  const v = $('#aId').value.trim();
+  if (!v.includes('@')) return toast('মোবাইল নম্বর দিয়ে খোলা অ্যাকাউন্টের পাসওয়ার্ড রিসেট করতে অ্যাডমিনের সাথে যোগাযোগ করুন।');
+  try { await auth.sendPasswordResetEmail(v); toast('রিসেট লিংক ইমেইলে পাঠানো হয়েছে।'); }
+  catch (e) { toast(errMsg(e)); }
+});
 
-    function updateCoinDisplay() {
-        document.getElementById('userCoinCount').innerText = userCoins;
-    }
+/* ---------- new post ---------- */
+function openPost() {
+  if (!CONFIGURED) return toast('আগে firebaseConfig বসান।');
+  if (!me) { toast('পোস্ট করতে বিনামূল্যে অ্যাকাউন্ট খুলুন।'); return openAuth('signup'); }
+  if (!profile) return toast('একটু অপেক্ষা করুন…');
+  const def = profile.role === 'teacher' ? 'offer' : 'wanted';
+  $(`#pTypes input[value=${def}]`).checked = true;
+  if (!$('#pPhone').value && normPhone(profile.contact || '')) $('#pPhone').value = profile.contact;
+  syncTypeFields();
+  $('#dPost').showModal();
+}
+function syncTypeFields() {
+  const book = $('input[name=type]:checked').value === 'book';
+  $$('.tuition-only').forEach(el => el.hidden = book);
+}
+$$('input[name=type]').forEach(r => r.addEventListener('change', syncTypeFields));
 
-    // Navigation Router
-    function navigateTo(pageName) {
-        document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+$('#fPost').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!me || !profile) return toast('আগে লগইন করুন।');
+  if (Date.now() - lastPostAt < 60000) return toast('১ মিনিট পরে আবার পোস্ট করুন।');
+  const g = id => $(id).value.trim();
+  const phone = normPhone(g('#pPhone'));
+  if (!phone) return toast('সঠিক মোবাইল নম্বর দিন (০১XXXXXXXXX)।');
+  const type = $('input[name=type]:checked').value, book = type === 'book';
+  const d = {
+    uid: me.uid, name: profile.name, role: profile.role, type,
+    title: g('#pTitle').slice(0, 80), subject: g('#pSubject').slice(0, 60), level: g('#pLevel').slice(0, 40),
+    district: g('#pDistrict').slice(0, 40), area: g('#pArea').slice(0, 60), budget: g('#pBudget').slice(0, 40),
+    days: book ? '' : g('#pDays').slice(0, 2), mode: book ? '' : g('#pMode'),
+    details: g('#pDetails').slice(0, 600), status: 'active', createdAt: TS()
+  };
+  if (d.title.length < 3 || !d.district || d.details.length < 5) return toast('শিরোনাম, জেলা ও বিবরণ পূরণ করুন।');
+  const btn = $('#postGo'); btn.disabled = true;
+  try {
+    const ref = db.collection('posts').doc(), b = db.batch();
+    b.set(ref, d);
+    b.set(ref.collection('private').doc('contact'), { uid: me.uid, phone });
+    await b.commit();
+    lastPostAt = Date.now();
+    $('#dPost').close(); e.target.reset();
+    toast('পোস্ট হয়েছে।'); loadPosts();
+  } catch (err) { toast('পোস্ট হয়নি: ' + errMsg(err)); }
+  finally { btn.disabled = false; }
+});
 
-        if(pageName === 'home') {
-            document.getElementById('homePage').classList.add('active');
-            document.getElementById('navHome').classList.add('active');
-        } else if(pageName === 'localSearch') {
-            document.getElementById('localSearchPage').classList.add('active');
-            document.getElementById('navSearch').classList.add('active');
-            renderDataList();
-        } else if(pageName === 'buyCoins') {
-            document.getElementById('buyCoinsPage').classList.add('active');
-            closePaymentForm();
-        } else if(pageName === 'addPost') {
-            document.getElementById('addPostPage').classList.add('active');
-        } else if(pageName === 'login') {
-            document.getElementById('loginPage').classList.add('active');
-            document.getElementById('navProfile').classList.add('active');
-        } else if(pageName === 'admin') {
-            document.getElementById('adminPage').classList.add('active');
-        }
-        window.scrollTo(0, 0);
-    }
+/* ---------- contact unlock ---------- */
+async function openContact(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  if (!me) { toast('যোগাযোগ দেখতে আগে লগইন করুন।'); return openAuth('login'); }
+  const free = p.uid === me.uid || unlocked.has(id) || isAdmin;
+  if (!free) {
+    if (!profile) return toast('একটু অপেক্ষা করুন…');
+    if ((profile.coins || 0) < 1) { toast('কয়েন শেষ। রিচার্জ করুন।'); return openRecharge(); }
+    if (!confirm(`এই নম্বর দেখতে ১ কয়েন খরচ হবে। আপনার কয়েন আছে ${toBn(profile.coins)}টি। চালিয়ে যাবেন?`)) return;
+    try {
+      const b = db.batch();
+      b.set(db.collection('unlocks').doc(`${me.uid}_${id}`), { uid: me.uid, postId: id, createdAt: TS() });
+      b.update(db.collection('users').doc(me.uid), { coins: FV.increment(-1), lastUnlock: id });
+      await b.commit(); unlocked.add(id); renderFeed();
+    } catch (e) { return toast('কয়েন কাটা যায়নি: ' + errMsg(e)); }
+  }
+  try {
+    const s = await db.collection('posts').doc(id).collection('private').doc('contact').get();
+    if (!s.exists) return toast('এই পোস্টে নম্বর পাওয়া যায়নি।');
+    const ph = s.data().phone; lastContact = ph;
+    $('#cName').textContent = p.name;
+    $('#cPhone').textContent = toBn(ph);
+    $('#cCall').href = 'tel:' + ph;
+    $('#cWa').href = 'https://wa.me/88' + ph;
+    $('#dContact').showModal();
+  } catch (e) { toast('নম্বর আনা যায়নি: ' + errMsg(e)); }
+}
 
-    // Firebase Post Data Fetch & Save
-    function saveUserPost() {
-        const name = document.getElementById('postName').value;
-        const role = document.getElementById('postRole').value;
-        const area = document.getElementById('postArea').value;
-        const details = document.getElementById('postDetails').value;
-        const phone = document.getElementById('postPhone').value;
+/* ---------- recharge ---------- */
+function openRecharge() {
+  if (!me) return openAuth('login');
+  $('#rName').value = profile ? profile.name : '';
+  $('#dRecharge').showModal();
+}
+$('#fRecharge').addEventListener('submit', async e => {
+  e.preventDefault();
+  const trx = enDigits($('#rTrx').value).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!/^[A-Z0-9]{6,30}$/.test(trx)) return toast('সঠিক TrxID দিন।');
+  const coins = +$('input[name=pack]:checked').value, amount = coins === 5 ? 50 : 100;
+  try {
+    await db.collection('payments').doc(trx).set({
+      uid: me.uid, coins, amount, name: $('#rName').value.trim().slice(0, 60),
+      sender: $('#rSender').value.trim().slice(0, 20), trxId: trx, status: 'pending', createdAt: TS()
+    });
+    $('#dRecharge').close(); e.target.reset(); toast('রিকোয়েস্ট পাঠানো হয়েছে। যাচাইয়ের অপেক্ষায়।');
+  } catch (err) { toast(err.code === 'permission-denied' ? 'এই TrxID আগেই জমা হয়েছে বা তথ্য ঠিক নেই।' : errMsg(err)); }
+});
 
-        if(!name || !area || !phone) {
-            alert('দয়া করে নাম, এলাকা এবং ফোন নম্বর প্রদান করুন!');
-            return;
-        }
+/* ---------- profile ---------- */
+async function renderProfile() {
+  const box = $('#profileBody');
+  if (!CONFIGURED) { box.innerHTML = '<p class="empty">আগে firebaseConfig বসান।</p>'; return; }
+  if (!me) { box.innerHTML = '<div class="empty"><p>প্রোফাইল দেখতে লগইন করুন।</p><button class="btn" data-act="login">লগইন / সাইন আপ</button></div>'; return; }
+  box.innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  let posts = [], pays = [];
+  try {
+    const [a, b] = await Promise.all([
+      db.collection('posts').where('uid', '==', me.uid).get(),
+      db.collection('payments').where('uid', '==', me.uid).get()
+    ]);
+    posts = a.docs.map(d => ({ id: d.id, ...d.data() }));
+    pays = b.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) { /* show what we have */ }
+  const byTime = (x, y) => ((y.createdAt && y.createdAt.seconds) || 0) - ((x.createdAt && x.createdAt.seconds) || 0);
+  posts.sort(byTime); pays.sort(byTime);
+  const pr = profile || {};
+  box.innerHTML = `
+    <div class="profile-head">
+      <h2>${esc(pr.name || '')}</h2>
+      <span class="badge">${esc(ROLES[pr.role] || '')}</span>
+      <p class="note">${esc(pr.contact || '')}</p>
+      <div class="coins-big">${toBn(pr.coins || 0)} কয়েন</div>
+      <div class="acts" style="margin-top:10px">
+        <button class="btn" data-act="recharge">কয়েন কিনুন</button>
+        <button class="btn line" data-act="logout">লগআউট</button>
+      </div>
+    </div>
+    <h2 class="sec-title">আমার পোস্ট</h2>
+    ${posts.length ? posts.map(p => `<div class="row">
+      <div class="grow"><b>${esc(p.title)}</b><br><small>${esc(TYPES[p.type] || '')}, ${p.status === 'closed' ? 'বন্ধ' : 'চালু'}, ${esc(ago(p.createdAt))}</small></div>
+      <div class="acts">
+        <button class="btn sm line" data-act="${p.status === 'closed' ? 'reopen' : 'closepost'}" data-id="${esc(p.id)}">${p.status === 'closed' ? 'আবার চালু' : 'বন্ধ করুন'}</button>
+        <button class="btn sm danger" data-act="delpost" data-id="${esc(p.id)}">মুছুন</button>
+      </div></div>`).join('') : '<p class="note">এখনো কোনো পোস্ট করেননি।</p>'}
+    <h2 class="sec-title">রিচার্জ রিকোয়েস্ট</h2>
+    ${pays.length ? pays.map(p => `<div class="row"><div class="grow"><b>${toBn(p.coins)} কয়েন</b> (৳${toBn(p.amount)})<br><small>TrxID: ${esc(p.trxId)}</small></div><span class="badge">${esc(PAY_STATUS[p.status] || p.status)}</span></div>`).join('') : '<p class="note">কোনো রিকোয়েস্ট নেই।</p>'}
+  `;
+}
 
-        db.collection("posts").add({
-            name: name,
-            role: role,
-            area: area,
-            details: details,
-            phone: phone,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert('আপনার তথ্য সফলভাবে Firebase এ সেভ হয়েছে!');
-            navigateTo('localSearch');
-        }).catch((err) => {
-            alert('Error: ' + err.message);
-        });
-    }
+async function setStatus(id, status) {
+  try { await db.collection('posts').doc(id).update({ status }); toast('আপডেট হয়েছে।'); renderProfile(); loadPosts(); }
+  catch (e) { toast(errMsg(e)); }
+}
+async function deletePost(id, extra = []) {
+  try {
+    const b = db.batch();
+    b.delete(db.collection('posts').doc(id).collection('private').doc('contact'));
+    b.delete(db.collection('posts').doc(id));
+    extra.forEach(r => b.delete(r));
+    await b.commit(); toast('পোস্ট মুছে গেছে।'); loadPosts();
+    return true;
+  } catch (e) { toast(errMsg(e)); return false; }
+}
 
-    function renderDataList() {
-        const listContainer = document.getElementById('localDataList');
-        if(!listContainer) return;
-        listContainer.innerHTML = '<p style="text-align:center; padding:10px;">ডাটা লোড হচ্ছে...</p>';
+/* ---------- report / share ---------- */
+async function reportPost(id) {
+  if (!me) { toast('রিপোর্ট করতে লগইন করুন।'); return openAuth('login'); }
+  const reason = prompt('পোস্টটিতে কী সমস্যা? (যেমন: ভুয়া, বিজ্ঞাপন, অশোভন)');
+  if (!reason || !reason.trim()) return;
+  try {
+    await db.collection('reports').doc(`${me.uid}_${id}`).set({ uid: me.uid, postId: id, reason: reason.trim().slice(0, 200), createdAt: TS() });
+    toast('রিপোর্ট জমা হয়েছে। ধন্যবাদ।');
+  } catch (e) { toast(e.code === 'permission-denied' ? 'আপনি আগেই এই পোস্ট রিপোর্ট করেছেন।' : errMsg(e)); }
+}
+async function sharePost(id) {
+  const p = allPosts.find(x => x.id === id); if (!p) return;
+  const data = { title: p.title, text: `${p.title} – ${p.district}`, url: location.origin + location.pathname };
+  try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(data.url); toast('লিংক কপি হয়েছে।'); } } catch (e) { /* cancelled */ }
+}
 
-        db.collection("posts").orderBy("createdAt", "desc").get().then((snapshot) => {
-            listContainer.innerHTML = '';
-            if(snapshot.empty) {
-                listContainer.innerHTML = '<p style="text-align:center; padding:15px;">কোনো তথ্য পাওয়া যায়নি।</p>';
-                return;
-            }
+/* ---------- admin ---------- */
+async function renderAdmin() {
+  const box = $('#adminBody');
+  if (!isAdmin) { box.innerHTML = '<p class="empty">এই পেজ শুধু অ্যাডমিনের জন্য।</p>'; return; }
+  box.innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  let pays = [], reps = [];
+  try {
+    const [a, b] = await Promise.all([
+      db.collection('payments').where('status', '==', 'pending').get(),
+      db.collection('reports').orderBy('createdAt', 'desc').limit(50).get()
+    ]);
+    pays = a.docs.map(d => ({ id: d.id, ...d.data() }));
+    reps = b.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) { box.innerHTML = '<p class="empty">লোড হয়নি: ' + esc(errMsg(e)) + '</p>'; return; }
+  box.innerHTML = `
+    <h2 class="sec-title" style="margin-top:0">পেন্ডিং পেমেন্ট (${toBn(pays.length)})</h2>
+    ${pays.length ? pays.map(p => `<div class="row">
+      <div class="grow"><b>${esc(p.name)}</b> — ${toBn(p.coins)} কয়েন (৳${toBn(p.amount)})<br>
+      <small>পাঠিয়েছেন: ${esc(p.sender)}, TrxID: ${esc(p.trxId)}</small></div>
+      <div class="acts">
+        <button class="btn sm" data-act="approve" data-id="${esc(p.id)}" data-uid="${esc(p.uid)}" data-coins="${esc(p.coins)}">অনুমোদন</button>
+        <button class="btn sm danger" data-act="reject" data-id="${esc(p.id)}">বাতিল</button>
+      </div></div>`).join('') : '<p class="note">কোনো পেন্ডিং পেমেন্ট নেই।</p>'}
+    <h2 class="sec-title">রিপোর্ট (${toBn(reps.length)})</h2>
+    ${reps.length ? reps.map(r => { const p = allPosts.find(x => x.id === r.postId); return `<div class="row">
+      <div class="grow"><b>${esc(p ? p.title : 'পোস্ট পাওয়া যায়নি')}</b><br><small>কারণ: ${esc(r.reason)}</small></div>
+      <div class="acts">
+        <button class="btn sm danger" data-act="admindel" data-id="${esc(r.postId)}" data-rid="${esc(r.id)}">পোস্ট মুছুন</button>
+        <button class="btn sm line" data-act="dismiss" data-id="${esc(r.id)}">বাদ দিন</button>
+      </div></div>`; }).join('') : '<p class="note">কোনো রিপোর্ট নেই।</p>'}
+  `;
+}
+async function reviewPayment(id, status, uid, coins) {
+  try {
+    const b = db.batch();
+    b.update(db.collection('payments').doc(id), { status, reviewedAt: TS() });
+    if (status === 'approved') b.update(db.collection('users').doc(uid), { coins: FV.increment(+coins) });
+    await b.commit(); toast(status === 'approved' ? 'কয়েন যোগ হয়েছে।' : 'বাতিল করা হয়েছে।'); renderAdmin();
+  } catch (e) { toast(errMsg(e)); }
+}
 
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                const itemId = doc.id;
-                const isUnlocked = unlockedNumbers.includes(itemId);
-                const maskedPhone = item.phone ? item.phone.substring(0, 3) + "******" + item.phone.substring(item.phone.length - 2) : "017******00";
+/* ---------- global click handling ---------- */
+document.addEventListener('click', async e => {
+  const c = e.target.closest('[data-close]'); if (c) { c.closest('dialog').close(); return; }
+  const v = e.target.closest('[data-v]'); if (v) { e.preventDefault(); show(v.dataset.v); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const { act, id } = b.dataset;
+  switch (act) {
+    case 'login': openAuth('login'); break;
+    case 'logout': await auth.signOut(); show('home'); break;
+    case 'refresh': loadPosts(); break;
+    case 'newpost': openPost(); break;
+    case 'recharge': openRecharge(); break;
+    case 'contact': openContact(id); break;
+    case 'share': sharePost(id); break;
+    case 'report': reportPost(id); break;
+    case 'closepost': setStatus(id, 'closed'); break;
+    case 'reopen': setStatus(id, 'active'); break;
+    case 'delpost': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id)) renderProfile(); } break;
+    case 'approve': reviewPayment(id, 'approved', b.dataset.uid, b.dataset.coins); break;
+    case 'reject': reviewPayment(id, 'rejected'); break;
+    case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
+    case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
+    case 'copynum': navigator.clipboard.writeText(RECHARGE_NUMBER).then(() => toast('নম্বর কপি হয়েছে।')); break;
+    case 'copyphone': navigator.clipboard.writeText(lastContact).then(() => toast('নম্বর কপি হয়েছে।')); break;
+  }
+});
 
-                const buttonHtml = isUnlocked 
-                    ? `<button class="res-btn primary" onclick="alert('Phone: ${item.phone}')">📞 Call (${item.phone})</button>`
-                    : `<button class="res-btn coin-btn" onclick="unlockWithCoin('${itemId}')">🔓 Unlock (1 Coin)</button>`;
-
-                listContainer.innerHTML += `
-                    <div class="person-card">
-                        <div class="person-info">
-                            <h4>${item.name} <span class="badge">${item.role}</span></h4>
-                            <p>📍 ${item.area}</p>
-                            <p>📚 ${item.details}</p>
-                            <p style="font-weight:bold; margin-top:4px; color:#777;">📱 ${isUnlocked ? item.phone : maskedPhone}</p>
-                        </div>
-                        <div style="width:130px;">${buttonHtml}</div>
-                    </div>
-                `;
-            });
-        });
-    }
-
-    // Payment Submission to Firebase
-    function submitPaymentRequest() {
-        const name = document.getElementById('payerName').value;
-        const sender = document.getElementById('senderNumber').value;
-        const trx = document.getElementById('trxId').value;
-
-        if(!name || !sender || !trx) {
-            alert('সবগুলো ঘর সঠিকভাবে পূরণ করুন!');
-            return;
-        }
-
-        db.collection("payments").add({
-            name: name,
-            phone: sender,
-            trxId: trx,
-            coins: selectedCoinsToBuy,
-            amount: document.getElementById('payAmount').innerText,
-            status: "Pending",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert('পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে! অ্যাডমিন যাচাই করে এপ্রুভ করার সাথে সাথে কয়েন পাবেন।');
-            closePaymentForm();
-            navigateTo('home');
-        }).catch((err) => {
-            alert('Firebase Error: ' + err.message);
-        });
-    }
-
-    // Admin Dashboard Approval
-    function openAdminPanel() {
-        const pin = prompt('অ্যাডমিন পিন কোড লিখুন (Default Pin: 1234):');
-        if(pin === '1234') {
-            navigateTo('admin');
-            renderAdminPendingList();
-        } else {
-            alert('ভুল সিক্রেট পিন!');
-        }
-    }
-
-    function renderAdminPendingList() {
-        const container = document.getElementById('adminPendingList');
-        container.innerHTML = 'লোড হচ্ছে...';
-
-        db.collection("payments").where("status", "==", "Pending").get().then((snapshot) => {
-            if(snapshot.empty) {
-                container.innerHTML = '<p style="text-align:center; padding:15px;">কোনো পেন্ডিং পেমেন্ট রিকোয়েস্ট নেই।</p>';
-                return;
-            }
-
-            let html = `<table><tr><th>নাম</th><th>পেমেন্ট নম্বর</th><th>TrxID</th><th>কয়েন</th><th>অ্যাকশন</th></tr>`;
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                html += `<tr>
-                    <td>${item.name}</td>
-                    <td>${item.phone}</td>
-                    <td><b>${item.trxId}</b></td>
-                    <td>${item.coins} Coins (৳${item.amount})</td>
-                    <td>
-                        <button class="res-btn success" style="padding:4px; margin-bottom:2px;" onclick="approvePayment('${doc.id}', ${item.coins})">Approve</button>
-                        <button class="res-btn danger" style="padding:4px;" onclick="rejectPayment('${doc.id}')">Reject</button>
-                    </td>
-                </tr>`;
-            });
-            html += `</table>`;
-            container.innerHTML = html;
-        });
-    }
-
-    function approvePayment(docId, coins) {
-        db.collection("payments").doc(docId).update({
-            status: "Approved"
-        }).then(() => {
-            userCoins += parseInt(coins);
-            updateCoinDisplay();
-            alert(`পেমেন্ট সফলভাবে এপ্রুভ করা হয়েছে! ${coins} টি কয়েন যোগ হলো।`);
-            renderAdminPendingList();
-        });
-    }
-
-    function rejectPayment(docId) {
-        db.collection("payments").doc(docId).update({
-            status: "Rejected"
-        }).then(() => {
-            alert('রিকোয়েস্ট বাতিল করা হয়েছে!');
-            renderAdminPendingList();
-        });
-    }
-
-    // Helper Functions
-    function switchAuthTab(tab) {
-        document.getElementById('tabLoginBtn').classList.remove('active');
-        document.getElementById('tabSignUpBtn').classList.remove('active');
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('signUpForm').style.display = 'none';
-
-        if(tab === 'login') {
-            document.getElementById('tabLoginBtn').classList.add('active');
-            document.getElementById('loginForm').style.display = 'block';
-        } else {
-            document.getElementById('tabSignUpBtn').classList.add('active');
-            document.getElementById('signUpForm').style.display = 'block';
-        }
-    }
-
-    function openPaymentForm(coins, amount) {
-        selectedCoinsToBuy = coins;
-        document.getElementById('payCoins').innerText = coins;
-        document.getElementById('payAmount').innerText = amount;
-        document.getElementById('packSelection').style.display = 'none';
-        document.getElementById('paymentFormBox').style.display = 'block';
-    }
-
-    function closePaymentForm() {
-        document.getElementById('packSelection').style.display = 'block';
-        document.getElementById('paymentFormBox').style.display = 'none';
-    }
-
-    function handleSignUp() {
-        const role = document.getElementById('regRole').value;
-        const name = document.getElementById('regName').value;
-        const phone = document.getElementById('regPhone').value;
-
-        if(!name || !phone) {
-            alert('সবগুলো ফিল্ড পূরণ করুন!');
-            return;
-        }
-
-        db.collection("users").add({
-            role: role,
-            name: name,
-            phone: phone,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert(`নিবন্ধন সফল হয়েছে! (${role} হিসেবে)`);
-            switchAuthTab('login');
-        });
-    }
-
-    function handleLogin() {
-        const user = document.getElementById('loginUser').value;
-        if(!user) return alert('নম্বর প্রদান করুন!');
-        document.getElementById('loginHeaderBtn').innerText = user;
-        alert('লগইন সফল!');
-        navigateTo('home');
-    }
-
-    function unlockWithCoin(id) {
-        if (userCoins >= 1) {
-            userCoins -= 1;
-            unlockedNumbers.push(id);
-            updateCoinDisplay();
-            alert('১টি MHR COIN কেটে নম্বরটি অনলক করা হলো!');
-            renderDataList();
-        } else {
-            alert('পর্যাপ্ত কয়েন নেই! দয়া করে কয়েন রিচার্জ করুন।');
-            navigateTo('buyCoins');
-        }
-    }
-
-    updateCoinDisplay();
+init();
 </script>
-
 </body>
 </html>
