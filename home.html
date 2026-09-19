@@ -11,49 +11,35 @@
         /* Header */
         .header { background: #ffffff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .logo { font-size: 26px; font-weight: 800; color: #1E6091; cursor: pointer; }
-        .header-btns { display: flex; gap: 10px; }
-        .auth-btn { background: #1E6091; color: white; border: none; padding: 6px 14px; border-radius: 15px; font-size: 12px; cursor: pointer; }
+        .coin-badge { background: #fff8e7; border: 1.5px solid #d4af37; color: #b8860b; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
         /* Page Views */
         .page-view { display: none; }
         .page-view.active { display: block; }
 
-        /* Home View Styles */
-        .search-container { padding: 15px 20px; }
-        .search-box { width: 100%; padding: 12px 16px; border: 1px solid #e1e8ed; border-radius: 25px; background: #fff; font-size: 14px; outline: none; }
-
-        .banner-container { padding: 0 20px; margin-bottom: 20px; }
-        .banner { background: linear-gradient(135deg, #1E6091, #184E77); color: white; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .banner h3 { font-size: 18px; margin-bottom: 8px; }
-        .banner button { background: #fff; color: #1E6091; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-
+        /* Grid and Cards */
         .section-title { font-size: 18px; font-weight: 700; color: #1E6091; margin: 15px 20px 10px 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 0 20px; }
         .card { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #edf2f7; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between; }
-        .card-icon { font-size: 32px; margin-bottom: 8px; }
-        .card h4 { font-size: 14px; color: #2d3748; margin-bottom: 4px; }
-        .card p { font-size: 11px; color: #718096; margin-bottom: 8px; }
-        .card button { background: #1E6091; color: white; border: none; padding: 8px 14px; border-radius: 15px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 6px; }
-
         .card.highlight { background: #f0f7ff; border: 1.5px solid #1E6091; }
 
-        /* Forms & Inputs */
+        /* Buttons & Forms */
         .form-box { background: white; margin: 15px 20px; padding: 20px; border-radius: 12px; border: 1px solid #e1e8ed; }
         .form-group { margin-bottom: 12px; text-align: left; }
         .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #4a5568; }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; }
-        .forgot-link { font-size: 12px; color: #1E6091; text-align: right; display: block; margin-top: 6px; cursor: pointer; text-decoration: underline; }
+        .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; }
 
-        .res-btn { flex: 1; padding: 10px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 6px; font-size: 12px; font-weight: bold; text-align: center; cursor: pointer; width: 100%; }
+        .res-btn { padding: 8px 12px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; width: 100%; }
         .res-btn.primary { background: #1E6091; color: white; }
+        .res-btn.coin-btn { background: #d4af37; color: white; border: none; }
 
-        /* Dynamic Listing Cards */
+        /* Person Cards */
         .person-card { background: white; border-radius: 12px; padding: 15px; margin: 12px 20px; border: 1px solid #edf2f7; box-shadow: 0 2px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; }
         .person-info h4 { color: #1E6091; font-size: 15px; }
         .person-info p { font-size: 12px; color: #666; margin-top: 2px; }
         .badge { background: #ebf8ff; color: #2b6cb0; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
 
-        /* Navigation Bar */
+        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; }
         .nav-item { text-align: center; color: #718096; font-size: 11px; cursor: pointer; text-decoration: none; }
         .nav-item.active { color: #1E6091; font-weight: bold; }
@@ -65,241 +51,144 @@
     <!-- Header -->
     <div class="header">
         <div class="logo" onclick="showPage('home')">পড়াও</div>
-        <div class="header-btns">
-            <button class="auth-btn" onclick="showPage('login')">Login / ID</button>
+        <div class="coin-badge" onclick="showPage('buyCoins')">
+            🪙 <span id="userCoinCount">1</span> MHR GOLD COIN
         </div>
     </div>
 
-    <!-- PAGE 1: HOME VIEW -->
+    <!-- HOME PAGE -->
     <div id="homePage" class="page-view active">
-        <div class="search-container">
-            <input type="text" class="search-box" placeholder="Khunjun... (e.g. Physics, Class 10)">
-        </div>
-
-        <div class="banner-container">
-            <div class="banner">
-                <div>
-                    <h3>Digital Learning<br>Platform</h3>
-                    <button onclick="showPage('subjects')">Start Learning</button>
-                </div>
-                <div style="font-size: 50px;">🎓</div>
-            </div>
-        </div>
-
-        <div class="section-title">Subjects & Local Search</div>
+        <div class="section-title">Services</div>
         <div class="grid">
-            <div class="card">
-                <div>
-                    <div class="card-icon">🧮</div>
-                    <h4>Mathematics</h4>
-                    <p>Chapter 1-12</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
-            <div class="card">
-                <div>
-                    <div class="card-icon">🔬</div>
-                    <h4>Science</h4>
-                    <p>Physics & Chem</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
-            <div class="card">
-                <div>
-                    <div class="card-icon">📚</div>
-                    <h4>English</h4>
-                    <p>Grammar & Writing</p>
-                </div>
-                <button onclick="showPage('subjects')">Start</button>
-            </div>
-
             <div class="card highlight">
                 <div>
-                    <div class="card-icon">📍</div>
+                    <div style="font-size:30px;">📍</div>
                     <h4 style="color: #1E6091;">Local Tutor / Student</h4>
-                    <p>আপনার এলাকায় শিক্ষক বা শিক্ষার্থী খুঁজুন</p>
+                    <p>এলাকাভিত্তিক শিক্ষক বা শিক্ষার্থী খুঁজুন</p>
                 </div>
-                <button onclick="showPage('localSearch')" style="background-color: #184E77;">খুঁজুন 🔍</button>
+                <button onclick="showPage('localSearch')" class="res-btn primary">খুঁজুন 🔍</button>
+            </div>
+            <div class="card">
+                <div>
+                    <div style="font-size:30px;">🪙</div>
+                    <h4>MHR Gold Coins</h4>
+                    <p>কয়েন রিচার্জ করুন</p>
+                </div>
+                <button onclick="showPage('buyCoins')" class="res-btn">Buy Coins</button>
             </div>
         </div>
     </div>
 
-    <!-- PAGE 2: LOCAL TEACHER / STUDENT SEARCH -->
+    <!-- LOCAL SEARCH PAGE -->
     <div id="localSearchPage" class="page-view">
-        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ও শিক্ষার্থী</div>
+        <div class="section-title">📍 এলাকাভিত্তিক টিউটর ড্যাশবোর্ড</div>
         
         <div class="form-box">
             <div class="form-group">
-                <label>আপনি কী খুঁজছেন?</label>
-                <select id="searchRole">
-                    <option value="Teacher">শিক্ষক (Teacher)</option>
-                    <option value="Student">শিক্ষার্থী (Student)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>আপনার জেলা / এলাকা</label>
+                <label>আপনার এলাকা টাইপ করুন</label>
                 <input type="text" id="searchLocation" placeholder="যেমন: ধানমন্ডি, ঢাকা">
             </div>
-            <button onclick="searchLocalData()" class="res-btn primary">অনুসন্ধান করুন</button>
-            <button onclick="showPage('addPost')" class="res-btn" style="margin-top:8px;">+ আপনার তথ্য যোগ করুন (Post Request)</button>
+            <button onclick="searchLocalData()" class="res-btn primary">খুঁজুন</button>
         </div>
 
-        <div class="section-title" style="font-size:15px;">তালিকা:</div>
-        <div id="localDataList">
-            <!-- Dynamic data will be loaded here -->
+        <div class="section-title" style="font-size:15px;">টিউটর ও শিক্ষার্থী তালিকা:</div>
+        <div id="localDataList"></div>
+    </div>
+
+    <!-- BUY MHR GOLD COINS PAGE -->
+    <div id="buyCoinsPage" class="page-view">
+        <div class="section-title">🪙 MHR GOLD COIN রিচার্জ সেন্টারে স্বাগতম</div>
+        <div class="form-box" style="text-align:center;">
+            <p style="font-size:13px; color:#555; margin-bottom:15px;">টিউটর বা শিক্ষার্থীর সাথে যোগাযোগের নম্বর আনলক করতে প্রতি নম্বরে ১টি করে <b>MHR GOLD COIN</b> প্রয়োজন।</p>
+            
+            <div style="border:1.5px solid #d4af37; padding:15px; border-radius:10px; margin-bottom:12px; background:#fffcf5;">
+                <h4>🥉 Standard Pack</h4>
+                <h3 style="color:#b8860b; margin:5px 0;">৫ টি MHR GOLD COIN</h3>
+                <p style="font-size:12px; color:#666;">মূল্য: ৳ ৫০</p>
+                <button onclick="addCoins(5)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            </div>
+
+            <div style="border:2px solid #b8860b; padding:15px; border-radius:10px; margin-bottom:12px; background:#fff8e7;">
+                <h4>🥇 Value Pack</h4>
+                <h3 style="color:#b8860b; margin:5px 0;">১২ টি MHR GOLD COIN</h3>
+                <p style="font-size:12px; color:#666;">মূল্য: ৳ ১০০ (২টি ফ্রি!)</p>
+                <button onclick="addCoins(12)" class="res-btn coin-btn" style="margin-top:8px;">bKash/Nagad দিয়ে কিনুন</button>
+            </div>
         </div>
     </div>
 
-    <!-- PAGE 3: ADD POST / DATA SAVE PAGE -->
-    <div id="addPostPage" class="page-view">
-        <div class="section-title">📝 আপনার তথ্য জমা দিন</div>
-        <div class="form-box">
-            <div class="form-group">
-                <label>আপনার নাম</label>
-                <input type="text" id="postName" placeholder="পূর্ণ নাম">
-            </div>
-            <div class="form-group">
-                <label>টাইপ</label>
-                <select id="postRole">
-                    <option value="Teacher">শিক্ষক (Teacher)</option>
-                    <option value="Student">শিক্ষার্থী (Student)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>এলাকা</label>
-                <input type="text" id="postArea" placeholder="যেমন: মিরপুর, ঢাকা">
-            </div>
-            <div class="form-group">
-                <label>বিষয় / ক্লাস</label>
-                <input type="text" id="postDetails" placeholder="যেমন: Math (Class 9-10)">
-            </div>
-            <div class="form-group">
-                <label>মোবাইল নম্বর</label>
-                <input type="text" id="postPhone" placeholder="017xxxxxxxx">
-            </div>
-            <button onclick="saveUserPost()" class="res-btn primary">তথ্য সেভ করুন (Save)</button>
-        </div>
-    </div>
-
-    <!-- PAGE 4: LOGIN / FORGOT PASSWORD PAGE -->
-    <div id="loginPage" class="page-view">
-        <div class="section-title">🔐 লগইন / আইডি রিকভারি</div>
-        <div class="form-box" id="loginBox">
-            <div class="form-group">
-                <label>মোবাইল নম্বর / ইমেইল</label>
-                <input type="text" id="loginUser" placeholder="017xxxxxxxx">
-            </div>
-            <div class="form-group">
-                <label>পাসওয়ার্ড</label>
-                <input type="password" id="loginPass" placeholder="******">
-                <span class="forgot-link" onclick="toggleForgot(true)">Forgot Password? (পাসওয়ার্ড ভুলে গেছেন?)</span>
-            </div>
-            <button onclick="alert('লগইন সফল হয়েছে!')" class="res-btn primary">Login</button>
-        </div>
-
-        <!-- Forgot Password Box -->
-        <div class="form-box" id="forgotBox" style="display:none;">
-            <h4 style="color:#1E6091; margin-bottom:10px;">🔑 ID / Password Recovery</h4>
-            <div class="form-group">
-                <label>আপনার নিবন্ধিত মোবাইল নম্বর বা ইমেইল দিন</label>
-                <input type="text" id="recoveryInput" placeholder="017xxxxxxxx / email@domain.com">
-            </div>
-            <button onclick="sendRecoveryCode()" class="res-btn primary">Send Verification Code (OTP)</button>
-            <span class="forgot-link" onclick="toggleForgot(false)" style="text-align:center; margin-top:10px;">Back to Login</span>
-        </div>
-    </div>
-
-    <!-- PAGE 5: SUBJECTS VIEW -->
-    <div id="subjectsPage" class="page-view">
-        <div class="section-title">Mathematics & Science</div>
-        <div class="form-box">
-            <h4>অধ্যায় ১: সেট ও ফাংশন</h4>
-            <p style="font-size:12px; color:#666; margin: 5px 0 10px 0;">৩টি ভিডিও লেকচার • ২টি PDF নোট</p>
-            <button class="res-btn primary">🎥 Start Video</button>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
+    <!-- BOTTOM NAV -->
     <div class="bottom-nav">
         <div id="navHome" class="nav-item active" onclick="showPage('home')">
             <span class="nav-icon">🏠</span>Home
         </div>
-        <div id="navSubjects" class="nav-item" onclick="showPage('subjects')">
-            <span class="nav-icon">📖</span>Classes
-        </div>
         <div id="navSearch" class="nav-item" onclick="showPage('localSearch')">
             <span class="nav-icon">📍</span>Find Tutor
         </div>
-        <div id="navProfile" class="nav-item" onclick="showPage('login')">
-            <span class="nav-icon">👤</span>Profile / ID
+        <div id="navCoin" class="nav-item" onclick="showPage('buyCoins')">
+            <span class="nav-icon">🪙</span>Buy Coins
         </div>
     </div>
 
 <script>
-    // Initial Mock Data
+    let userCoins = 1; // Default Free Coin
+    const unlockedNumbers = []; // Tracks unlocked entries
+
     const defaultData = [
-        { name: "আরিফুর রহমান", role: "Teacher", area: "ধানমন্ডি, ঢাকা", details: "গণিত ও পদার্থবিজ্ঞান (Class 8 - 10)", phone: "01700000000" },
-        { name: "তানভীর আহমেদ", role: "Student", area: "জিইসি, চট্টগ্রাম", details: "ইংরেজি বিষয় টিউটর প্রয়োজন (Class 9)", phone: "01800000000" }
+        { id: 1, name: "আরিফুর রহমান", role: "Teacher", area: "ধানমন্ডি, ঢাকা", details: "গণিত ও পদার্থবিজ্ঞান (Class 8 - 10)", phone: "01700000000" },
+        { id: 2, name: "তানভীর আহমেদ", role: "Student", area: "জিইসি, চট্টগ্রাম", details: "ইংরেজি বিষয় টিউটর প্রয়োজন (Class 9)", phone: "01800000000" }
     ];
 
-    // Load Local Data
-    function getStoredPosts() {
-        const stored = localStorage.getItem('porao_posts');
-        return stored ? JSON.parse(stored) : defaultData;
+    function updateCoinDisplay() {
+        document.getElementById('userCoinCount').innerText = userCoins;
     }
 
-    // Save Data Function
-    function saveUserPost() {
-        const name = document.getElementById('postName').value;
-        const role = document.getElementById('postRole').value;
-        const area = document.getElementById('postArea').value;
-        const details = document.getElementById('postDetails').value;
-        const phone = document.getElementById('postPhone').value;
-
-        if(!name || !area || !phone) {
-            alert('দয়া করে আপনার নাম, এলাকা এবং ফোন নম্বর দিন!');
-            return;
-        }
-
-        const newPost = { name, role, area, details, phone };
-        const currentPosts = getStoredPosts();
-        currentPosts.push(newPost);
-        
-        // Save to Browser Storage
-        localStorage.setItem('porao_posts', JSON.stringify(currentPosts));
-
-        alert('আপনার তথ্য সফলভাবে সেভ হয়েছে!');
-        showPage('localSearch');
-        renderDataList();
-    }
-
-    // Render Search Results
     function renderDataList(filterArea = '') {
         const listContainer = document.getElementById('localDataList');
-        const posts = getStoredPosts();
         listContainer.innerHTML = '';
 
-        const filtered = posts.filter(p => p.area.toLowerCase().includes(filterArea.toLowerCase()));
-
-        if(filtered.length === 0) {
-            listContainer.innerHTML = `<p style="padding:20px; text-align:center; color:#777;">কোনো তথ্য পাওয়া যায়নি।</p>`;
-            return;
-        }
+        const filtered = defaultData.filter(p => p.area.toLowerCase().includes(filterArea.toLowerCase()));
 
         filtered.forEach(item => {
+            const isUnlocked = unlockedNumbers.includes(item.id);
+            const maskedPhone = item.phone.substring(0, 3) + "******" + item.phone.substring(9);
+            
+            const buttonHtml = isUnlocked 
+                ? `<button class="res-btn primary" onclick="alert('যোগাযোগ নম্বর: ${item.phone}')">📞 Call (${item.phone})</button>`
+                : `<button class="res-btn coin-btn" onclick="unlockWithCoin(${item.id})">🔓 Unlock (1 Coin)</button>`;
+
             listContainer.innerHTML += `
                 <div class="person-card">
                     <div class="person-info">
                         <h4>${item.name} <span class="badge">${item.role}</span></h4>
                         <p>📍 ${item.area}</p>
                         <p>📚 ${item.details}</p>
+                        <p style="font-weight:bold; margin-top:4px; color:#777;">📱 ${isUnlocked ? item.phone : maskedPhone}</p>
                     </div>
-                    <button class="res-btn primary" onclick="alert('যোগাযোগ নম্বর: ${item.phone}')">কল করুন</button>
+                    <div style="width:130px;">${buttonHtml}</div>
                 </div>
             `;
         });
+    }
+
+    function unlockWithCoin(id) {
+        if (userCoins >= 1) {
+            userCoins -= 1;
+            unlockedNumbers.push(id);
+            updateCoinDisplay();
+            alert('১ টি MHR GOLD COIN ব্যবহার করে নম্বরটি সফলভাবে আনলক করা হয়েছে!');
+            renderDataList();
+        } else {
+            alert('আপনার কাছে পর্যাপ্ত MHR GOLD COIN নেই! দয়া করে কয়েন রিচার্জ করুন।');
+            showPage('buyCoins');
+        }
+    }
+
+    function addCoins(amount) {
+        userCoins += amount;
+        updateCoinDisplay();
+        alert(`অভিনন্দন! আপনার অ্যাকাউন্টে ${amount} টি MHR GOLD COIN যুক্ত হয়েছে।`);
+        showPage('localSearch');
     }
 
     function searchLocalData() {
@@ -307,23 +196,6 @@
         renderDataList(area);
     }
 
-    // Toggle Forgot Password View
-    function toggleForgot(isForgot) {
-        document.getElementById('loginBox').style.display = isForgot ? 'none' : 'block';
-        document.getElementById('forgotBox').style.display = isForgot ? 'block' : 'none';
-    }
-
-    // Send Recovery OTP Function
-    function sendRecoveryCode() {
-        const input = document.getElementById('recoveryInput').value;
-        if(!input) {
-            alert('আপনার মোবাইল নম্বর বা ইমেইল লিখুন!');
-            return;
-        }
-        alert(`একটি ভেরিফিকেশন কোড (OTP) ${input} এ পাঠানো হয়েছে। কোডটি নিশ্চিত করে নতুন পাসওয়ার্ড সেট করুন।`);
-    }
-
-    // Navigation Switcher
     function showPage(pageName) {
         document.querySelectorAll('.page-view').forEach(view => view.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -331,23 +203,18 @@
         if(pageName === 'home') {
             document.getElementById('homePage').classList.add('active');
             document.getElementById('navHome').classList.add('active');
-        } else if(pageName === 'subjects') {
-            document.getElementById('subjectsPage').classList.add('active');
-            document.getElementById('navSubjects').classList.add('active');
         } else if(pageName === 'localSearch') {
             document.getElementById('localSearchPage').classList.add('active');
             document.getElementById('navSearch').classList.add('active');
             renderDataList();
-        } else if(pageName === 'addPost') {
-            document.getElementById('addPostPage').classList.add('active');
-        } else if(pageName === 'login') {
-            document.getElementById('loginPage').classList.add('active');
-            document.getElementById('navProfile').classList.add('active');
+        } else if(pageName === 'buyCoins') {
+            document.getElementById('buyCoinsPage').classList.add('active');
+            document.getElementById('navCoin').classList.add('active');
         }
         window.scrollTo(0, 0);
     }
 
-    // Initial Load
+    updateCoinDisplay();
     renderDataList();
 </script>
 
