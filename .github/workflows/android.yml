@@ -45,6 +45,14 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
+      - name: Build Release APK
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
       - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug
@@ -54,6 +62,12 @@ jobs:
         with:
           name: porao-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: porao-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
