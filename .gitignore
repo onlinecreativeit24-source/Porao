@@ -1,0 +1,9 @@
+node_modules/
+android/app/build/
+android/build/
+android/.gradle/
+android/.cxx/
+android/app/*.keystore
+android/local.properties
+*.log
+.expo/
