@@ -3,20 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>পড়াও - বিষয়ভিত্তিক পড়া</title>
+    <title>পড়াও - বিষয়ভিত্তিক কোর্স</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background-color: #f7f9fc; color: #333; padding-bottom: 20px; }
+        body { background-color: #f7f9fc; color: #333; padding-bottom: 70px; }
         
         .header { background: #1E6091; color: white; padding: 15px 20px; display: flex; align-items: center; gap: 15px; }
         .back-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; text-decoration: none; }
-        .header h2 { font-size: 20px; font-weight: 700; }
+        .header h2 { font-size: 18px; font-weight: 700; }
 
         .content { padding: 20px; }
-        .chapter-card { background: white; border-radius: 12px; padding: 15px 20px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; border: 1px solid #e1e8ed; }
-        .chapter-info h4 { font-size: 16px; color: #1E6091; margin-bottom: 4px; }
-        .chapter-info p { font-size: 12px; color: #666; }
-        .start-btn { background: #1E6091; color: white; border: none; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .chapter-card { background: white; border-radius: 12px; padding: 16px 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #e1e8ed; }
+        .chapter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .chapter-title { font-size: 16px; font-weight: bold; color: #1E6091; }
+        .chapter-meta { font-size: 12px; color: #666; }
+
+        .resource-buttons { display: flex; gap: 10px; margin-top: 12px; }
+        .res-btn { flex: 1; padding: 8px; border: 1px solid #1E6091; background: #fff; color: #1E6091; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; display: inline-block; }
+        .res-btn.primary { background: #1E6091; color: white; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e1e8ed; }
+        .nav-item { text-align: center; color: #718096; text-decoration: none; font-size: 11px; }
+        .nav-item.active { color: #1E6091; font-weight: bold; }
+        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -27,29 +37,60 @@
     </div>
 
     <div class="content">
+        <!-- Chapter 1 -->
         <div class="chapter-card">
-            <div class="chapter-info">
-                <h4>অধ্যায় ১: সেট ও ফাংশন</h4>
-                <p>৩টি লেকচার • ২টি নোট</p>
+            <div class="chapter-header">
+                <div>
+                    <div class="chapter-title">অধ্যায় ১: সেট ও ফাংশন</div>
+                    <div class="chapter-meta">৩টি ভিডিও লেকচার • ২টি PDF নোট</div>
+                </div>
             </div>
-            <button class="start-btn">পড়া শুরু করুন</button>
+            <div class="resource-buttons">
+                <a href="#" class="res-btn primary">🎥 ভিডিও দেখুন</a>
+                <a href="#" class="res-btn">📄 নোট ডাউনলোড</a>
+            </div>
         </div>
 
+        <!-- Chapter 2 -->
         <div class="chapter-card">
-            <div class="chapter-info">
-                <h4>অধ্যায় ২: বীজগণিতীয় রাশি</h4>
-                <p>৪টি লেকচার • ১টি নোট</p>
+            <div class="chapter-header">
+                <div>
+                    <div class="chapter-title">অধ্যায় ২: বীজগণিতীয় রাশি</div>
+                    <div class="chapter-meta">৪টি ভিডিও লেকচার • ১টি PDF নোট</div>
+                </div>
             </div>
-            <button class="start-btn">পড়া শুরু করুন</button>
+            <div class="resource-buttons">
+                <a href="#" class="res-btn primary">🎥 ভিডিও দেখুন</a>
+                <a href="#" class="res-btn">📄 নোট ডাউনলোড</a>
+            </div>
         </div>
 
+        <!-- Chapter 3 -->
         <div class="chapter-card">
-            <div class="chapter-info">
-                <h4>অধ্যায় ৩: জ্যামিতি</h4>
-                <p>৫টি লেকচার • ৩টি নোট</p>
+            <div class="chapter-header">
+                <div>
+                    <div class="chapter-title">অধ্যায় ৩: জ্যামিতি ও স্থানাঙ্ক</div>
+                    <div class="chapter-meta">৫টি ভিডিও লেকচার • ৩টি PDF নোট</div>
+                </div>
             </div>
-            <button class="start-btn">পড়া শুরু করুন</button>
+            <div class="resource-buttons">
+                <a href="#" class="res-btn primary">🎥 ভিডিও দেখুন</a>
+                <a href="#" class="res-btn">📄 নোট ডাউনলোড</a>
+            </div>
         </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <span class="nav-icon">🏠</span>Home
+        </a>
+        <a href="subjects.html" class="nav-item active">
+            <span class="nav-icon">📖</span>My Classes
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>Profile
+        </a>
     </div>
 
 </body>
