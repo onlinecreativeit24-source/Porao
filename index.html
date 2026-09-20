@@ -84,7 +84,7 @@ main{max-width:760px;margin:0 auto}
 
 /* best tutors */
 .tutors{padding:0 16px;display:grid;gap:8px}
-.tutor{display:flex;align-items:center;gap:12px;background:#fff;border:.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.tutor{cursor:pointer;display:flex;align-items:center;gap:12px;background:#fff;border:.5px solid var(--line);border-radius:14px;padding:10px 12px}
 .tav{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem}
 .tutor .grow{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
 .tutor small{color:var(--muted)}
@@ -128,6 +128,12 @@ main{max-width:760px;margin:0 auto}
 .coins-big{font-size:2rem;font-weight:700}
 .admin-form{display:grid;gap:8px;grid-template-columns:1fr 1fr 90px auto;align-items:center;margin-bottom:10px}
 @media(max-width:560px){.admin-form{grid-template-columns:1fr 1fr}.admin-form .btn{grid-column:1/-1}}
+.inline-form{display:flex;gap:8px;margin:8px 0}
+.inline-form .in{flex:1;min-width:0}
+.stars{display:flex;gap:6px;justify-content:center;margin:14px 0 4px}
+.stars button{background:none;border:0;font-size:2.4rem;line-height:1;color:#CBD5DF;cursor:pointer;padding:0 2px}
+.stars button.on{color:#F0B429}
+.hint{font-size:.85rem;color:var(--muted);padding:0 16px 8px;margin:0}
 
 /* bottom nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:.5px solid #D6DEE8;display:flex;justify-content:space-around;align-items:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
@@ -240,7 +246,8 @@ dialog textarea{min-height:96px;resize:vertical}
     </div>
 
     <div id="tutorSec" hidden>
-      <div class="feed-head"><h2>সেরা শিক্ষক</h2></div>
+      <div class="feed-head"><h2>সেরা শিক্ষক</h2><button class="link" id="allTutorsBtn" data-act="alltutors">সব দেখুন</button></div>
+      <p class="hint">শিক্ষকের কার্ডে চাপ দিয়ে রেটিং দিন (১–৫ তারা)।</p>
       <div class="tutors" id="tutorList"></div>
     </div>
 
@@ -315,11 +322,15 @@ dialog textarea{min-height:96px;resize:vertical}
       <label for="aName">পূর্ণ নাম</label>
       <input id="aName" autocomplete="name" maxlength="60">
     </div>
-    <label for="aId">মোবাইল নম্বর বা ইমেইল</label>
+    <label for="aId" id="aIdLabel">ইমেইল বা মোবাইল নম্বর</label>
     <input id="aId" inputmode="email" autocomplete="username" required>
+    <div data-signup hidden>
+      <label for="aPhone">মোবাইল নম্বর</label>
+      <input id="aPhone" inputmode="tel" autocomplete="tel" placeholder="০১XXXXXXXXX">
+    </div>
     <label for="aPass">পাসওয়ার্ড</label>
     <input id="aPass" type="password" autocomplete="current-password" required>
-    <p class="note" data-signup hidden>পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।<span id="coinNote"> নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</span></p>
+    <p class="note" data-signup hidden>সঠিক ইমেইল দিন, পাসওয়ার্ড ভুলে গেলে ওই ইমেইলে রিসেট লিংক যাবে। পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।<span id="coinNote"> নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</span></p>
     <button class="btn submit" id="authGo" type="submit">লগইন করুন</button>
     <p class="note"><button type="button" class="link" id="forgot">পাসওয়ার্ড ভুলে গেছেন?</button></p>
   </form>
@@ -398,6 +409,24 @@ dialog textarea{min-height:96px;resize:vertical}
   </div>
 </dialog>
 
+<!-- RATE TUTOR -->
+<dialog id="dRate">
+  <div class="dlg">
+    <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
+    <h2 id="rtName"></h2>
+    <p class="note" id="rtSub"></p>
+    <div class="stars" id="rtStars" role="group" aria-label="রেটিং">
+      <button type="button" data-star="1" aria-label="১ তারা">★</button>
+      <button type="button" data-star="2" aria-label="২ তারা">★</button>
+      <button type="button" data-star="3" aria-label="৩ তারা">★</button>
+      <button type="button" data-star="4" aria-label="৪ তারা">★</button>
+      <button type="button" data-star="5" aria-label="৫ তারা">★</button>
+    </div>
+    <p class="note" id="rtHint" style="text-align:center"></p>
+    <button class="btn submit" id="rtGo" type="button" data-act="submitrate">রেটিং জমা দিন</button>
+  </div>
+</dialog>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -433,6 +462,7 @@ const AVC = [['#CECBF6', '#3C3489'], ['#9FE1CB', '#085041'], ['#F5C4B3', '#712B1
 let auth, db, TS, FV;
 let me = null, profile = null, isAdmin = false, unsubProfile = null;
 let allPosts = [], tutors = [], unlocked = new Set();
+let showAllTutors = false, tutorEnsured = false, rateTid = '', rateStars = 0;
 let authMode = 'login', pendingProfile = null, creating = false, lastPostAt = 0, lastContact = '';
 /* পেমেন্ট সেটিং: ডিফল্ট বন্ধ (সব ফ্রি)। অ্যাডমিন প্যানেল থেকে চালু/বন্ধ করা যায়। */
 let settings = { enabled: false, number: '' };
@@ -441,7 +471,7 @@ const payNum = () => settings.number || RECHARGE_NUMBER;
 
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('on');
-  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 3400);
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), Math.max(3400, msg.length * 90));
 }
 
 function errMsg(e) {
@@ -537,6 +567,7 @@ function init() {
   }
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth(); db = firebase.firestore();
+  auth.languageCode = 'bn';
   TS = () => firebase.firestore.FieldValue.serverTimestamp();
   FV = firebase.firestore.FieldValue;
   auth.getRedirectResult().catch(e => toast(errMsg(e)));
@@ -547,13 +578,14 @@ function init() {
 }
 
 async function onAuth(u) {
-  me = u; profile = null; isAdmin = false; unlocked = new Set();
+  me = u; profile = null; isAdmin = false; unlocked = new Set(); tutorEnsured = false;
   if (!u) pendingProfile = null;
   if (unsubProfile) { unsubProfile(); unsubProfile = null; }
   if (u) {
     unsubProfile = db.collection('users').doc(u.uid).onSnapshot(snap => {
       if (!snap.exists) { ensureProfile(u); return; }
       profile = snap.data(); renderChrome();
+      if (profile.role === 'teacher') ensureTutor(u);
     }, err => console.error(err));
     try { isAdmin = (await db.collection('admins').doc(u.uid).get()).exists; } catch (e) { isAdmin = false; }
     try {
@@ -574,7 +606,7 @@ async function ensureProfile(u) {
     await db.collection('users').doc(u.uid).set({
       name: (p.name || u.displayName || 'ব্যবহারকারী').slice(0, 60),
       role: p.role || 'student',
-      contact: contactOf(u.email).slice(0, 100),
+      contact: (p.phone || contactOf(u.email)).slice(0, 100),
       coins: 3,
       createdAt: TS()
     });
@@ -599,25 +631,88 @@ function show(v) {
   window.scrollTo(0, 0);
 }
 
-/* ---------- best tutors (Firestore: tutors → name, subject, rating) ---------- */
+/* ---------- best tutors + rating (Firestore: tutors/{uid}, ratings/{tutorId_raterId}) ---------- */
+async function ensureTutor(u) {
+  if (tutorEnsured) return; tutorEnsured = true;
+  try {
+    const ref = db.collection('tutors').doc(u.uid);
+    if (!(await ref.get()).exists) {
+      await ref.set({ uid: u.uid, name: (profile && profile.name) || u.displayName || 'শিক্ষক', subject: '', rating: 0, ratingSum: 0, ratingCount: 0, createdAt: TS() });
+      loadTutors();
+    }
+  } catch (e) { tutorEnsured = false; }
+}
 async function loadTutors() {
   if (!CONFIGURED || !db) { tutors = []; renderTutors(); return; }
   try {
-    const s = await db.collection('tutors').orderBy('rating', 'desc').limit(5).get();
+    const s = await db.collection('tutors').orderBy('rating', 'desc').limit(showAllTutors ? 30 : 5).get();
     tutors = s.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { tutors = []; }
   renderTutors();
 }
 function renderTutors() {
   $('#tutorSec').hidden = !tutors.length;
+  $('#allTutorsBtn').textContent = showAllTutors ? 'কম দেখুন' : 'সব দেখুন';
   $('#tutorList').innerHTML = tutors.map((t, i) => {
-    const c = AVC[i % AVC.length], r = parseFloat(t.rating);
-    return `<div class="tutor">
+    const c = AVC[i % AVC.length], n = t.ratingCount || 0, r = parseFloat(t.rating);
+    return `<div class="tutor" data-act="rate" data-id="${esc(t.id)}" role="button" tabindex="0">
       <span class="tav" style="background:${c[0]};color:${c[1]}">${esc((t.name || '?').trim().charAt(0))}</span>
       <div class="grow"><b>${esc(t.name)}</b>${t.subject ? `<small>${esc(t.subject)}</small>` : ''}</div>
-      ${isNaN(r) ? '' : `<span class="rate">★ ${toBn(r.toFixed(1))}</span>`}
+      <span class="rate">${n && !isNaN(r) ? '★ ' + toBn(r.toFixed(1)) + ' (' + toBn(n) + ')' : 'নতুন'}</span>
     </div>`;
   }).join('');
+}
+function setStars(n) {
+  rateStars = n;
+  $$('#rtStars button').forEach(b => b.classList.toggle('on', +b.dataset.star <= n));
+  $('#rtHint').textContent = n ? ['', 'খুব খারাপ', 'খারাপ', 'ঠিকঠাক', 'ভালো', 'চমৎকার'][n] : 'তারা চাপ দিয়ে রেটিং বেছে নিন।';
+}
+async function openRate(tid) {
+  const t = tutors.find(x => x.id === tid); if (!t) return;
+  if (!me) { toast('রেটিং দিতে আগে লগইন করুন।'); return openAuth('login'); }
+  if (tid === me.uid) return toast('নিজেকে রেটিং দেওয়া যায় না।');
+  rateTid = tid;
+  $('#rtName').textContent = t.name;
+  const n = t.ratingCount || 0;
+  $('#rtSub').textContent = [t.subject, n ? '★ ' + toBn(parseFloat(t.rating).toFixed(1)) + ' (' + toBn(n) + ' জন)' : 'এখনো কেউ রেটিং দেয়নি'].filter(Boolean).join(' · ');
+  setStars(0);
+  $('#dRate').showModal();
+  try {
+    const r = await db.collection('ratings').doc(`${tid}_${me.uid}`).get();
+    if (r.exists) setStars(r.data().stars);
+  } catch (e) { /* ignore */ }
+}
+async function submitRating() {
+  if (!me || !rateTid) return;
+  if (!rateStars) return toast('আগে তারা বেছে নিন।');
+  const tid = rateTid, stars = rateStars, btn = $('#rtGo'); btn.disabled = true;
+  const tRef = db.collection('tutors').doc(tid), rRef = db.collection('ratings').doc(`${tid}_${me.uid}`);
+  try {
+    await db.runTransaction(async tx => {
+      const [t, r] = await Promise.all([tx.get(tRef), tx.get(rRef)]);
+      if (!t.exists) throw new Error('শিক্ষক পাওয়া যায়নি।');
+      const d = t.data(); let sum = d.ratingSum || 0, cnt = d.ratingCount || 0;
+      if (r.exists) sum += stars - (r.data().stars || 0); else { sum += stars; cnt += 1; }
+      tx.set(rRef, { tutorId: tid, raterId: me.uid, stars, updatedAt: TS() });
+      tx.update(tRef, { ratingSum: sum, ratingCount: cnt, rating: Math.round(sum / cnt * 10) / 10 });
+    });
+    $('#dRate').close(); toast('ধন্যবাদ! রেটিং জমা হয়েছে।'); loadTutors();
+  } catch (e) { toast(errMsg(e)); }
+  finally { btn.disabled = false; }
+}
+async function saveSubject() {
+  const v = $('#mySubj').value.trim().slice(0, 60);
+  try { await db.collection('tutors').doc(me.uid).update({ subject: v }); toast('সেভ হয়েছে।'); loadTutors(); }
+  catch (e) { toast(errMsg(e)); }
+}
+async function addEmail() {
+  const v = (prompt('আপনার ইমেইল দিন (এই ইমেইলে ভেরিফিকেশন লিংক যাবে)') || '').trim().toLowerCase();
+  if (!v) return;
+  if (!/^\S+@\S+\.\S+$/.test(v)) return toast('সঠিক ইমেইল দিন।');
+  try {
+    await me.verifyBeforeUpdateEmail(v);
+    toast('ভেরিফিকেশন লিংক পাঠানো হয়েছে। লিংকে চাপ দিলে ইমেইল যুক্ত হবে। এরপর থেকে এই ইমেইল দিয়ে লগইন করবেন।');
+  } catch (e) { toast(e.code === 'auth/requires-recent-login' ? 'নিরাপত্তার জন্য একবার লগআউট করে আবার লগইন করে চেষ্টা করুন।' : errMsg(e)); }
 }
 
 /* ---------- feed ---------- */
@@ -695,6 +790,8 @@ function setAuthMode(m) {
   $('#tabSignup').classList.toggle('on', m === 'signup');
   $('#aPass').autocomplete = m === 'signup' ? 'new-password' : 'current-password';
   $('#forgot').parentElement.hidden = m === 'signup';
+  $('#aIdLabel').textContent = m === 'signup' ? 'ইমেইল (পাসওয়ার্ড রিসেটের জন্য জরুরি)' : 'ইমেইল বা মোবাইল নম্বর';
+  $('#aId').placeholder = m === 'signup' ? 'name@example.com' : '';
 }
 function openAuth(m = 'login') { setAuthMode(m); $('#dAuth').showModal(); }
 $$('[data-authmode]').forEach(b => b.addEventListener('click', () => setAuthMode(b.dataset.authmode)));
@@ -721,13 +818,15 @@ $('#fAuth').addEventListener('submit', async e => {
   e.preventDefault();
   if (!CONFIGURED) return toast('আগে firebaseConfig বসান।');
   const email = toEmail($('#aId').value), pass = $('#aPass').value;
-  if (!email) return toast('সঠিক মোবাইল নম্বর (০১XXXXXXXXX) বা ইমেইল দিন।');
+  if (!email) return toast('সঠিক ইমেইল (বা লগইনের জন্য মোবাইল নম্বর) দিন।');
   const btn = $('#authGo');
   if (authMode === 'signup') {
-    const name = $('#aName').value.trim();
+    const name = $('#aName').value.trim(), phone = normPhone($('#aPhone').value);
     if (name.length < 2) return toast('আপনার নাম লিখুন।');
+    if (!email.includes('@') || email.endsWith('@porao.app')) return toast('সঠিক ইমেইল দিন। পাসওয়ার্ড ভুলে গেলে এই ইমেইলে লিংক যাবে।');
+    if (!phone) return toast('সঠিক মোবাইল নম্বর দিন (০১XXXXXXXXX)।');
     if (pass.length < 8) return toast('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের দিন।');
-    pendingProfile = { name, role: $('input[name=arole]:checked').value };
+    pendingProfile = { name, phone, role: $('input[name=arole]:checked').value };
   }
   btn.disabled = true;
   try {
@@ -743,10 +842,16 @@ $('#fAuth').addEventListener('submit', async e => {
 });
 
 $('#forgot').addEventListener('click', async () => {
-  const v = $('#aId').value.trim();
-  if (!v.includes('@')) return toast('মোবাইল নম্বর দিয়ে খোলা অ্যাকাউন্টের পাসওয়ার্ড রিসেট করতে অ্যাডমিনের সাথে যোগাযোগ করুন।');
-  try { await auth.sendPasswordResetEmail(v); toast('রিসেট লিংক ইমেইলে পাঠানো হয়েছে।'); }
-  catch (e) { toast(errMsg(e)); }
+  let v = $('#aId').value.trim();
+  if (!v) v = (prompt('আপনার অ্যাকাউন্টের ইমেইল দিন') || '').trim();
+  if (!v) return;
+  if (!v.includes('@') || v.toLowerCase().endsWith('@porao.app')) return toast('মোবাইল নম্বর দিয়ে খোলা পুরোনো অ্যাকাউন্টে ইমেইল নেই। লগইন করে প্রোফাইল থেকে ইমেইল যোগ করুন, অথবা অ্যাডমিনের সাথে যোগাযোগ করুন।');
+  const btn = $('#forgot'); btn.disabled = true;
+  try {
+    await auth.sendPasswordResetEmail(v.toLowerCase());
+    toast('লিংক পাঠানো হয়েছে (এই ইমেইলে অ্যাকাউন্ট থাকলে)। ইনবক্স, স্প্যাম ও প্রমোশন ফোল্ডার দেখুন। Google দিয়ে খোলা অ্যাকাউন্টে পাসওয়ার্ড নেই, Google দিয়ে লগইন করুন।');
+  } catch (e) { toast(errMsg(e)); }
+  finally { btn.disabled = false; }
 });
 
 /* ---------- new post ---------- */
@@ -871,6 +976,13 @@ async function renderProfile() {
   const byTime = (x, y) => ((y.createdAt && y.createdAt.seconds) || 0) - ((x.createdAt && x.createdAt.seconds) || 0);
   posts.sort(byTime); pays.sort(byTime);
   const pr = profile || {};
+  let tdoc = null;
+  if (pr.role === 'teacher') { try { const t = await db.collection('tutors').doc(me.uid).get(); tdoc = t.exists ? t.data() : null; } catch (e) { /* ignore */ } }
+  const legacy = (me.email || '').endsWith('@porao.app');
+  const emailBox = legacy ? `<div class="row"><div class="grow"><b>ইমেইল যোগ করুন</b><br><small>পাসওয়ার্ড ভুলে গেলে রিসেট লিংক পেতে নিজের ইমেইল যোগ করুন।</small></div><button class="btn sm" data-act="addemail">যোগ করুন</button></div>` : '';
+  const teacherBox = tdoc ? `<h2 class="sec-title">শিক্ষক প্রোফাইল</h2>
+    <div class="row"><div class="grow"><b>আপনার রেটিং: ${tdoc.ratingCount ? '★ ' + toBn(parseFloat(tdoc.rating).toFixed(1)) + ' (' + toBn(tdoc.ratingCount) + ' জন)' : 'এখনো কেউ রেটিং দেয়নি'}</b></div></div>
+    <div class="inline-form"><input class="in" id="mySubj" maxlength="60" placeholder="আপনি কোন কোন বিষয় পড়ান" value="${esc(tdoc.subject || '')}" aria-label="আপনার বিষয়"><button class="btn sm" data-act="savesubj">সেভ</button></div>` : '';
   const av = me.photoURL
     ? `<img class="av" src="${esc(me.photoURL)}" alt="" referrerpolicy="no-referrer">`
     : `<span class="av" aria-hidden="true">${esc((pr.name || '?').trim().charAt(0))}</span>`;
@@ -884,6 +996,8 @@ async function renderProfile() {
         <button class="btn line" data-act="logout">লগআউট</button>
       </div>
     </div>
+    ${emailBox}
+    ${teacherBox}
     <h2 class="sec-title">আমার পোস্ট</h2>
     ${posts.length ? posts.map(p => `<div class="row">
       <div class="grow"><b>${esc(p.title)}</b><br><small>${esc(TYPES[p.type] || '')}, ${p.status === 'closed' ? 'বন্ধ' : 'চালু'}, ${esc(ago(p.createdAt))}</small></div>
@@ -947,15 +1061,9 @@ async function renderAdmin() {
       <div class="grow"><b>পেমেন্ট সিস্টেম: ${payOn() ? 'চালু' : 'বন্ধ'}</b><br><small>${payOn() ? 'নম্বর দেখতে ১ কয়েন লাগছে।' : 'এখন সব ফ্রি। কয়েন কাটা হচ্ছে না।'}</small></div>
       <button class="btn sm ${payOn() ? 'danger' : ''}" data-act="togglepay">${payOn() ? 'বন্ধ করুন' : 'চালু করুন'}</button>
     </div>
-    <h2 class="sec-title">সেরা শিক্ষক (হোম পেজে দেখায়)</h2>
-    <div class="admin-form">
-      <input class="in" id="tName" placeholder="শিক্ষকের নাম" maxlength="60" aria-label="শিক্ষকের নাম">
-      <input class="in" id="tSubj" placeholder="বিষয়" maxlength="60" aria-label="বিষয়">
-      <input class="in" id="tRate" type="number" step="0.1" min="0" max="5" placeholder="রেটিং" aria-label="রেটিং (০-৫)">
-      <button class="btn sm" data-act="addtutor">যোগ করুন</button>
-    </div>
-    ${tutors.length ? tutors.map(t => `<div class="row"><div class="grow"><b>${esc(t.name)}</b><br><small>${esc(t.subject || '')} ${isNaN(parseFloat(t.rating)) ? '' : '· ★ ' + toBn(parseFloat(t.rating).toFixed(1))}</small></div>
-      <button class="btn sm danger" data-act="deltutor" data-id="${esc(t.id)}">মুছুন</button></div>`).join('') : '<p class="note">এখনো কোনো শিক্ষক যোগ করা হয়নি। উপরের ফর্ম দিয়ে যোগ করুন।</p>'}
+    <h2 class="sec-title">শিক্ষক তালিকা (মডারেশন)</h2>
+    ${tutors.length ? tutors.map(t => `<div class="row"><div class="grow"><b>${esc(t.name)}</b><br><small>${esc(t.subject || '')} ${t.ratingCount ? '· ★ ' + toBn(parseFloat(t.rating).toFixed(1)) + ' (' + toBn(t.ratingCount) + ' জন)' : '· নতুন'}</small></div>
+      <button class="btn sm danger" data-act="deltutor" data-id="${esc(t.id)}">মুছুন</button></div>`).join('') : '<p class="note">এখনো কোনো শিক্ষক নেই। শিক্ষক হিসেবে সাইন আপ করলে এখানে আসবে।</p>'}
     <h2 class="sec-title">পেন্ডিং পেমেন্ট (${toBn(pays.length)})</h2>
     ${pays.length ? pays.map(p => `<div class="row">
       <div class="grow"><b>${esc(p.name)}</b> — ${toBn(p.coins)} কয়েন (৳${toBn(p.amount)})<br>
@@ -991,15 +1099,6 @@ async function togglePayment() {
     toast(on ? 'পেমেন্ট চালু হয়েছে।' : 'পেমেন্ট বন্ধ হয়েছে।');
   } catch (e) { toast(errMsg(e)); }
 }
-async function addTutor() {
-  const name = $('#tName').value.trim(), subject = $('#tSubj').value.trim(), rating = parseFloat($('#tRate').value);
-  if (name.length < 2) return toast('শিক্ষকের নাম দিন।');
-  if (isNaN(rating) || rating < 0 || rating > 5) return toast('রেটিং ০ থেকে ৫-এর মধ্যে দিন।');
-  try {
-    await db.collection('tutors').add({ name: name.slice(0, 60), subject: subject.slice(0, 60), rating: Math.round(rating * 10) / 10, createdAt: TS() });
-    toast('শিক্ষক যোগ হয়েছে।'); renderAdmin();
-  } catch (e) { toast(errMsg(e)); }
-}
 async function deleteTutor(id) {
   if (!confirm('এই শিক্ষককে তালিকা থেকে মুছবেন?')) return;
   try { await db.collection('tutors').doc(id).delete(); toast('মুছে গেছে।'); renderAdmin(); }
@@ -1010,6 +1109,7 @@ async function deleteTutor(id) {
 document.addEventListener('click', async e => {
   const c = e.target.closest('[data-close]'); if (c) { c.closest('dialog').close(); return; }
   const v = e.target.closest('[data-v]'); if (v) { e.preventDefault(); show(v.dataset.v); return; }
+  const st = e.target.closest('[data-star]'); if (st) { setStars(+st.dataset.star); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const { act, id } = b.dataset;
   switch (act) {
@@ -1032,7 +1132,11 @@ document.addEventListener('click', async e => {
     case 'approve': reviewPayment(id, 'approved', b.dataset.uid, b.dataset.coins); break;
     case 'reject': reviewPayment(id, 'rejected'); break;
     case 'togglepay': togglePayment(); break;
-    case 'addtutor': addTutor(); break;
+    case 'rate': openRate(id); break;
+    case 'submitrate': submitRating(); break;
+    case 'alltutors': showAllTutors = !showAllTutors; loadTutors(); break;
+    case 'savesubj': saveSubject(); break;
+    case 'addemail': addEmail(); break;
     case 'deltutor': deleteTutor(id); break;
     case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
     case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
