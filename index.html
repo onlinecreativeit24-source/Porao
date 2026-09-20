@@ -3,77 +3,100 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#173A32">
+<meta name="theme-color" content="#FFFFFF">
 <title>পড়াও – টিউটর ও শিক্ষার্থী খুঁজুন</title>
 <link rel="icon" id="fav" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --board:#173A32; --board-deep:#0F2B25; --chalk:#F4F7F3; --paper:#fff;
-  --ink:#16221F; --muted:#55645E; --line:#D3DDD7;
+  --primary:#1F5F8B; --primary-deep:#0C447C; --bg:#F5F8FC; --paper:#fff;
+  --ink:#1A2B3C; --muted:#6B7A8A; --line:#E1E8F0;
   --pencil:#F0B429; --pencil-ink:#2E2200;
   --wanted:#E0A100; --offer:#2F8F6B; --book:#4F79A8; --danger:#B3261E;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;font-family:'Hind Siliguri',system-ui,sans-serif;background:var(--chalk);color:var(--ink);font-size:16px;line-height:1.6;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+body{margin:0;font-family:'Hind Siliguri',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.6;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 h1,h2,h3{margin:0;line-height:1.3}
-h1,h2{font-family:'Noto Serif Bengali','Hind Siliguri',serif}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-.board :focus-visible,.nav :focus-visible,.top :focus-visible{outline-color:var(--pencil)}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.nav :focus-visible{outline-color:var(--pencil)}
 .ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .logo{width:34px;height:34px;flex:none;display:block}
 
 /* top bar */
-.top{position:sticky;top:0;z-index:20;background:var(--board-deep);color:var(--chalk);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
-.brand{display:flex;align-items:center;gap:10px;font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;color:var(--chalk);text-decoration:none;line-height:1}
+.top{position:sticky;top:0;z-index:20;background:#fff;color:var(--ink);border-bottom:.5px solid #D6DEE8;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.5rem;color:var(--primary);text-decoration:none;line-height:1}
 .top-r{display:flex;gap:8px;align-items:center}
-.chip{background:transparent;border:1.5px solid var(--pencil);color:var(--pencil);border-radius:999px;padding:3px 12px;cursor:pointer}
+.chip{background:#FFF6DD;border:.5px solid #E0B43C;color:#8A6410;border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.9rem}
 .chip b{font-weight:700}
 
 /* buttons */
-.btn{background:var(--pencil);color:var(--pencil-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer;transition:filter .15s}
+.btn{background:var(--primary);color:#fff;border:0;border-radius:10px;padding:10px 18px;font-weight:600;cursor:pointer;transition:filter .15s}
 .btn:hover{filter:brightness(.95)}
-.btn.sm{padding:6px 12px;font-size:.92rem}
+.btn.sm{padding:6px 14px;font-size:.92rem}
 .btn:disabled{opacity:.55;cursor:wait}
 .btn.line{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
 .btn.danger{background:transparent;border:1.5px solid var(--danger);color:var(--danger)}
-.link{background:none;border:0;padding:4px 0;color:var(--board);text-decoration:underline;cursor:pointer}
+.link{background:none;border:0;padding:4px 0;color:#185FA5;text-decoration:underline;cursor:pointer}
 
 .warn{background:#FFF3CD;color:#5B4300;padding:10px 16px;font-size:.92rem;border-bottom:1px solid #E8D48A}
 
 main{max-width:760px;margin:0 auto}
 .view{display:none}.view.on{display:block}
 
-/* hero = the chalkboard */
-.board{background:radial-gradient(120% 100% at 100% 0%,#24564A 0%,var(--board) 55%);color:var(--chalk);padding:26px 16px 22px;border-bottom:8px solid #7A5C3A}
-.board h1{font-size:1.65rem;font-weight:800;max-width:20em}
-.chalkline{display:block;height:6px;width:132px;margin:10px 0 0;color:var(--pencil)}
-.chalkline path{stroke-dasharray:140;stroke-dashoffset:140;animation:draw .9s .25s ease-out forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-.pill{display:inline-block;background:rgba(240,180,41,.16);border:1px solid rgba(240,180,41,.55);color:#FFE29A;border-radius:999px;padding:2px 12px;font-size:.88rem;margin-bottom:10px}
-.board p{margin:10px 0 14px;color:#C9DBD2;max-width:34em}
-.hero-cta{margin-bottom:16px}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none}
+/* home: search */
+.search{display:flex;align-items:center;gap:8px;background:#fff;border:.5px solid #D6DEE8;border-radius:24px;margin:12px 16px 0;padding:0 14px;color:var(--muted)}
+.search input{flex:1;border:0;background:transparent;padding:10px 0;outline:0;color:var(--ink);min-width:0}
+.search input::placeholder{color:#8794A3}
+.search:focus-within{border-color:var(--primary)}
+
+/* home: hero */
+.hero{background:var(--primary);color:#fff;border-radius:18px;margin:12px 16px 0;padding:18px;position:relative;overflow:hidden}
+.hero-small{color:#BFD8EC;font-size:.85rem}
+.hero h1{font-size:1.4rem;font-weight:700;max-width:11em;margin:4px 0 6px}
+.hero p{margin:0 0 14px;color:#D5E6F4;font-size:.92rem;max-width:26em}
+.hero-btns{display:flex;flex-wrap:wrap;gap:8px}
+.hero-btn{background:#fff;color:var(--primary);border:1.5px solid #fff;border-radius:999px;padding:7px 18px;font-weight:600;cursor:pointer}
+.hero-btn.ghost{background:transparent;color:#fff}
+.hero-ic{position:absolute;right:12px;top:10px;width:76px;height:76px;color:#7FB2DA;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9;pointer-events:none}
+
+/* home: subject cards */
+.sec-h{font-size:1.05rem;font-weight:600;padding:18px 16px 8px}
+.subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 16px}
+.sub{background:#fff;border:.5px solid var(--line);border-radius:14px;padding:10px 4px;text-align:center;cursor:pointer;font-size:.85rem;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:6px}
+.sub .si{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+.sub .ic{width:20px;height:20px}
+.sub.hl{background:#E6F1FB;border:1.5px solid var(--primary)}
+.s1 .si{background:#E6F1FB;color:#185FA5}.s2 .si{background:#E1F5EE;color:#0F6E56}.s3 .si{background:#FAEEDA;color:#854F0B}.s4 .si{background:var(--primary);color:#fff}
+
+/* home: filters */
+.filters{padding:14px 16px 0;display:grid;gap:8px}
+.filters input{width:100%;padding:10px 14px;border-radius:12px;border:.5px solid #C9D3DF;background:#fff;color:var(--ink)}
+.filters input::placeholder{color:#8794A3}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chips button{white-space:nowrap;border:1.5px solid #3F6A5D;background:transparent;color:var(--chalk);border-radius:999px;padding:5px 14px;cursor:pointer}
-.chips button.on{background:var(--pencil);border-color:var(--pencil);color:var(--pencil-ink);font-weight:600}
-.filters{display:grid;gap:8px}
-@media(min-width:620px){.filters{grid-template-columns:1fr 1fr}}
-.filters input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #3F6A5D;background:var(--board-deep);color:var(--chalk)}
-.filters input::placeholder{color:#8FB0A3}
+.chips button{white-space:nowrap;border:.5px solid #C9D3DF;background:#fff;color:var(--ink);border-radius:999px;padding:6px 16px;cursor:pointer}
+.chips button.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+
+/* best tutors */
+.tutors{padding:0 16px;display:grid;gap:8px}
+.tutor{display:flex;align-items:center;gap:12px;background:#fff;border:.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.tav{width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem}
+.tutor .grow{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.tutor small{color:var(--muted)}
+.rate{background:#FAEEDA;color:#633806;border-radius:10px;padding:3px 10px;font-size:.88rem;font-weight:600;white-space:nowrap}
 
 .feed-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:18px 16px 8px}
-.feed-head h2{font-size:1.15rem}
+.feed-head h2{font-size:1.05rem;font-weight:600}
 .feed-tools{display:flex;gap:14px;align-items:center}
 #feed{padding:0 16px}
 
-/* index-card posts */
-.post{--c:var(--wanted);background:var(--paper);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:6px;padding:14px 16px 12px;margin-bottom:12px}
+/* posts */
+.post{--c:var(--wanted);background:var(--paper);border:.5px solid var(--line);border-top:5px solid var(--c);border-radius:14px;padding:14px 16px 12px;margin-bottom:12px}
 .post.t-offer{--c:var(--offer)}.post.t-book{--c:var(--book)}
 .post .meta{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
 .post .tag{font-weight:600;color:var(--ink)}
@@ -88,64 +111,66 @@ main{max-width:760px;margin:0 auto}
 .post .tools{margin-left:auto;display:flex;gap:10px}
 .empty{text-align:center;color:var(--muted);padding:32px 16px}
 .empty .btn{margin-top:10px}
-.skel{height:132px;border-radius:6px;margin-bottom:12px;background:linear-gradient(100deg,#E6ECE8 30%,#F3F6F4 50%,#E6ECE8 70%);background-size:300% 100%;animation:shim 1.4s linear infinite}
+.skel{height:132px;border-radius:14px;margin-bottom:12px;background:linear-gradient(100deg,#E6ECE8 30%,#F3F6F4 50%,#E6ECE8 70%);background-size:300% 100%;animation:shim 1.4s linear infinite}
 @keyframes shim{from{background-position:100% 0}to{background-position:0 0}}
 
 /* sections */
 .pad{padding:18px 16px}
 .sec-title{font-size:1.15rem;margin:22px 0 8px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--paper);border:.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;flex-wrap:wrap}
 .row .grow{flex:1 1 200px;min-width:0}
 .row small{color:var(--muted)}
 .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:.82rem;background:#fff}
-.profile-head{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.profile-head{background:var(--paper);border:.5px solid var(--line);border-radius:14px;padding:16px}
 .ph{display:flex;gap:14px;align-items:center;margin-bottom:6px}
-.av{width:56px;height:56px;border-radius:50%;flex:none;background:var(--board);color:var(--pencil);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;object-fit:cover}
+.av{width:56px;height:56px;border-radius:50%;flex:none;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.5rem;object-fit:cover}
 .profile-head h2{font-size:1.3rem}
-.coins-big{font-family:'Noto Serif Bengali',serif;font-size:2rem;font-weight:800}
+.coins-big{font-size:2rem;font-weight:700}
+.admin-form{display:grid;gap:8px;grid-template-columns:1fr 1fr 90px auto;align-items:center;margin-bottom:10px}
+@media(max-width:560px){.admin-form{grid-template-columns:1fr 1fr}.admin-form .btn{grid-column:1/-1}}
 
 /* bottom nav */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--board-deep);display:flex;justify-content:space-around;align-items:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
-.nav button{background:none;border:0;color:#B7CCC3;padding:4px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:0;border-bottom:3px solid transparent;line-height:1.3}
-.nav button.on{color:var(--chalk);border-bottom-color:var(--pencil)}
-.nav .post-cta{background:var(--pencil);color:var(--pencil-ink);font-weight:700;border-bottom:0;padding:9px 18px;flex-direction:row;gap:6px;font-size:1rem}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:.5px solid #D6DEE8;display:flex;justify-content:space-around;align-items:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:var(--muted);padding:4px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:0;border-bottom:3px solid transparent;line-height:1.3}
+.nav button.on{color:var(--primary);border-bottom-color:var(--pencil)}
+.nav .post-cta{background:var(--pencil);color:var(--pencil-ink);font-weight:700;border-bottom:0;padding:9px 18px;flex-direction:row;gap:6px;font-size:1rem;border-radius:999px}
 
 /* dialogs */
-dialog{border:0;border-radius:12px;padding:0;width:min(480px,94vw);max-height:92vh;color:var(--ink);background:var(--paper)}
-dialog::backdrop{background:rgba(10,25,21,.6)}
+dialog{border:0;border-radius:16px;padding:0;width:min(480px,94vw);max-height:92vh;color:var(--ink);background:var(--paper)}
+dialog::backdrop{background:rgba(10,25,40,.6)}
 dialog form,dialog .dlg{padding:20px;display:block;max-height:92vh;overflow:auto}
 dialog h2{font-size:1.25rem;margin-bottom:12px;padding-right:32px}
 .dh{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-right:32px}
 .dh h2{margin:0;padding:0}
 .x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted)}
 label{display:block;font-weight:500;margin:12px 0 4px}
-.in,dialog input:not([type=radio]),dialog select,dialog textarea{width:100%;padding:10px 12px;border:1.5px solid #B9C7C0;border-radius:8px;background:#fff}
+.in,dialog input:not([type=radio]),dialog select,dialog textarea{width:100%;padding:10px 12px;border:1.5px solid #C9D3DF;border-radius:10px;background:#fff}
 dialog textarea{min-height:96px;resize:vertical}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .seg{display:flex;flex-wrap:wrap;gap:8px}
 .seg label{margin:0;font-weight:500}
 .seg input{position:absolute;opacity:0;width:1px;height:1px}
-.seg span{display:block;padding:8px 14px;border:1.5px solid #B9C7C0;border-radius:999px;cursor:pointer;background:#fff}
-.seg input:checked+span{background:var(--board);border-color:var(--board);color:var(--chalk)}
+.seg span{display:block;padding:8px 14px;border:1.5px solid #C9D3DF;border-radius:999px;cursor:pointer;background:#fff}
+.seg input:checked+span{background:var(--primary);border-color:var(--primary);color:#fff}
 .seg input:focus-visible+span{outline:3px solid var(--ink);outline-offset:2px}
 .tabs{display:flex;gap:6px;margin-bottom:6px}
 .tabs button{flex:1;padding:8px;border:0;border-bottom:3px solid var(--line);background:none;cursor:pointer;font-weight:600;color:var(--muted)}
-.tabs button.on{border-bottom-color:var(--pencil);color:var(--ink)}
+.tabs button.on{border-bottom-color:var(--primary);color:var(--primary)}
 .note{font-size:.88rem;color:var(--muted);margin:8px 0 0}
 .submit{width:100%;margin-top:18px;padding:12px}
-.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding:11px;border:1.5px solid #B9C7C0;border-radius:8px;background:#fff;font-weight:600;cursor:pointer}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding:11px;border:1.5px solid #C9D3DF;border-radius:10px;background:#fff;font-weight:600;cursor:pointer}
 .gbtn:hover{background:#F6F8F7}
 .gbtn:disabled{opacity:.55;cursor:wait}
 .gbtn svg{width:20px;height:20px}
 .or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.88rem;margin:14px 0 2px}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
-.bigphone{font-family:'Noto Serif Bengali',serif;font-size:1.7rem;font-weight:800;margin:6px 0 14px;letter-spacing:.02em}
+.bigphone{font-size:1.7rem;font-weight:700;margin:6px 0 14px;letter-spacing:.02em}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .acts a{text-decoration:none;display:inline-block}
 
 #toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;font-size:.95rem}
 #toast.on{opacity:1}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.chalkline path{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -153,16 +178,22 @@ dialog textarea{min-height:96px;resize:vertical}
 <!-- shared icons -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <symbol id="logo" viewBox="0 0 48 48">
-    <rect width="48" height="48" rx="12" fill="#F0B429"/>
-    <path d="M7 17c6-2.6 12-2.2 17 1.8v19c-5-3.6-11-4-17-1.6z" fill="#173A32"/>
-    <path d="M41 17c-6-2.6-12-2.2-17 1.8v19c5-3.6 11-4 17-1.6z" fill="#0F2B25"/>
-    <path d="M11 23c3-1 6-.9 9 .7M11 28c3-1 6-.9 9 .7M28 24c3-1.6 6-1.7 9-.7M28 29c3-1.6 6-1.7 9-.7" fill="none" stroke="#F4F7F3" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
-    <path d="M24 5l1.7 4.3L30 11l-4.3 1.7L24 17l-1.7-4.3L18 11l4.3-1.7z" fill="#173A32"/>
+    <rect width="48" height="48" rx="12" fill="#1F5F8B"/>
+    <path d="M7 17c6-2.6 12-2.2 17 1.8v19c-5-3.6-11-4-17-1.6z" fill="#FFFFFF"/>
+    <path d="M41 17c-6-2.6-12-2.2-17 1.8v19c5-3.6 11-4 17-1.6z" fill="#D5E6F4"/>
+    <path d="M11 23c3-1 6-.9 9 .7M11 28c3-1 6-.9 9 .7M28 24c3-1.6 6-1.7 9-.7M28 29c3-1.6 6-1.7 9-.7" fill="none" stroke="#1F5F8B" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+    <path d="M24 5l1.7 4.3L30 11l-4.3 1.7L24 17l-1.7-4.3L18 11l4.3-1.7z" fill="#F0B429"/>
   </symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></symbol>
+  <symbol id="i-math" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 001.3 2h12.4a1.5 1.5 0 001.3-2L14 9V3M7.5 15h9"/></symbol>
+  <symbol id="i-lang" viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6.5 8.5M12 5c0 3-2.5 6.5-7 9M13 21l4-10 4 10M14.5 17.5h5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-cap" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11.5V16c0 1.6 2.7 3 6 3s6-1.4 6-3v-4.5M22 9v6"/></symbol>
   <symbol id="g-logo" viewBox="0 0 48 48">
     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -184,12 +215,36 @@ dialog textarea{min-height:96px;resize:vertical}
 <main>
   <!-- HOME -->
   <section id="v-home" class="view on">
-    <div class="board">
-      <span class="pill" id="freePill">✨ পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি</span>
-      <h1>আপনার এলাকার টিউটর বা শিক্ষার্থী খুঁজে নিন</h1>
-      <svg class="chalkline" viewBox="0 0 132 6" preserveAspectRatio="none" aria-hidden="true"><path d="M2 3c22-3 40 2 62 0s44-3 66 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+    <div class="search">
+      <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="fSubject" placeholder="বিষয় বা শ্রেণি খুঁজুন" aria-label="বিষয় বা শ্রেণি">
+    </div>
+
+    <div class="hero">
+      <svg class="hero-ic" aria-hidden="true"><use href="#i-cap"/></svg>
+      <div class="hero-small" id="freePill">পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি</div>
+      <h1>আপনার এলাকার সেরা শিক্ষক খুঁজুন</h1>
       <p>অ্যাকাউন্ট খুলে শিক্ষক, শিক্ষার্থী ও অভিভাবক যে কেউ বিনামূল্যে পোস্ট দিতে পারবেন।</p>
-      <button class="btn hero-cta" id="heroCta" data-act="signup">বিনামূল্যে শুরু করুন</button>
+      <div class="hero-btns">
+        <button class="hero-btn" id="heroCta" data-act="signup">বিনামূল্যে শুরু করুন</button>
+        <button class="hero-btn ghost" data-act="findtutor">টিউটর খুঁজুন</button>
+      </div>
+    </div>
+
+    <h2 class="sec-h">বিষয়সমূহ</h2>
+    <div class="subjects">
+      <button class="sub s1" data-act="subj" data-s="গণিত"><span class="si"><svg class="ic"><use href="#i-math"/></svg></span>গণিত</button>
+      <button class="sub s2" data-act="subj" data-s="বিজ্ঞান"><span class="si"><svg class="ic"><use href="#i-flask"/></svg></span>বিজ্ঞান</button>
+      <button class="sub s3" data-act="subj" data-s="ইংরেজি"><span class="si"><svg class="ic"><use href="#i-lang"/></svg></span>ইংরেজি</button>
+      <button class="sub s4 hl" data-act="pickarea"><span class="si"><svg class="ic"><use href="#i-pin"/></svg></span>লোকাল</button>
+    </div>
+
+    <div id="tutorSec" hidden>
+      <div class="feed-head"><h2>সেরা শিক্ষক</h2></div>
+      <div class="tutors" id="tutorList"></div>
+    </div>
+
+    <div class="filters">
       <input type="hidden" id="fType" value="">
       <div class="chips" id="typeChips" role="group" aria-label="পোস্টের ধরন">
         <button type="button" class="on" data-type="">সব পোস্ট</button>
@@ -197,12 +252,10 @@ dialog textarea{min-height:96px;resize:vertical}
         <button type="button" data-type="offer">টিউশন দিতে চাই</button>
         <button type="button" data-type="book">বই শেয়ার / বিনিময়</button>
       </div>
-      <div class="filters">
-        <input id="fDistrict" list="dl-district" placeholder="জেলা বা এলাকা" aria-label="জেলা বা এলাকা">
-        <input id="fSubject" placeholder="বিষয় বা শ্রেণি" aria-label="বিষয় বা শ্রেণি">
-      </div>
+      <input id="fDistrict" list="dl-district" placeholder="জেলা বা এলাকা" aria-label="জেলা বা এলাকা">
     </div>
-    <div class="feed-head">
+
+    <div class="feed-head" id="feedHead">
       <h2>নতুন পোস্ট</h2>
       <div class="feed-tools">
         <button class="link" id="nearBtn" data-act="pickarea"></button>
@@ -375,10 +428,11 @@ const enDigits = s => String(s).replace(/[০-৯]/g, d => '০১২৩৪৫�
 const TYPES = { wanted: 'টিউটর চাই', offer: 'টিউশন দিতে চাই', book: 'বই শেয়ার / বিনিময়' };
 const ROLES = { student: 'শিক্ষার্থী', teacher: 'শিক্ষক', parent: 'অভিভাবক' };
 const PAY_STATUS = { pending: 'যাচাই চলছে', approved: 'অনুমোদিত', rejected: 'বাতিল' };
+const AVC = [['#CECBF6', '#3C3489'], ['#9FE1CB', '#085041'], ['#F5C4B3', '#712B13'], ['#B5D4F4', '#0C447C'], ['#FAC775', '#633806']];
 
 let auth, db, TS, FV;
 let me = null, profile = null, isAdmin = false, unsubProfile = null;
-let allPosts = [], unlocked = new Set();
+let allPosts = [], tutors = [], unlocked = new Set();
 let authMode = 'login', pendingProfile = null, creating = false, lastPostAt = 0, lastContact = '';
 /* পেমেন্ট সেটিং: ডিফল্ট বন্ধ (সব ফ্রি)। অ্যাডমিন প্যানেল থেকে চালু/বন্ধ করা যায়। */
 let settings = { enabled: false, number: '' };
@@ -460,7 +514,7 @@ function setFavicon() {
 function applySettings() {
   $('#rNum').textContent = payNum();
   $('#coinNote').hidden = !payOn();
-  $('#freePill').textContent = payOn() ? '🎁 নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন' : '✨ পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি';
+  $('#freePill').textContent = payOn() ? 'নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন' : 'পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি';
   $('#phoneNote').textContent = payOn()
     ? 'নম্বরটি সবার সামনে দেখানো হয় না। কেউ ১ কয়েন খরচ করলে তবেই দেখতে পায়।'
     : 'নম্বরটি সবার সামনে দেখানো হয় না। লগইন করা ব্যবহারকারী যোগাযোগ বাটনে চাপ দিলে তবেই দেখতে পায়।';
@@ -489,6 +543,7 @@ function init() {
   auth.onAuthStateChanged(onAuth);
   loadSettings();
   loadPosts();
+  loadTutors();
 }
 
 async function onAuth(u) {
@@ -542,6 +597,27 @@ function show(v) {
   if (v === 'profile') renderProfile();
   if (v === 'admin') renderAdmin();
   window.scrollTo(0, 0);
+}
+
+/* ---------- best tutors (Firestore: tutors → name, subject, rating) ---------- */
+async function loadTutors() {
+  if (!CONFIGURED || !db) { tutors = []; renderTutors(); return; }
+  try {
+    const s = await db.collection('tutors').orderBy('rating', 'desc').limit(5).get();
+    tutors = s.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) { tutors = []; }
+  renderTutors();
+}
+function renderTutors() {
+  $('#tutorSec').hidden = !tutors.length;
+  $('#tutorList').innerHTML = tutors.map((t, i) => {
+    const c = AVC[i % AVC.length], r = parseFloat(t.rating);
+    return `<div class="tutor">
+      <span class="tav" style="background:${c[0]};color:${c[1]}">${esc((t.name || '?').trim().charAt(0))}</span>
+      <div class="grow"><b>${esc(t.name)}</b>${t.subject ? `<small>${esc(t.subject)}</small>` : ''}</div>
+      ${isNaN(r) ? '' : `<span class="rate">★ ${toBn(r.toFixed(1))}</span>`}
+    </div>`;
+  }).join('');
 }
 
 /* ---------- feed ---------- */
@@ -607,6 +683,7 @@ $('#typeChips').addEventListener('click', e => {
   $$('#typeChips button').forEach(x => x.classList.toggle('on', x === b));
   renderFeed();
 });
+function scrollToFeed() { $('#feedHead').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
 /* ---------- auth ---------- */
 function setAuthMode(m) {
@@ -864,11 +941,21 @@ async function renderAdmin() {
     pays = a.docs.map(d => ({ id: d.id, ...d.data() }));
     reps = b.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { box.innerHTML = '<p class="empty">লোড হয়নি: ' + esc(errMsg(e)) + '</p>'; return; }
+  await loadTutors();
   box.innerHTML = `
     <div class="row">
       <div class="grow"><b>পেমেন্ট সিস্টেম: ${payOn() ? 'চালু' : 'বন্ধ'}</b><br><small>${payOn() ? 'নম্বর দেখতে ১ কয়েন লাগছে।' : 'এখন সব ফ্রি। কয়েন কাটা হচ্ছে না।'}</small></div>
       <button class="btn sm ${payOn() ? 'danger' : ''}" data-act="togglepay">${payOn() ? 'বন্ধ করুন' : 'চালু করুন'}</button>
     </div>
+    <h2 class="sec-title">সেরা শিক্ষক (হোম পেজে দেখায়)</h2>
+    <div class="admin-form">
+      <input class="in" id="tName" placeholder="শিক্ষকের নাম" maxlength="60" aria-label="শিক্ষকের নাম">
+      <input class="in" id="tSubj" placeholder="বিষয়" maxlength="60" aria-label="বিষয়">
+      <input class="in" id="tRate" type="number" step="0.1" min="0" max="5" placeholder="রেটিং" aria-label="রেটিং (০-৫)">
+      <button class="btn sm" data-act="addtutor">যোগ করুন</button>
+    </div>
+    ${tutors.length ? tutors.map(t => `<div class="row"><div class="grow"><b>${esc(t.name)}</b><br><small>${esc(t.subject || '')} ${isNaN(parseFloat(t.rating)) ? '' : '· ★ ' + toBn(parseFloat(t.rating).toFixed(1))}</small></div>
+      <button class="btn sm danger" data-act="deltutor" data-id="${esc(t.id)}">মুছুন</button></div>`).join('') : '<p class="note">এখনো কোনো শিক্ষক যোগ করা হয়নি। উপরের ফর্ম দিয়ে যোগ করুন।</p>'}
     <h2 class="sec-title">পেন্ডিং পেমেন্ট (${toBn(pays.length)})</h2>
     ${pays.length ? pays.map(p => `<div class="row">
       <div class="grow"><b>${esc(p.name)}</b> — ${toBn(p.coins)} কয়েন (৳${toBn(p.amount)})<br>
@@ -904,6 +991,20 @@ async function togglePayment() {
     toast(on ? 'পেমেন্ট চালু হয়েছে।' : 'পেমেন্ট বন্ধ হয়েছে।');
   } catch (e) { toast(errMsg(e)); }
 }
+async function addTutor() {
+  const name = $('#tName').value.trim(), subject = $('#tSubj').value.trim(), rating = parseFloat($('#tRate').value);
+  if (name.length < 2) return toast('শিক্ষকের নাম দিন।');
+  if (isNaN(rating) || rating < 0 || rating > 5) return toast('রেটিং ০ থেকে ৫-এর মধ্যে দিন।');
+  try {
+    await db.collection('tutors').add({ name: name.slice(0, 60), subject: subject.slice(0, 60), rating: Math.round(rating * 10) / 10, createdAt: TS() });
+    toast('শিক্ষক যোগ হয়েছে।'); renderAdmin();
+  } catch (e) { toast(errMsg(e)); }
+}
+async function deleteTutor(id) {
+  if (!confirm('এই শিক্ষককে তালিকা থেকে মুছবেন?')) return;
+  try { await db.collection('tutors').doc(id).delete(); toast('মুছে গেছে।'); renderAdmin(); }
+  catch (e) { toast(errMsg(e)); }
+}
 
 /* ---------- global click handling ---------- */
 document.addEventListener('click', async e => {
@@ -916,8 +1017,10 @@ document.addEventListener('click', async e => {
     case 'signup': openAuth('signup'); break;
     case 'google': googleLogin(); break;
     case 'logout': await auth.signOut(); show('home'); break;
-    case 'refresh': loadPosts(); break;
+    case 'refresh': loadPosts(); loadTutors(); break;
     case 'pickarea': show('home'); $('#fDistrict').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); break;
+    case 'subj': $('#fSubject').value = b.dataset.s; renderFeed(); scrollToFeed(); break;
+    case 'findtutor': $('#typeChips [data-type=offer]').click(); scrollToFeed(); break;
     case 'newpost': openPost(); break;
     case 'recharge': openRecharge(); break;
     case 'contact': openContact(id); break;
@@ -929,6 +1032,8 @@ document.addEventListener('click', async e => {
     case 'approve': reviewPayment(id, 'approved', b.dataset.uid, b.dataset.coins); break;
     case 'reject': reviewPayment(id, 'rejected'); break;
     case 'togglepay': togglePayment(); break;
+    case 'addtutor': addTutor(); break;
+    case 'deltutor': deleteTutor(id); break;
     case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
     case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
     case 'copynum': navigator.clipboard.writeText(payNum()).then(() => toast('নম্বর কপি হয়েছে।')); break;
