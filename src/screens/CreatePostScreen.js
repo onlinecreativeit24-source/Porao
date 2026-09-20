@@ -1,4 +1,3 @@
-
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -22,20 +21,25 @@ export default function CreatePostScreen({ navigation }) {
     const phone = bn2en(f.phone).replace(/\D/g, '');
     const salary = Number(bn2en(f.salary).replace(/[^\d.]/g, '')) || 0;
     const days = Number(bn2en(f.days).replace(/\D/g, '')) || 0;
+    const title = f.title.trim();
+    const details = f.details.trim();
 
-    if (!f.title.trim()) return setMsg('শিরোনাম দিন');
+    if (!title) return setMsg('শিরোনাম দিন');
+    if (title.length > 80) return setMsg('শিরোনাম ৮০ অক্ষরের বেশি হতে পারবে না');
+    if (details.length > 600) return setMsg('বিস্তারিত ৬০০ অক্ষরের বেশি হতে পারবে না');
     if (!/^01\d{9}$/.test(phone)) return setMsg('সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন');
+    if (!user?.uid) return setMsg('আগে লগইন করুন');
 
     setBusy(true);
     try {
       await addDoc(collection(db, 'posts'), {
         type: f.type,
-        title: f.title.trim(),
+        title,
         district: f.district.trim(),
         area: f.area.trim(),
         salary, days,
         medium: f.medium,
-        details: f.details.trim(),
+        details,
         phone,
         uid: user.uid,
         ownerName: user.name || '',
@@ -62,8 +66,14 @@ export default function CreatePostScreen({ navigation }) {
         <Chip k="type" v="book" label="বই" />
       </View>
 
-      <Text style={s.label}>শিরোনাম</Text>
-      <TextInput style={s.input} value={f.title} onChangeText={t => set('title', t)} placeholder="যেমন: ক্লাস ৯ এর জন্য টিউটর চাই" />
+      <Text style={s.label}>শিরোনাম ({f.title.length}/80)</Text>
+      <TextInput
+        style={s.input}
+        value={f.title}
+        maxLength={80}
+        onChangeText={t => set('title', t)}
+        placeholder="যেমন: ক্লাস ৯ এর জন্য টিউটর চাই"
+      />
 
       <View style={s.row}>
         <View style={{ flex: 1 }}>
@@ -89,8 +99,14 @@ export default function CreatePostScreen({ navigation }) {
         <Chip k="medium" v="টিচারের বাসায়" />
       </View>
 
-      <Text style={s.label}>বিস্তারিত</Text>
-      <TextInput style={[s.input, { height: 100 }]} multiline value={f.details} onChangeText={t => set('details', t)} />
+      <Text style={s.label}>বিস্তারিত ({f.details.length}/600)</Text>
+      <TextInput
+        style={[s.input, { height: 100 }]}
+        multiline
+        maxLength={600}
+        value={f.details}
+        onChangeText={t => set('details', t)}
+      />
 
       <Text style={s.label}>যোগাযোগের মোবাইল নম্বর</Text>
       <TextInput style={s.input} value={f.phone} onChangeText={t => set('phone', t)} keyboardType="phone-pad" />
