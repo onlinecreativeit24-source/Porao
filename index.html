@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#173A32">
 <title>পড়াও – টিউটর ও শিক্ষার্থী খুঁজুন</title>
+<link rel="icon" id="fav" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@600;800&display=swap" rel="stylesheet">
@@ -24,16 +25,19 @@ h1,h2{font-family:'Noto Serif Bengali','Hind Siliguri',serif}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 .board :focus-visible,.nav :focus-visible,.top :focus-visible{outline-color:var(--pencil)}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.logo{width:34px;height:34px;flex:none;display:block}
 
 /* top bar */
 .top{position:sticky;top:0;z-index:20;background:var(--board-deep);color:var(--chalk);display:flex;align-items:center;justify-content:space-between;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top))}
-.brand{font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;color:var(--chalk);text-decoration:none}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;color:var(--chalk);text-decoration:none;line-height:1}
 .top-r{display:flex;gap:8px;align-items:center}
 .chip{background:transparent;border:1.5px solid var(--pencil);color:var(--pencil);border-radius:999px;padding:3px 12px;cursor:pointer}
 .chip b{font-weight:700}
 
 /* buttons */
-.btn{background:var(--pencil);color:var(--pencil-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer}
+.btn{background:var(--pencil);color:var(--pencil-ink);border:0;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer;transition:filter .15s}
+.btn:hover{filter:brightness(.95)}
 .btn.sm{padding:6px 12px;font-size:.92rem}
 .btn:disabled{opacity:.55;cursor:wait}
 .btn.line{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
@@ -46,16 +50,26 @@ main{max-width:760px;margin:0 auto}
 .view{display:none}.view.on{display:block}
 
 /* hero = the chalkboard */
-.board{background:var(--board);color:var(--chalk);padding:26px 16px 22px;border-bottom:8px solid #7A5C3A}
+.board{background:radial-gradient(120% 100% at 100% 0%,#24564A 0%,var(--board) 55%);color:var(--chalk);padding:26px 16px 22px;border-bottom:8px solid #7A5C3A}
 .board h1{font-size:1.65rem;font-weight:800;max-width:20em}
-.board p{margin:8px 0 16px;color:#C9DBD2;max-width:34em}
+.chalkline{display:block;height:6px;width:132px;margin:10px 0 0;color:var(--pencil)}
+.chalkline path{stroke-dasharray:140;stroke-dashoffset:140;animation:draw .9s .25s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pill{display:inline-block;background:rgba(240,180,41,.16);border:1px solid rgba(240,180,41,.55);color:#FFE29A;border-radius:999px;padding:2px 12px;font-size:.88rem;margin-bottom:10px}
+.board p{margin:10px 0 14px;color:#C9DBD2;max-width:34em}
+.hero-cta{margin-bottom:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{white-space:nowrap;border:1.5px solid #3F6A5D;background:transparent;color:var(--chalk);border-radius:999px;padding:5px 14px;cursor:pointer}
+.chips button.on{background:var(--pencil);border-color:var(--pencil);color:var(--pencil-ink);font-weight:600}
 .filters{display:grid;gap:8px}
-@media(min-width:620px){.filters{grid-template-columns:1fr 1fr 1fr}}
-.filters select,.filters input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #3F6A5D;background:var(--board-deep);color:var(--chalk)}
+@media(min-width:620px){.filters{grid-template-columns:1fr 1fr}}
+.filters input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid #3F6A5D;background:var(--board-deep);color:var(--chalk)}
 .filters input::placeholder{color:#8FB0A3}
 
-.feed-head{display:flex;justify-content:space-between;align-items:center;padding:18px 16px 8px}
+.feed-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:18px 16px 8px}
 .feed-head h2{font-size:1.15rem}
+.feed-tools{display:flex;gap:14px;align-items:center}
 #feed{padding:0 16px}
 
 /* index-card posts */
@@ -63,6 +77,7 @@ main{max-width:760px;margin:0 auto}
 .post.t-offer{--c:var(--offer)}.post.t-book{--c:var(--book)}
 .post .meta{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--muted)}
 .post .tag{font-weight:600;color:var(--ink)}
+.near{display:inline-block;margin-left:8px;color:var(--offer);font-weight:600}
 .post h3{font-size:1.1rem;margin:4px 0 6px}
 .facts{display:flex;flex-wrap:wrap;gap:2px 16px;margin:0 0 6px;font-size:.92rem}
 .facts div{display:flex;gap:6px}
@@ -73,6 +88,8 @@ main{max-width:760px;margin:0 auto}
 .post .tools{margin-left:auto;display:flex;gap:10px}
 .empty{text-align:center;color:var(--muted);padding:32px 16px}
 .empty .btn{margin-top:10px}
+.skel{height:132px;border-radius:6px;margin-bottom:12px;background:linear-gradient(100deg,#E6ECE8 30%,#F3F6F4 50%,#E6ECE8 70%);background-size:300% 100%;animation:shim 1.4s linear infinite}
+@keyframes shim{from{background-position:100% 0}to{background-position:0 0}}
 
 /* sections */
 .pad{padding:18px 16px}
@@ -82,20 +99,24 @@ main{max-width:760px;margin:0 auto}
 .row small{color:var(--muted)}
 .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:.82rem;background:#fff}
 .profile-head{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px}
+.ph{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.av{width:56px;height:56px;border-radius:50%;flex:none;background:var(--board);color:var(--pencil);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif Bengali',serif;font-weight:800;font-size:1.5rem;object-fit:cover}
 .profile-head h2{font-size:1.3rem}
 .coins-big{font-family:'Noto Serif Bengali',serif;font-size:2rem;font-weight:800}
 
 /* bottom nav */
-.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--board-deep);display:flex;justify-content:space-around;align-items:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
-.nav button{background:none;border:0;color:#B7CCC3;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:500;border-bottom:3px solid transparent}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--board-deep);display:flex;justify-content:space-around;align-items:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:#B7CCC3;padding:4px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:0;border-bottom:3px solid transparent;line-height:1.3}
 .nav button.on{color:var(--chalk);border-bottom-color:var(--pencil)}
-.nav .post-cta{background:var(--pencil);color:var(--pencil-ink);font-weight:700;border-bottom:0;padding:9px 20px}
+.nav .post-cta{background:var(--pencil);color:var(--pencil-ink);font-weight:700;border-bottom:0;padding:9px 18px;flex-direction:row;gap:6px;font-size:1rem}
 
 /* dialogs */
 dialog{border:0;border-radius:12px;padding:0;width:min(480px,94vw);max-height:92vh;color:var(--ink);background:var(--paper)}
 dialog::backdrop{background:rgba(10,25,21,.6)}
 dialog form,dialog .dlg{padding:20px;display:block;max-height:92vh;overflow:auto}
 dialog h2{font-size:1.25rem;margin-bottom:12px;padding-right:32px}
+.dh{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-right:32px}
+.dh h2{margin:0;padding:0}
 .x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted)}
 label{display:block;font-weight:500;margin:12px 0 4px}
 .in,dialog input:not([type=radio]),dialog select,dialog textarea{width:100%;padding:10px 12px;border:1.5px solid #B9C7C0;border-radius:8px;background:#fff}
@@ -112,19 +133,46 @@ dialog textarea{min-height:96px;resize:vertical}
 .tabs button.on{border-bottom-color:var(--pencil);color:var(--ink)}
 .note{font-size:.88rem;color:var(--muted);margin:8px 0 0}
 .submit{width:100%;margin-top:18px;padding:12px}
+.gbtn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;padding:11px;border:1.5px solid #B9C7C0;border-radius:8px;background:#fff;font-weight:600;cursor:pointer}
+.gbtn:hover{background:#F6F8F7}
+.gbtn:disabled{opacity:.55;cursor:wait}
+.gbtn svg{width:20px;height:20px}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.88rem;margin:14px 0 2px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .bigphone{font-family:'Noto Serif Bengali',serif;font-size:1.7rem;font-weight:800;margin:6px 0 14px;letter-spacing:.02em}
 .acts{display:flex;flex-wrap:wrap;gap:8px}
 .acts a{text-decoration:none;display:inline-block}
 
 #toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;max-width:90vw;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;font-size:.95rem}
 #toast.on{opacity:1}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.chalkline path{stroke-dashoffset:0}}
 </style>
 </head>
 <body>
 
+<!-- shared icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="logo" viewBox="0 0 48 48">
+    <rect width="48" height="48" rx="12" fill="#F0B429"/>
+    <path d="M7 17c6-2.6 12-2.2 17 1.8v19c-5-3.6-11-4-17-1.6z" fill="#173A32"/>
+    <path d="M41 17c-6-2.6-12-2.2-17 1.8v19c5-3.6 11-4 17-1.6z" fill="#0F2B25"/>
+    <path d="M11 23c3-1 6-.9 9 .7M11 28c3-1 6-.9 9 .7M28 24c3-1.6 6-1.7 9-.7M28 29c3-1.6 6-1.7 9-.7" fill="none" stroke="#F4F7F3" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+    <path d="M24 5l1.7 4.3L30 11l-4.3 1.7L24 17l-1.7-4.3L18 11l4.3-1.7z" fill="#173A32"/>
+  </symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></symbol>
+  <symbol id="g-logo" viewBox="0 0 48 48">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+  </symbol>
+</svg>
+
 <header class="top">
-  <a class="brand" href="#" data-v="home">পড়াও</a>
+  <a class="brand" href="#" data-v="home" aria-label="পড়াও – হোম"><svg class="logo"><use href="#logo"/></svg><span>পড়াও</span></a>
   <div class="top-r">
     <button id="coinChip" class="chip" data-act="recharge" hidden>কয়েন <b id="coinN">০</b></button>
     <button id="loginBtn" class="btn sm" data-act="login">লগইন / সাইন আপ</button>
@@ -137,20 +185,30 @@ dialog textarea{min-height:96px;resize:vertical}
   <!-- HOME -->
   <section id="v-home" class="view on">
     <div class="board">
+      <span class="pill" id="freePill">✨ পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি</span>
       <h1>আপনার এলাকার টিউটর বা শিক্ষার্থী খুঁজে নিন</h1>
+      <svg class="chalkline" viewBox="0 0 132 6" preserveAspectRatio="none" aria-hidden="true"><path d="M2 3c22-3 40 2 62 0s44-3 66 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
       <p>অ্যাকাউন্ট খুলে শিক্ষক, শিক্ষার্থী ও অভিভাবক যে কেউ বিনামূল্যে পোস্ট দিতে পারবেন।</p>
+      <button class="btn hero-cta" id="heroCta" data-act="signup">বিনামূল্যে শুরু করুন</button>
+      <input type="hidden" id="fType" value="">
+      <div class="chips" id="typeChips" role="group" aria-label="পোস্টের ধরন">
+        <button type="button" class="on" data-type="">সব পোস্ট</button>
+        <button type="button" data-type="wanted">টিউটর চাই</button>
+        <button type="button" data-type="offer">টিউশন দিতে চাই</button>
+        <button type="button" data-type="book">বই শেয়ার / বিনিময়</button>
+      </div>
       <div class="filters">
-        <select id="fType" aria-label="পোস্টের ধরন">
-          <option value="">সব ধরনের পোস্ট</option>
-          <option value="wanted">টিউটর চাই</option>
-          <option value="offer">টিউশন দিতে চাই</option>
-          <option value="book">বই শেয়ার / বিনিময়</option>
-        </select>
         <input id="fDistrict" list="dl-district" placeholder="জেলা বা এলাকা" aria-label="জেলা বা এলাকা">
         <input id="fSubject" placeholder="বিষয় বা শ্রেণি" aria-label="বিষয় বা শ্রেণি">
       </div>
     </div>
-    <div class="feed-head"><h2>নতুন পোস্ট</h2><button class="link" data-act="refresh">রিফ্রেশ</button></div>
+    <div class="feed-head">
+      <h2>নতুন পোস্ট</h2>
+      <div class="feed-tools">
+        <button class="link" id="nearBtn" data-act="pickarea"></button>
+        <button class="link" data-act="refresh">রিফ্রেশ</button>
+      </div>
+    </div>
     <div id="feed"></div>
   </section>
 
@@ -162,10 +220,10 @@ dialog textarea{min-height:96px;resize:vertical}
 </main>
 
 <nav class="nav" aria-label="মূল মেনু">
-  <button data-v="home" class="on">হোম</button>
-  <button class="post-cta" data-act="newpost">+ পোস্ট করুন</button>
-  <button data-v="profile">প্রোফাইল</button>
-  <button data-v="admin" id="navAdmin" hidden>অ্যাডমিন</button>
+  <button data-v="home" class="on"><svg class="ic"><use href="#i-home"/></svg><span>হোম</span></button>
+  <button class="post-cta" data-act="newpost"><svg class="ic"><use href="#i-plus"/></svg><span>পোস্ট করুন</span></button>
+  <button data-v="profile"><svg class="ic"><use href="#i-user"/></svg><span>প্রোফাইল</span></button>
+  <button data-v="admin" id="navAdmin" hidden><svg class="ic"><use href="#i-shield"/></svg><span>অ্যাডমিন</span></button>
 </nav>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -185,14 +243,12 @@ dialog textarea{min-height:96px;resize:vertical}
 <dialog id="dAuth">
   <form id="fAuth" autocomplete="on">
     <button type="button" class="x" data-close aria-label="বন্ধ করুন">×</button>
-    <h2 id="authTitle">লগইন</h2>
+    <div class="dh"><svg class="logo"><use href="#logo"/></svg><h2 id="authTitle">লগইন</h2></div>
     <div class="tabs" role="tablist">
       <button type="button" id="tabLogin" class="on" data-authmode="login">লগইন</button>
       <button type="button" id="tabSignup" data-authmode="signup">নতুন অ্যাকাউন্ট</button>
     </div>
     <div data-signup hidden>
-      <label for="aName">পূর্ণ নাম</label>
-      <input id="aName" autocomplete="name" maxlength="60">
       <label>আপনি কে?</label>
       <div class="seg">
         <label><input type="radio" name="arole" value="student" checked><span>শিক্ষার্থী</span></label>
@@ -200,11 +256,17 @@ dialog textarea{min-height:96px;resize:vertical}
         <label><input type="radio" name="arole" value="parent"><span>অভিভাবক</span></label>
       </div>
     </div>
+    <button type="button" class="gbtn" id="googleBtn" data-act="google"><svg><use href="#g-logo"/></svg><span>Google দিয়ে চালিয়ে যান</span></button>
+    <div class="or"><span>অথবা মোবাইল / ইমেইল দিয়ে</span></div>
+    <div data-signup hidden>
+      <label for="aName">পূর্ণ নাম</label>
+      <input id="aName" autocomplete="name" maxlength="60">
+    </div>
     <label for="aId">মোবাইল নম্বর বা ইমেইল</label>
     <input id="aId" inputmode="email" autocomplete="username" required>
     <label for="aPass">পাসওয়ার্ড</label>
     <input id="aPass" type="password" autocomplete="current-password" required>
-    <p class="note" data-signup hidden>পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে। নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</p>
+    <p class="note" data-signup hidden>পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।<span id="coinNote"> নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</span></p>
     <button class="btn submit" id="authGo" type="submit">লগইন করুন</button>
     <p class="note"><button type="button" class="link" id="forgot">পাসওয়ার্ড ভুলে গেছেন?</button></p>
   </form>
@@ -243,7 +305,7 @@ dialog textarea{min-height:96px;resize:vertical}
     <textarea id="pDetails" maxlength="600" required></textarea>
     <label for="pPhone">যোগাযোগের মোবাইল নম্বর</label>
     <input id="pPhone" inputmode="tel" required placeholder="০১XXXXXXXXX">
-    <p class="note">নম্বরটি সবার সামনে দেখানো হয় না। কেউ ১ কয়েন খরচ করলে তবেই দেখতে পায়।</p>
+    <p class="note" id="phoneNote">নম্বরটি সবার সামনে দেখানো হয় না। লগইন করা ব্যবহারকারী যোগাযোগ বাটনে চাপ দিলে তবেই দেখতে পায়।</p>
     <button class="btn submit" id="postGo" type="submit">পোস্ট করুন</button>
   </form>
 </dialog>
@@ -299,6 +361,7 @@ const firebaseConfig = {
   appId: "1:251968287983:web:3d8f51cd438dbb6147171a"
 };
 
+/* পেমেন্ট চালু হলে এই নম্বরে টাকা আসবে (Firestore settings/payment-এ number দিলে সেটা প্রাধান্য পায়) */
 const RECHARGE_NUMBER = '015680142875';
 /* ============================================================= */
 
@@ -317,6 +380,10 @@ let auth, db, TS, FV;
 let me = null, profile = null, isAdmin = false, unsubProfile = null;
 let allPosts = [], unlocked = new Set();
 let authMode = 'login', pendingProfile = null, creating = false, lastPostAt = 0, lastContact = '';
+/* পেমেন্ট সেটিং: ডিফল্ট বন্ধ (সব ফ্রি)। অ্যাডমিন প্যানেল থেকে চালু/বন্ধ করা যায়। */
+let settings = { enabled: false, number: '' };
+const payOn = () => settings.enabled === true;
+const payNum = () => settings.number || RECHARGE_NUMBER;
 
 function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('on');
@@ -334,6 +401,10 @@ function errMsg(e) {
     'auth/weak-password': 'পাসওয়ার্ড আরও শক্ত দিন।',
     'auth/too-many-requests': 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পরে আবার চেষ্টা করুন।',
     'auth/network-request-failed': 'ইন্টারনেট সংযোগ চেক করুন।',
+    'auth/unauthorized-domain': 'এই সাইটের ডোমেইন Firebase → Authentication → Settings → Authorized domains-এ যোগ করা নেই।',
+    'auth/operation-not-allowed': 'Firebase-এ এই সাইন-ইন পদ্ধতি চালু করা নেই।',
+    'auth/account-exists-with-different-credential': 'এই ইমেইল দিয়ে আগে অন্যভাবে অ্যাকাউন্ট খোলা হয়েছে।',
+    'auth/popup-blocked': 'ব্রাউজার পপআপ আটকে দিয়েছে। পপআপ অনুমতি দিয়ে আবার চেষ্টা করুন।',
     'permission-denied': 'এই কাজের অনুমতি নেই (বা আগেই করা হয়েছে)।'
   };
   return map[c] || (e && e.message) || 'কিছু একটা ভুল হয়েছে।';
@@ -363,20 +434,66 @@ function ago(ts) {
   return toBn(Math.floor(s / 86400)) + ' দিন আগে';
 }
 
+/* ---------- my area (saved on this device) ---------- */
+function myDistrict() { try { return localStorage.getItem('porao_district') || ''; } catch (e) { return ''; } }
+function saveDistrict(v) {
+  v = (v || '').trim(); if (!v) return;
+  try { localStorage.setItem('porao_district', v); } catch (e) { /* ignore */ }
+  renderNear(); renderFeed();
+}
+function isNear(p) {
+  const m = myDistrict();
+  return !!m && ((p.district || '') + ' ' + (p.area || '')).includes(m);
+}
+function renderNear() {
+  const m = myDistrict();
+  $('#nearBtn').textContent = m ? '📍 ' + m : '📍 এলাকা বেছে নিন';
+}
+
 /* ---------- init ---------- */
+function setFavicon() {
+  const sym = document.getElementById('logo');
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">' + sym.innerHTML + '</svg>';
+  $('#fav').href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+
+function applySettings() {
+  $('#rNum').textContent = payNum();
+  $('#coinNote').hidden = !payOn();
+  $('#freePill').textContent = payOn() ? '🎁 নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন' : '✨ পোস্ট ও যোগাযোগ সম্পূর্ণ ফ্রি';
+  $('#phoneNote').textContent = payOn()
+    ? 'নম্বরটি সবার সামনে দেখানো হয় না। কেউ ১ কয়েন খরচ করলে তবেই দেখতে পায়।'
+    : 'নম্বরটি সবার সামনে দেখানো হয় না। লগইন করা ব্যবহারকারী যোগাযোগ বাটনে চাপ দিলে তবেই দেখতে পায়।';
+}
+
+async function loadSettings() {
+  try {
+    const s = await db.collection('settings').doc('payment').get();
+    if (s.exists) settings = { ...settings, ...s.data() };
+  } catch (e) { /* না পেলে ডিফল্ট: পেমেন্ট বন্ধ */ }
+  applySettings(); renderChrome(); renderFeed();
+}
+
 function init() {
-  $('#rNum').textContent = RECHARGE_NUMBER;
+  setFavicon(); renderNear(); applySettings();
   if (!CONFIGURED) { $('#cfgWarn').hidden = false; renderFeed(); return; }
+  if (typeof firebase === 'undefined') {
+    $('#cfgWarn').innerHTML = 'Firebase লোড হয়নি। ইন্টারনেট চেক করুন, অথবা সাইটটি নিজের GitHub Pages লিংকে খুলুন (Claude-এর প্রিভিউতে Firebase চলে না)।';
+    $('#cfgWarn').hidden = false; renderFeed(); return;
+  }
   firebase.initializeApp(firebaseConfig);
   auth = firebase.auth(); db = firebase.firestore();
   TS = () => firebase.firestore.FieldValue.serverTimestamp();
   FV = firebase.firestore.FieldValue;
+  auth.getRedirectResult().catch(e => toast(errMsg(e)));
   auth.onAuthStateChanged(onAuth);
+  loadSettings();
   loadPosts();
 }
 
 async function onAuth(u) {
   me = u; profile = null; isAdmin = false; unlocked = new Set();
+  if (!u) pendingProfile = null;
   if (unsubProfile) { unsubProfile(); unsubProfile = null; }
   if (u) {
     unsubProfile = db.collection('users').doc(u.uid).onSnapshot(snap => {
@@ -412,7 +529,8 @@ async function ensureProfile(u) {
 
 function renderChrome() {
   $('#loginBtn').hidden = !!me;
-  $('#coinChip').hidden = !me;
+  $('#heroCta').hidden = !!me;
+  $('#coinChip').hidden = !me || !payOn();
   $('#coinN').textContent = toBn(profile ? profile.coins || 0 : 0);
   $('#navAdmin').hidden = !isAdmin;
 }
@@ -428,7 +546,7 @@ function show(v) {
 
 /* ---------- feed ---------- */
 async function loadPosts() {
-  $('#feed').innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  $('#feed').innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
   if (!CONFIGURED) { allPosts = []; renderFeed(); return; }
   try {
     const s = await db.collection('posts').orderBy('createdAt', 'desc').limit(100).get();
@@ -439,16 +557,18 @@ async function loadPosts() {
   renderFeed();
 }
 
-function card(p) {
+function card(p, near) {
   const mine = me && p.uid === me.uid;
   const facts = [
     ['এলাকা', [p.district, p.area].filter(Boolean).join(', ')],
     ['বিষয়', p.subject], ['শ্রেণি', p.level], ['বেতন / মূল্য', p.budget],
     ['সপ্তাহে', p.days ? toBn(p.days) + ' দিন' : ''], ['মাধ্যম', p.mode]
   ].filter(f => f[1]);
-  const btn = mine ? 'আমার নম্বর' : (unlocked.has(p.id) || isAdmin) ? 'নম্বর দেখুন' : 'যোগাযোগ দেখুন (১ কয়েন)';
+  const btn = mine ? 'আমার নম্বর'
+    : (unlocked.has(p.id) || isAdmin) ? 'নম্বর দেখুন'
+    : payOn() ? 'যোগাযোগ দেখুন (১ কয়েন)' : 'যোগাযোগ দেখুন';
   return `<article class="post t-${esc(p.type)}">
-    <div class="meta"><span class="tag">${esc(TYPES[p.type] || 'পোস্ট')}</span><span>${esc(ago(p.createdAt))}</span></div>
+    <div class="meta"><span><span class="tag">${esc(TYPES[p.type] || 'পোস্ট')}</span>${near ? '<span class="near">📍 আপনার এলাকা</span>' : ''}</span><span>${esc(ago(p.createdAt))}</span></div>
     <h3>${esc(p.title)}</h3>
     <dl class="facts">${facts.map(f => `<div><dt>${esc(f[0])}:</dt><dd>${esc(f[1])}</dd></div>`).join('')}</dl>
     <p class="details">${esc(p.details)}</p>
@@ -465,14 +585,28 @@ function card(p) {
 
 function renderFeed() {
   const t = $('#fType').value, d = $('#fDistrict').value.trim(), s = $('#fSubject').value.trim().toLowerCase();
-  const list = allPosts.filter(p => p.status !== 'closed'
+  let list = allPosts.filter(p => p.status !== 'closed'
     && (!t || p.type === t)
     && (!d || ((p.district || '') + ' ' + (p.area || '')).includes(d))
     && (!s || ((p.subject || '') + ' ' + (p.title || '') + ' ' + (p.level || '')).toLowerCase().includes(s)));
-  $('#feed').innerHTML = list.length ? list.map(card).join('')
+  /* জেলা ফিল্টার না থাকলে নিজের এলাকার পোস্ট আগে দেখাবে */
+  let nearIds = new Set();
+  if (!d && myDistrict()) {
+    const near = list.filter(isNear), rest = list.filter(p => !isNear(p));
+    near.forEach(p => nearIds.add(p.id));
+    list = near.concat(rest);
+  }
+  $('#feed').innerHTML = list.length ? list.map(p => card(p, nearIds.has(p.id))).join('')
     : `<div class="empty"><p>${allPosts.length ? 'এই ফিল্টারে কোনো পোস্ট পাওয়া যায়নি।' : 'এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনার হতে পারে।'}</p><button class="btn" data-act="newpost">পোস্ট করুন</button></div>`;
 }
-['#fType', '#fDistrict', '#fSubject'].forEach(id => $(id).addEventListener('input', renderFeed));
+['#fDistrict', '#fSubject'].forEach(id => $(id).addEventListener('input', renderFeed));
+$('#fDistrict').addEventListener('change', e => saveDistrict(e.target.value));
+$('#typeChips').addEventListener('click', e => {
+  const b = e.target.closest('button[data-type]'); if (!b) return;
+  $('#fType').value = b.dataset.type;
+  $$('#typeChips button').forEach(x => x.classList.toggle('on', x === b));
+  renderFeed();
+});
 
 /* ---------- auth ---------- */
 function setAuthMode(m) {
@@ -487,6 +621,24 @@ function setAuthMode(m) {
 }
 function openAuth(m = 'login') { setAuthMode(m); $('#dAuth').showModal(); }
 $$('[data-authmode]').forEach(b => b.addEventListener('click', () => setAuthMode(b.dataset.authmode)));
+
+async function googleLogin() {
+  if (!CONFIGURED) return toast('আগে firebaseConfig বসান।');
+  const btn = $('#googleBtn'); btn.disabled = true;
+  pendingProfile = { role: authMode === 'signup' ? $('input[name=arole]:checked').value : 'student' };
+  const prov = new firebase.auth.GoogleAuthProvider();
+  prov.setCustomParameters({ prompt: 'select_account' });
+  try {
+    await auth.signInWithPopup(prov);
+    $('#dAuth').close();
+  } catch (err) {
+    if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
+      try { await auth.signInWithRedirect(prov); return; } catch (e2) { err = e2; }
+    }
+    if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') { pendingProfile = null; }
+    else { pendingProfile = null; toast(errMsg(err)); }
+  } finally { btn.disabled = false; }
+}
 
 $('#fAuth').addEventListener('submit', async e => {
   e.preventDefault();
@@ -528,6 +680,7 @@ function openPost() {
   const def = profile.role === 'teacher' ? 'offer' : 'wanted';
   $(`#pTypes input[value=${def}]`).checked = true;
   if (!$('#pPhone').value && normPhone(profile.contact || '')) $('#pPhone').value = profile.contact;
+  if (!$('#pDistrict').value && myDistrict()) $('#pDistrict').value = myDistrict();
   syncTypeFields();
   $('#dPost').showModal();
 }
@@ -560,6 +713,7 @@ $('#fPost').addEventListener('submit', async e => {
     b.set(ref.collection('private').doc('contact'), { uid: me.uid, phone });
     await b.commit();
     lastPostAt = Date.now();
+    if (!myDistrict()) saveDistrict(d.district);
     $('#dPost').close(); e.target.reset();
     toast('পোস্ট হয়েছে।'); loadPosts();
   } catch (err) { toast('পোস্ট হয়নি: ' + errMsg(err)); }
@@ -572,15 +726,22 @@ async function openContact(id) {
   if (!me) { toast('যোগাযোগ দেখতে আগে লগইন করুন।'); return openAuth('login'); }
   const free = p.uid === me.uid || unlocked.has(id) || isAdmin;
   if (!free) {
-    if (!profile) return toast('একটু অপেক্ষা করুন…');
-    if ((profile.coins || 0) < 1) { toast('কয়েন শেষ। রিচার্জ করুন।'); return openRecharge(); }
-    if (!confirm(`এই নম্বর দেখতে ১ কয়েন খরচ হবে। আপনার কয়েন আছে ${toBn(profile.coins)}টি। চালিয়ে যাবেন?`)) return;
-    try {
-      const b = db.batch();
-      b.set(db.collection('unlocks').doc(`${me.uid}_${id}`), { uid: me.uid, postId: id, createdAt: TS() });
-      b.update(db.collection('users').doc(me.uid), { coins: FV.increment(-1), lastUnlock: id });
-      await b.commit(); unlocked.add(id); renderFeed();
-    } catch (e) { return toast('কয়েন কাটা যায়নি: ' + errMsg(e)); }
+    if (payOn()) {
+      if (!profile) return toast('একটু অপেক্ষা করুন…');
+      if ((profile.coins || 0) < 1) { toast('কয়েন শেষ। রিচার্জ করুন।'); return openRecharge(); }
+      if (!confirm(`এই নম্বর দেখতে ১ কয়েন খরচ হবে। আপনার কয়েন আছে ${toBn(profile.coins)}টি। চালিয়ে যাবেন?`)) return;
+      try {
+        const b = db.batch();
+        b.set(db.collection('unlocks').doc(`${me.uid}_${id}`), { uid: me.uid, postId: id, createdAt: TS() });
+        b.update(db.collection('users').doc(me.uid), { coins: FV.increment(-1), lastUnlock: id });
+        await b.commit(); unlocked.add(id); renderFeed();
+      } catch (e) { return toast('কয়েন কাটা যায়নি: ' + errMsg(e)); }
+    } else {
+      try {
+        await db.collection('unlocks').doc(`${me.uid}_${id}`).set({ uid: me.uid, postId: id, createdAt: TS() });
+        unlocked.add(id); renderFeed();
+      } catch (e) { return toast('নম্বর আনা যায়নি: ' + errMsg(e)); }
+    }
   }
   try {
     const s = await db.collection('posts').doc(id).collection('private').doc('contact').get();
@@ -597,6 +758,7 @@ async function openContact(id) {
 /* ---------- recharge ---------- */
 function openRecharge() {
   if (!me) return openAuth('login');
+  if (!payOn()) return toast('এখন সবকিছু ফ্রি। রিচার্জের দরকার নেই।');
   $('#rName').value = profile ? profile.name : '';
   $('#dRecharge').showModal();
 }
@@ -619,7 +781,7 @@ async function renderProfile() {
   const box = $('#profileBody');
   if (!CONFIGURED) { box.innerHTML = '<p class="empty">আগে firebaseConfig বসান।</p>'; return; }
   if (!me) { box.innerHTML = '<div class="empty"><p>প্রোফাইল দেখতে লগইন করুন।</p><button class="btn" data-act="login">লগইন / সাইন আপ</button></div>'; return; }
-  box.innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  box.innerHTML = '<div class="skel"></div>';
   let posts = [], pays = [];
   try {
     const [a, b] = await Promise.all([
@@ -632,14 +794,16 @@ async function renderProfile() {
   const byTime = (x, y) => ((y.createdAt && y.createdAt.seconds) || 0) - ((x.createdAt && x.createdAt.seconds) || 0);
   posts.sort(byTime); pays.sort(byTime);
   const pr = profile || {};
+  const av = me.photoURL
+    ? `<img class="av" src="${esc(me.photoURL)}" alt="" referrerpolicy="no-referrer">`
+    : `<span class="av" aria-hidden="true">${esc((pr.name || '?').trim().charAt(0))}</span>`;
   box.innerHTML = `
     <div class="profile-head">
-      <h2>${esc(pr.name || '')}</h2>
-      <span class="badge">${esc(ROLES[pr.role] || '')}</span>
+      <div class="ph">${av}<div><h2>${esc(pr.name || '')}</h2><span class="badge">${esc(ROLES[pr.role] || '')}</span></div></div>
       <p class="note">${esc(pr.contact || '')}</p>
-      <div class="coins-big">${toBn(pr.coins || 0)} কয়েন</div>
+      ${payOn() ? `<div class="coins-big">${toBn(pr.coins || 0)} কয়েন</div>` : ''}
       <div class="acts" style="margin-top:10px">
-        <button class="btn" data-act="recharge">কয়েন কিনুন</button>
+        ${payOn() ? '<button class="btn" data-act="recharge">কয়েন কিনুন</button>' : ''}
         <button class="btn line" data-act="logout">লগআউট</button>
       </div>
     </div>
@@ -650,8 +814,8 @@ async function renderProfile() {
         <button class="btn sm line" data-act="${p.status === 'closed' ? 'reopen' : 'closepost'}" data-id="${esc(p.id)}">${p.status === 'closed' ? 'আবার চালু' : 'বন্ধ করুন'}</button>
         <button class="btn sm danger" data-act="delpost" data-id="${esc(p.id)}">মুছুন</button>
       </div></div>`).join('') : '<p class="note">এখনো কোনো পোস্ট করেননি।</p>'}
-    <h2 class="sec-title">রিচার্জ রিকোয়েস্ট</h2>
-    ${pays.length ? pays.map(p => `<div class="row"><div class="grow"><b>${toBn(p.coins)} কয়েন</b> (৳${toBn(p.amount)})<br><small>TrxID: ${esc(p.trxId)}</small></div><span class="badge">${esc(PAY_STATUS[p.status] || p.status)}</span></div>`).join('') : '<p class="note">কোনো রিকোয়েস্ট নেই।</p>'}
+    ${(payOn() || pays.length) ? `<h2 class="sec-title">রিচার্জ রিকোয়েস্ট</h2>
+    ${pays.length ? pays.map(p => `<div class="row"><div class="grow"><b>${toBn(p.coins)} কয়েন</b> (৳${toBn(p.amount)})<br><small>TrxID: ${esc(p.trxId)}</small></div><span class="badge">${esc(PAY_STATUS[p.status] || p.status)}</span></div>`).join('') : '<p class="note">কোনো রিকোয়েস্ট নেই।</p>'}` : ''}
   `;
 }
 
@@ -690,7 +854,7 @@ async function sharePost(id) {
 async function renderAdmin() {
   const box = $('#adminBody');
   if (!isAdmin) { box.innerHTML = '<p class="empty">এই পেজ শুধু অ্যাডমিনের জন্য।</p>'; return; }
-  box.innerHTML = '<p class="empty">লোড হচ্ছে…</p>';
+  box.innerHTML = '<div class="skel"></div>';
   let pays = [], reps = [];
   try {
     const [a, b] = await Promise.all([
@@ -701,7 +865,11 @@ async function renderAdmin() {
     reps = b.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (e) { box.innerHTML = '<p class="empty">লোড হয়নি: ' + esc(errMsg(e)) + '</p>'; return; }
   box.innerHTML = `
-    <h2 class="sec-title" style="margin-top:0">পেন্ডিং পেমেন্ট (${toBn(pays.length)})</h2>
+    <div class="row">
+      <div class="grow"><b>পেমেন্ট সিস্টেম: ${payOn() ? 'চালু' : 'বন্ধ'}</b><br><small>${payOn() ? 'নম্বর দেখতে ১ কয়েন লাগছে।' : 'এখন সব ফ্রি। কয়েন কাটা হচ্ছে না।'}</small></div>
+      <button class="btn sm ${payOn() ? 'danger' : ''}" data-act="togglepay">${payOn() ? 'বন্ধ করুন' : 'চালু করুন'}</button>
+    </div>
+    <h2 class="sec-title">পেন্ডিং পেমেন্ট (${toBn(pays.length)})</h2>
     ${pays.length ? pays.map(p => `<div class="row">
       <div class="grow"><b>${esc(p.name)}</b> — ${toBn(p.coins)} কয়েন (৳${toBn(p.amount)})<br>
       <small>পাঠিয়েছেন: ${esc(p.sender)}, TrxID: ${esc(p.trxId)}</small></div>
@@ -726,6 +894,16 @@ async function reviewPayment(id, status, uid, coins) {
     await b.commit(); toast(status === 'approved' ? 'কয়েন যোগ হয়েছে।' : 'বাতিল করা হয়েছে।'); renderAdmin();
   } catch (e) { toast(errMsg(e)); }
 }
+async function togglePayment() {
+  const on = !payOn();
+  if (!confirm(on ? 'পেমেন্ট চালু করবেন? এরপর নম্বর দেখতে ১ কয়েন লাগবে।' : 'পেমেন্ট বন্ধ করবেন? সবাই ফ্রি নম্বর দেখতে পারবে।')) return;
+  try {
+    await db.collection('settings').doc('payment').set({ enabled: on, number: payNum() }, { merge: true });
+    settings.enabled = on;
+    applySettings(); renderChrome(); renderFeed(); renderAdmin();
+    toast(on ? 'পেমেন্ট চালু হয়েছে।' : 'পেমেন্ট বন্ধ হয়েছে।');
+  } catch (e) { toast(errMsg(e)); }
+}
 
 /* ---------- global click handling ---------- */
 document.addEventListener('click', async e => {
@@ -735,8 +913,11 @@ document.addEventListener('click', async e => {
   const { act, id } = b.dataset;
   switch (act) {
     case 'login': openAuth('login'); break;
+    case 'signup': openAuth('signup'); break;
+    case 'google': googleLogin(); break;
     case 'logout': await auth.signOut(); show('home'); break;
     case 'refresh': loadPosts(); break;
+    case 'pickarea': show('home'); $('#fDistrict').focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); break;
     case 'newpost': openPost(); break;
     case 'recharge': openRecharge(); break;
     case 'contact': openContact(id); break;
@@ -747,9 +928,10 @@ document.addEventListener('click', async e => {
     case 'delpost': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id)) renderProfile(); } break;
     case 'approve': reviewPayment(id, 'approved', b.dataset.uid, b.dataset.coins); break;
     case 'reject': reviewPayment(id, 'rejected'); break;
+    case 'togglepay': togglePayment(); break;
     case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
     case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
-    case 'copynum': navigator.clipboard.writeText(RECHARGE_NUMBER).then(() => toast('নম্বর কপি হয়েছে।')); break;
+    case 'copynum': navigator.clipboard.writeText(payNum()).then(() => toast('নম্বর কপি হয়েছে।')); break;
     case 'copyphone': navigator.clipboard.writeText(lastContact).then(() => toast('নম্বর কপি হয়েছে।')); break;
   }
 });
