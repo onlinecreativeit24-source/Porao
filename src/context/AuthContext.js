@@ -11,6 +11,8 @@ import { auth, db } from '../firebase/firebase';
 export const AuthContext = createContext();
 
 // users/{uid} ডকুমেন্ট না থাকলে বানায়। ব্যর্থ হলেও লগইন আটকাবে না।
+// coins: 3 বাধ্যতামূলক — Firestore rules এ users create হতে হলে coins == 3 লাগে,
+// নাহলে ডকুমেন্ট তৈরিই হয় না (silently fail)।
 const saveProfile = async (u, role, name) => {
   try {
     const ref = doc(db, 'users', u.uid);
@@ -20,6 +22,7 @@ const saveProfile = async (u, role, name) => {
         name: name || u.displayName || '',
         email: u.email || '',
         role: role || 'student',
+        coins: 3,
         createdAt: serverTimestamp(),
       });
     }
@@ -47,12 +50,17 @@ export function AuthProvider({ children }) {
         name: u.displayName || (u.email ? u.email.split('@')[0] : ''),
       });
       setLoading(false);
-      // রোল ফায়ারস্টোর থেকে আসে (ডকুমেন্ট তৈরি হলেই আপডেট হবে)
+      // রোল ও কয়েন ফায়ারস্টোর থেকে আসে (ডকুমেন্ট তৈরি হলেই আপডেট হবে)
       unsubProfile = onSnapshot(
         doc(db, 'users', u.uid),
         (snap) => {
           if (snap.exists()) {
-            setUser((prev) => (prev && prev.uid === u.uid ? { ...prev, role: snap.data().role } : prev));
+            const data = snap.data();
+            setUser((prev) =>
+              prev && prev.uid === u.uid
+                ? { ...prev, role: data.role, coins: data.coins }
+                : prev
+            );
           }
         },
         () => {}
