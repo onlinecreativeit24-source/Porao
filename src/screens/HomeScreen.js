@@ -239,15 +239,27 @@ export default function HomeScreen({ navigation }) {
                 বেতন: ৳{p.salary}  •  সপ্তাহে {p.days} দিন  •  {p.medium}
               </Text>
               {!!p.details && <Text style={s.cDetails}>{p.details}</Text>}
-              {shown[p.id] ? (
-                <TouchableOpacity onPress={() => Linking.openURL('tel:' + p.phone)}>
-                  <Text style={s.phone}>{p.phone}</Text>
+              <View style={s.actionsRow}>
+                <TouchableOpacity
+                  style={[s.msgBtn, (!p.uid || p.uid === user?.uid) && s.msgBtnDisabled]}
+                  onPress={() =>
+                    p.uid && p.uid !== user?.uid &&
+                    navigation.navigate('ChatScreen', { otherUserId: p.uid, otherUserName: p.title })
+                  }
+                  disabled={!p.uid || p.uid === user?.uid}
+                >
+                  <Text style={s.msgBtnText}>💬 মেসেজ</Text>
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity style={s.contact} onPress={() => setShown((x) => ({ ...x, [p.id]: true }))}>
-                  <Text style={s.contactText}>যোগাযোগ করুন</Text>
-                </TouchableOpacity>
-              )}
+                {shown[p.id] ? (
+                  <TouchableOpacity style={s.callBtn} onPress={() => Linking.openURL('tel:' + p.phone)}>
+                    <Text style={s.phone}>{p.phone}</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity style={s.contact} onPress={() => setShown((x) => ({ ...x, [p.id]: true }))}>
+                    <Text style={s.contactText}>যোগাযোগ করুন</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           );
         })}
@@ -340,7 +352,12 @@ const s = StyleSheet.create({
   cTitle: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginVertical: 6 },
   cSub: { fontSize: 13, color: '#475569', marginTop: 2 },
   cDetails: { fontSize: 13, color: '#334155', marginTop: 6 },
-  contact: { backgroundColor: '#1F5F8B', padding: 11, borderRadius: 10, alignItems: 'center', marginTop: 10 },
+  contact: { flex: 1, backgroundColor: '#1F5F8B', padding: 11, borderRadius: 10, alignItems: 'center' },
   contactText: { color: '#FFF', fontWeight: '700' },
-  phone: { marginTop: 10, fontSize: 16, fontWeight: '700', color: '#16A34A' },
+  phone: { fontSize: 16, fontWeight: '700', color: '#16A34A', textAlign: 'center', paddingVertical: 11 },
+  actionsRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  msgBtn: { flex: 1, backgroundColor: '#E6F1FB', padding: 11, borderRadius: 10, alignItems: 'center' },
+  msgBtnDisabled: { opacity: 0.4 },
+  msgBtnText: { color: '#185FA5', fontWeight: '700', fontSize: 13 },
+  callBtn: { flex: 1, backgroundColor: '#F0FDF4', borderRadius: 10, alignItems: 'center' },
 });
