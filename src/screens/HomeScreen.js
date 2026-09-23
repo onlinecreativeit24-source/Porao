@@ -9,7 +9,17 @@ import {
   Linking,
   TextInput,
 } from 'react-native';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  doc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
 import { AuthContext } from '../context/AuthContext';
 import { db } from '../firebase/firebase';
 
@@ -17,6 +27,7 @@ const FILTERS = [
   { id: 'all', label: 'সব' },
   { id: 'tuition', label: 'টিউশন' },
   { id: 'book', label: 'বই' },
+  { id: 'saved', label: '🔖 সেভড' },
 ];
 
 const AVATAR_COLORS = [
@@ -35,6 +46,7 @@ export default function HomeScreen({ navigation }) {
   const [shown, setShown] = useState({});
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
+  const [savedIds, setSavedIds] = useState(new Set());
 
   // সব পোস্ট
   useEffect(() => {
@@ -56,16 +68,45 @@ export default function HomeScreen({ navigation }) {
     );
   }, []);
 
+  // ইউজারের সেভড পোস্ট: users/{uid}/savedPosts/{postId}
+  useEffect(() => {
+    if (!user?.uid) {
+      setSavedIds(new Set());
+      return;
+    }
+    const q = collection(db, 'users', user.uid, 'savedPosts');
+    return onSnapshot(
+      q,
+      (snap) => setSavedIds(new Set(snap.docs.map((d) => d.id))),
+      () => setSavedIds(new Set())
+    );
+  }, [user?.uid]);
+
+  const toggleSave = async (postId) => {
+    if (!user?.uid) return;
+    const ref = doc(db, 'users', user.uid, 'savedPosts', postId);
+    try {
+      if (savedIds.has(postId)) {
+        await deleteDoc(ref);
+      } else {
+        await setDoc(ref, { postId, savedAt: serverTimestamp() });
+      }
+    } catch (e) {
+      setError('সেভ করা যায়নি: ' + e.message);
+    }
+  };
+
   const visiblePosts = useMemo(() => {
     const term = search.trim().toLowerCase();
     return posts.filter((p) => {
       if (filter === 'book' && p.type !== 'book') return false;
       if (filter === 'tuition' && p.type === 'book') return false;
+      if (filter === 'saved' && !savedIds.has(p.id)) return false;
       if (!term) return true;
       const hay = [p.title, p.area, p.district, p.details].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(term);
     });
-  }, [posts, search, filter]);
+  }, [posts, search, filter, savedIds]);
 
   const initial = (user?.name || '?').trim().charAt(0).toUpperCase();
 
@@ -153,40 +194,63 @@ export default function HomeScreen({ navigation }) {
           </>
         )}
 
-        <Text style={s.section}>সাম্প্রতিক পোস্ট</Text>
+        <Text style={s.section}>
+          {filter === 'saved' ? 'আপনার সেভড পোস্ট' : 'সাম্প্রতিক পোস্ট'}
+        </Text>
         {!!error && <Text style={{ color: '#DC2626' }}>{error}</Text>}
         {visiblePosts.length === 0 && !error && (
-          <Text style={s.empty}>{posts.length === 0 ? 'এখনো কোনো পোস্ট নেই' : 'কোনো পোস্ট মেলেনি'}</Text>
+          <Text style={s.empty}>
+            {filter === 'saved'
+              ? 'এখনো কোনো পোস্ট সেভ করেননি'
+              : posts.length === 0
+              ? 'এখনো কোনো পোস্ট নেই'
+              : 'কোনো পোস্ট মেলেনি'}
+          </Text>
         )}
 
-        {visiblePosts.map((p) => (
-          <View key={p.id} style={s.card}>
-            <View style={[s.tagPill, p.type === 'book' ? s.tagBook : s.tagTuition]}>
-              <Text style={[s.tag, { color: p.type === 'book' ? '#854F0B' : '#185FA5' }]}>
-                {p.type === 'book' ? 'বই' : 'টিউশন'}
+        {visiblePosts.map((p) => {
+          const isSaved = savedIds.has(p.id);
+          return (
+            <View key={p.id} style={s.card}>
+              <View style={s.cardTop}>
+                <View style={[s.tagPill, p.type === 'book' ? s.tagBook : s.tagTuition]}>
+                  <Text style={[s.tag, { color: p.type === 'book' ? '#854F0B' : '#185FA5' }]}>
+                    {p.type === 'book' ? 'বই' : 'টিউশন'}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={s.saveBtn}
+                  onPress={() => toggleSave(p.id)}
+                  disabled={!user?.uid}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={[s.saveIcon, isSaved && s.saveIconActive]}>
+                    {isSaved ? '🔖' : '🔗'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={s.cTitle}>{p.title}</Text>
+              <Text style={s.cSub}>
+                এলাকা: {p.area}
+                {p.area && p.district ? ', ' : ''}
+                {p.district}
               </Text>
+              <Text style={s.cSub}>
+                বেতন: ৳{p.salary}  •  সপ্তাহে {p.days} দিন  •  {p.medium}
+              </Text>
+              {!!p.details && <Text style={s.cDetails}>{p.details}</Text>}
+              {shown[p.id] ? (
+                <TouchableOpacity onPress={() => Linking.openURL('tel:' + p.phone)}>
+                  <Text style={s.phone}>{p.phone}</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity style={s.contact} onPress={() => setShown((x) => ({ ...x, [p.id]: true }))}>
+                  <Text style={s.contactText}>যোগাযোগ করুন</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            <Text style={s.cTitle}>{p.title}</Text>
-            <Text style={s.cSub}>
-              এলাকা: {p.area}
-              {p.area && p.district ? ', ' : ''}
-              {p.district}
-            </Text>
-            <Text style={s.cSub}>
-              বেতন: ৳{p.salary}  •  সপ্তাহে {p.days} দিন  •  {p.medium}
-            </Text>
-            {!!p.details && <Text style={s.cDetails}>{p.details}</Text>}
-            {shown[p.id] ? (
-              <TouchableOpacity onPress={() => Linking.openURL('tel:' + p.phone)}>
-                <Text style={s.phone}>{p.phone}</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={s.contact} onPress={() => setShown((x) => ({ ...x, [p.id]: true }))}>
-                <Text style={s.contactText}>যোগাযোগ করুন</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -230,7 +294,7 @@ const s = StyleSheet.create({
   heroBtn: { alignSelf: 'flex-start', backgroundColor: '#FFF', borderRadius: 18, paddingHorizontal: 16, paddingVertical: 7 },
   heroBtnText: { color: '#1F5F8B', fontSize: 13, fontWeight: '600' },
 
-  chips: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  chips: { flexDirection: 'row', gap: 8, marginTop: 14, flexWrap: 'wrap' },
   chip: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 18, backgroundColor: '#FFF', borderWidth: 0.5, borderColor: '#C9D3DF' },
   chipActive: { backgroundColor: '#1F5F8B', borderColor: '#1F5F8B' },
   chipText: { fontSize: 13, color: '#1A2B3C' },
@@ -265,10 +329,14 @@ const s = StyleSheet.create({
   ratingText: { color: '#633806', fontSize: 12, fontWeight: '600' },
 
   card: { backgroundColor: '#FFF', borderRadius: 14, padding: 14, borderWidth: 0.5, borderColor: '#E1E8F0', marginBottom: 12 },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   tagPill: { alignSelf: 'flex-start', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3 },
   tagBook: { backgroundColor: '#FAEEDA' },
   tagTuition: { backgroundColor: '#E6F1FB' },
   tag: { fontSize: 12, fontWeight: '600' },
+  saveBtn: { padding: 4 },
+  saveIcon: { fontSize: 18, opacity: 0.35 },
+  saveIconActive: { opacity: 1 },
   cTitle: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginVertical: 6 },
   cSub: { fontSize: 13, color: '#475569', marginTop: 2 },
   cDetails: { fontSize: 13, color: '#334155', marginTop: 6 },
