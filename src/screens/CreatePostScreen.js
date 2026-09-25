@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { AuthContext } from '../context/AuthContext';
+import { LocationField, DistrictPickerModal, AreaPickerModal } from '../components/LocationPicker';
 
 const bn2en = (s = '') => String(s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
 
@@ -14,6 +15,8 @@ export default function CreatePostScreen({ navigation }) {
   });
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showDistrictPicker, setShowDistrictPicker] = useState(false);
+  const [showAreaPicker, setShowAreaPicker] = useState(false);
   const set = (k, v) => setF(p => ({ ...p, [k]: v }));
 
   const submit = async () => {
@@ -28,6 +31,8 @@ export default function CreatePostScreen({ navigation }) {
     if (title.length > 80) return setMsg('শিরোনাম ৮০ অক্ষরের বেশি হতে পারবে না');
     if (details.length > 600) return setMsg('বিস্তারিত ৬০০ অক্ষরের বেশি হতে পারবে না');
     if (!/^01\d{9}$/.test(phone)) return setMsg('সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন');
+    if (!f.district) return setMsg('জেলা নির্বাচন করুন');
+    if (!f.area) return setMsg('এলাকা/থানা নির্বাচন করুন');
     if (!user?.uid) return setMsg('আগে লগইন করুন');
 
     setBusy(true);
@@ -78,13 +83,43 @@ export default function CreatePostScreen({ navigation }) {
       <View style={s.row}>
         <View style={{ flex: 1 }}>
           <Text style={s.label}>জেলা</Text>
-          <TextInput style={s.input} value={f.district} onChangeText={t => set('district', t)} />
+          <LocationField
+            label=""
+            value={f.district}
+            placeholder="জেলা বাছাই করুন"
+            onPress={() => setShowDistrictPicker(true)}
+          />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={s.label}>এলাকা</Text>
-          <TextInput style={s.input} value={f.area} onChangeText={t => set('area', t)} />
+          <Text style={s.label}>এলাকা/থানা</Text>
+          <LocationField
+            label=""
+            value={f.area}
+            placeholder={f.district ? 'এলাকা বাছাই করুন' : 'আগে জেলা বাছাই করুন'}
+            onPress={() => {
+              if (!f.district) return setMsg('আগে জেলা নির্বাচন করুন');
+              setShowAreaPicker(true);
+            }}
+          />
         </View>
       </View>
+
+      <DistrictPickerModal
+        visible={showDistrictPicker}
+        onClose={() => setShowDistrictPicker(false)}
+        selected={f.district}
+        onSelect={(d) => {
+          set('district', d);
+          set('area', ''); // জেলা বদলালে আগের এলাকা রিসেট
+        }}
+      />
+      <AreaPickerModal
+        visible={showAreaPicker}
+        onClose={() => setShowAreaPicker(false)}
+        district={f.district}
+        selected={f.area}
+        onSelect={(a) => set('area', a)}
+      />
 
       <Text style={s.label}>বেতন / মূল্য</Text>
       <TextInput style={s.input} value={f.salary} onChangeText={t => set('salary', t)} keyboardType="numeric" />
