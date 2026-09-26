@@ -22,6 +22,7 @@ import {
 } from 'firebase/firestore';
 import { AuthContext } from '../context/AuthContext';
 import { db } from '../firebase/firebase';
+import { LocationField, DistrictPickerModal, AreaPickerModal } from '../components/LocationPicker';
 
 const FILTERS = [
   { id: 'all', label: 'সব' },
@@ -47,6 +48,12 @@ export default function HomeScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [savedIds, setSavedIds] = useState(new Set());
+
+  // এলাকা/জেলা ফিল্টার (ড্রপডাউন থেকে বাছাই করা)
+  const [locDistrict, setLocDistrict] = useState('');
+  const [locArea, setLocArea] = useState('');
+  const [showDistrictPicker, setShowDistrictPicker] = useState(false);
+  const [showAreaPicker, setShowAreaPicker] = useState(false);
 
   // সব পোস্ট
   useEffect(() => {
@@ -96,17 +103,24 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const clearLocationFilter = () => {
+    setLocDistrict('');
+    setLocArea('');
+  };
+
   const visiblePosts = useMemo(() => {
     const term = search.trim().toLowerCase();
     return posts.filter((p) => {
       if (filter === 'book' && p.type !== 'book') return false;
       if (filter === 'tuition' && p.type === 'book') return false;
       if (filter === 'saved' && !savedIds.has(p.id)) return false;
+      if (locDistrict && p.district !== locDistrict) return false;
+      if (locArea && p.area !== locArea) return false;
       if (!term) return true;
       const hay = [p.title, p.area, p.district, p.details].filter(Boolean).join(' ').toLowerCase();
       return hay.includes(term);
     });
-  }, [posts, search, filter, savedIds]);
+  }, [posts, search, filter, savedIds, locDistrict, locArea]);
 
   const initial = (user?.name || '?').trim().charAt(0).toUpperCase();
 
@@ -129,10 +143,52 @@ export default function HomeScreen({ navigation }) {
 
         <TextInput
           style={s.search}
-          placeholder="বিষয়, এলাকা বা জেলা খুঁজুন"
+          placeholder="বিষয় বা শিরোনাম খুঁজুন"
           placeholderTextColor="#8794A3"
           value={search}
           onChangeText={setSearch}
+        />
+
+        <View style={s.locRow}>
+          <View style={{ flex: 1 }}>
+            <LocationField
+              value={locDistrict}
+              placeholder="জেলা"
+              onPress={() => setShowDistrictPicker(true)}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <LocationField
+              value={locArea}
+              placeholder={locDistrict ? 'এলাকা/থানা' : 'আগে জেলা বাছাই করুন'}
+              onPress={() => {
+                if (!locDistrict) return;
+                setShowAreaPicker(true);
+              }}
+            />
+          </View>
+          {(locDistrict || locArea) && (
+            <TouchableOpacity style={s.clearLoc} onPress={clearLocationFilter}>
+              <Text style={s.clearLocText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <DistrictPickerModal
+          visible={showDistrictPicker}
+          onClose={() => setShowDistrictPicker(false)}
+          selected={locDistrict}
+          onSelect={(d) => {
+            setLocDistrict(d);
+            setLocArea(''); // জেলা বদলালে আগের এলাকা রিসেট
+          }}
+        />
+        <AreaPickerModal
+          visible={showAreaPicker}
+          onClose={() => setShowAreaPicker(false)}
+          district={locDistrict}
+          selected={locArea}
+          onSelect={(a) => setLocArea(a)}
         />
 
         <View style={s.hero}>
@@ -299,6 +355,17 @@ const s = StyleSheet.create({
     color: '#1A2B3C',
     outlineStyle: 'none',
   },
+
+  locRow: { flexDirection: 'row', gap: 8, marginTop: 8, alignItems: 'center' },
+  clearLoc: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearLocText: { color: '#DC2626', fontWeight: '700' },
 
   hero: { backgroundColor: '#1F5F8B', borderRadius: 18, padding: 18, marginTop: 12 },
   heroSmall: { color: '#BFD8EC', fontSize: 11 },
