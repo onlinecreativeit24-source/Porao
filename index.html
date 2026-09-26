@@ -146,6 +146,11 @@ main{max-width:760px;margin:0 auto}
 .stars button{background:none;border:0;font-size:2.4rem;line-height:1;color:#CBD5DF;cursor:pointer;padding:0 2px}
 .stars button.on{color:#F0B429}
 .hint{font-size:.85rem;color:var(--muted);padding:0 16px 8px;margin:0}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+@media(min-width:480px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.stat-card{background:var(--paper);border:.5px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat-num{font-size:1.6rem;font-weight:700;color:var(--primary)}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:2px}
 
 /* bottom nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:.5px solid #D6DEE8;display:flex;justify-content:space-around;align-items:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
@@ -195,6 +200,19 @@ dialog textarea{min-height:96px;resize:vertical}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 <link rel="stylesheet" href="extra.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "পড়াও",
+  "alternateName": "Porao",
+  "url": "https://onlinecreativeit24-source.github.io/Porao/",
+  "logo": "https://onlinecreativeit24-source.github.io/Porao/og-image.png",
+  "description": "বাংলাদেশে টিউটর ও টিউশন খোঁজার প্ল্যাটফর্ম। শিক্ষক, শিক্ষার্থী ও অভিভাবক বিনামূল্যে পোস্ট দিতে পারবেন।",
+  "areaServed": "BD",
+  "sameAs": []
+}
+</script>
 </head>
 <body>
 
@@ -1080,22 +1098,66 @@ async function sharePost(id) {
   try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(data.url); toast('লিংক কপি হয়েছে।'); } } catch (e) { /* cancelled */ }
 }
 
+/* ---------- member growth stats (admin) ---------- */
+async function loadUserStats() {
+  try {
+    const snap = await db.collection('users').get();
+    const now = Date.now();
+    const DAY = 86400000, WEEK = DAY * 7, MONTH = DAY * 30;
+    let total = 0, today = 0, thisWeek = 0, thisMonth = 0;
+    const roles = { student: 0, teacher: 0, parent: 0 };
+    snap.forEach(d => {
+      total++;
+      const u = d.data();
+      if (roles[u.role] !== undefined) roles[u.role]++;
+      const t = (u.createdAt && u.createdAt.toDate) ? u.createdAt.toDate().getTime() : null;
+      if (t) {
+        if (now - t < DAY) today++;
+        if (now - t < WEEK) thisWeek++;
+        if (now - t < MONTH) thisMonth++;
+      }
+    });
+    return { total, today, thisWeek, thisMonth, roles };
+  } catch (e) { return null; }
+}
+
 /* ---------- admin ---------- */
 async function renderAdmin() {
   const box = $('#adminBody');
   if (!isAdmin) { box.innerHTML = '<p class="empty">এই পেজ শুধু অ্যাডমিনের জন্য।</p>'; return; }
   box.innerHTML = '<div class="skel"></div>';
-  let pays = [], reps = [];
+  let pays = [], reps = [], stats = null;
   try {
-    const [a, b] = await Promise.all([
+    const [a, b, c] = await Promise.all([
       db.collection('payments').where('status', '==', 'pending').get(),
-      db.collection('reports').orderBy('createdAt', 'desc').limit(50).get()
+      db.collection('reports').orderBy('createdAt', 'desc').limit(50).get(),
+      loadUserStats()
     ]);
     pays = a.docs.map(d => ({ id: d.id, ...d.data() }));
     reps = b.docs.map(d => ({ id: d.id, ...d.data() }));
+    stats = c;
   } catch (e) { box.innerHTML = '<p class="empty">লোড হয়নি: ' + esc(errMsg(e)) + '</p>'; return; }
   await loadTutors();
+  const statsHtml = stats ? `
+    <h2 class="sec-title">মেম্বার বৃদ্ধি</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${toBn(stats.total)}</div><div class="stat-label">মোট মেম্বার</div></div>
+      <div class="stat-card"><div class="stat-num">${toBn(stats.today)}</div><div class="stat-label">আজ নতুন</div></div>
+      <div class="stat-card"><div class="stat-num">${toBn(stats.thisWeek)}</div><div class="stat-label">এই সপ্তাহে</div></div>
+      <div class="stat-card"><div class="stat-num">${toBn(stats.thisMonth)}</div><div class="stat-label">এই মাসে</div></div>
+    </div>
+    <div class="row">
+      <div class="grow"><b>শিক্ষার্থী</b></div><span class="badge">${toBn(stats.roles.student)}</span>
+    </div>
+    <div class="row">
+      <div class="grow"><b>শিক্ষক</b></div><span class="badge">${toBn(stats.roles.teacher)}</span>
+    </div>
+    <div class="row">
+      <div class="grow"><b>অভিভাবক</b></div><span class="badge">${toBn(stats.roles.parent)}</span>
+    </div>
+  ` : '<h2 class="sec-title">মেম্বার বৃদ্ধি</h2><p class="note">মেম্বার তথ্য লোড করা যায়নি।</p>';
   box.innerHTML = `
+    ${statsHtml}
     <div class="row">
       <div class="grow"><b>পেমেন্ট সিস্টেম: ${payOn() ? 'চালু' : 'বন্ধ'}</b><br><small>${payOn() ? 'নম্বর দেখতে ১ কয়েন লাগছে।' : 'এখন সব ফ্রি। কয়েন কাটা হচ্ছে না।'}</small></div>
       <button class="btn sm ${payOn() ? 'danger' : ''}" data-act="togglepay">${payOn() ? 'বন্ধ করুন' : 'চালু করুন'}</button>
