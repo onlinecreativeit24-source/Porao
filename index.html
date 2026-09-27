@@ -363,6 +363,10 @@ dialog textarea{min-height:96px;resize:vertical}
       <label for="aPhone">মোবাইল নম্বর</label>
       <input id="aPhone" inputmode="tel" autocomplete="tel" placeholder="০১XXXXXXXXX">
     </div>
+    <div data-signup hidden>
+      <label for="aReferral">রেফারেল কোড (ঐচ্ছিক)</label>
+      <input id="aReferral" maxlength="12" autocapitalize="characters" placeholder="বন্ধুর কোড থাকলে দিন">
+    </div>
     <label for="aPass">পাসওয়ার্ড</label>
     <input id="aPass" type="password" autocomplete="current-password" required>
     <p class="note" data-signup hidden>সঠিক ইমেইল দিন, পাসওয়ার্ড ভুলে গেলে ওই ইমেইলে রিসেট লিংক যাবে। পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।<span id="coinNote"> নতুন অ্যাকাউন্টে ৩টি ফ্রি কয়েন পাবেন।</span></p>
@@ -652,17 +656,27 @@ async function onAuth(u) {
   if (cur === 'v-admin') isAdmin ? renderAdmin() : show('home');
 }
 
+function makeReferralCode(uid, name) {
+  const base = (name || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4);
+  return (base || 'PORA') + uid.slice(-4).toUpperCase();
+}
 async function ensureProfile(u) {
   if (creating) return; creating = true;
   const p = pendingProfile || {};
+  const finalName = (p.name || u.displayName || 'ব্যবহারকারী').slice(0, 60);
   try {
     await db.collection('users').doc(u.uid).set({
-      name: (p.name || u.displayName || 'ব্যবহারকারী').slice(0, 60),
+      name: finalName,
       role: p.role || 'student',
       contact: (p.phone || contactOf(u.email)).slice(0, 100),
       coins: 3,
+      referralCode: makeReferralCode(u.uid, finalName),
+      referralCount: 0,
+      referralPoints: 0,
+      referredUsers: [],
       createdAt: TS()
     });
+    if (p.enteredReferral) await applyReferralCode(u.uid, p.enteredReferral);
   } catch (e) { toast('প্রোফাইল তৈরি হয়নি: ' + errMsg(e)); }
   finally { creating = false; pendingProfile = null; }
 }
@@ -854,7 +868,7 @@ $$('[data-authmode]').forEach(b => b.addEventListener('click', () => setAuthMode
 async function googleLogin() {
   if (!CONFIGURED) return toast('আগে firebaseConfig বসান।');
   const btn = $('#googleBtn'); btn.disabled = true;
-  pendingProfile = { role: authMode === 'signup' ? $('input[name=arole]:checked').value : 'student' };
+  pendingProfile = { role: authMode === 'signup' ? $('input[name=arole]:checked').value : 'student', enteredReferral: authMode === 'signup' ? $('#aReferral').value.trim().toUpperCase() : '' };
   const prov = new firebase.auth.GoogleAuthProvider();
   prov.setCustomParameters({ prompt: 'select_account' });
   try {
@@ -881,7 +895,7 @@ $('#fAuth').addEventListener('submit', async e => {
     if (!email.includes('@') || email.endsWith('@porao.app')) return toast('সঠিক ইমেইল দিন। পাসওয়ার্ড ভুলে গেলে এই ইমেইলে লিংক যাবে।');
     if (!phone) return toast('সঠিক মোবাইল নম্বর দিন (০১XXXXXXXXX)।');
     if (pass.length < 8) return toast('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের দিন।');
-    pendingProfile = { name, phone, role: $('input[name=arole]:checked').value };
+    pendingProfile = { name, phone, role: $('input[name=arole]:checked').value, enteredReferral: $('#aReferral').value.trim().toUpperCase() };
   }
   btn.disabled = true;
   try {
@@ -1033,6 +1047,10 @@ async function renderProfile() {
   const byTime = (x, y) => ((y.createdAt && y.createdAt.seconds) || 0) - ((x.createdAt && x.createdAt.seconds) || 0);
   posts.sort(byTime); pays.sort(byTime);
   const pr = profile || {};
+  if (!pr.referralCode) {
+    const code = makeReferralCode(me.uid, pr.name || me.displayName || '');
+    try { await db.collection('users').doc(me.uid).update({ referralCode: code, referralCount: pr.referralCount || 0, referralPoints: pr.referralPoints || 0, referredUsers: pr.referredUsers || [] }); pr.referralCode = code; } catch (e) { /* ignore */ }
+  }
   let tdoc = null;
   if (pr.role === 'teacher') { try { const t = await db.collection('tutors').doc(me.uid).get(); tdoc = t.exists ? t.data() : null; } catch (e) { /* ignore */ } }
   const legacy = (me.email || '').endsWith('@porao.app');
@@ -1054,6 +1072,12 @@ async function renderProfile() {
       </div>
     </div>
     ${emailBox}
+    <h2 class="sec-title">বন্ধুকে রেফার করুন</h2>
+    <div class="row">
+      <div class="grow"><b>আপনার রেফারেল কোড: ${esc(pr.referralCode || '')}</b><br>
+      <small>${toBn(pr.referralCount || 0)} জন জয়েন করেছে · ${toBn(pr.referralPoints || 0)} পয়েন্ট</small></div>
+      <button class="btn sm" data-act="shareref" data-code="${esc(pr.referralCode || '')}">শেয়ার করুন</button>
+    </div>
     ${teacherBox}
     <h2 class="sec-title">আমার পোস্ট</h2>
     ${posts.length ? posts.map(p => `<div class="row">
@@ -1096,6 +1120,30 @@ async function sharePost(id) {
   const p = allPosts.find(x => x.id === id); if (!p) return;
   const data = { title: p.title, text: `${p.title} – ${p.district}`, url: location.origin + location.pathname };
   try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(data.url); toast('লিংক কপি হয়েছে।'); } } catch (e) { /* cancelled */ }
+}
+
+/* ---------- referral system ---------- */
+async function applyReferralCode(newUid, code) {
+  if (!code) return;
+  try {
+    const q = await db.collection('users').where('referralCode', '==', code).limit(1).get();
+    if (q.empty) return;
+    const refDoc = q.docs[0];
+    const referrerId = refDoc.id;
+    if (referrerId === newUid) return;
+    await db.collection('users').doc(newUid).update({ referredBy: referrerId });
+    await db.collection('users').doc(referrerId).update({
+      referralCount: FV.increment(1),
+      referralPoints: FV.increment(10),
+      referredUsers: FV.arrayUnion(newUid)
+    });
+  } catch (e) { /* ignore silently, referral is a bonus feature */ }
+}
+function shareReferral(code) {
+  const link = location.origin + location.pathname;
+  const text = `আমি পড়াও অ্যাপ ব্যবহার করছি — টিউটর/টিউশন/বই খোঁজার জন্য দারুণ! আমার রেফারেল কোড দিয়ে জয়েন করো: ${code}\n${link}`;
+  if (navigator.share) navigator.share({ title: 'পড়াও', text });
+  else { navigator.clipboard.writeText(text).then(() => toast('মেসেজ কপি হয়েছে, বন্ধুকে পাঠাও।')); }
 }
 
 /* ---------- member growth stats (admin) ---------- */
@@ -1242,6 +1290,7 @@ document.addEventListener('click', async e => {
     case 'deltutor': deleteTutor(id); break;
     case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
     case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
+    case 'shareref': shareReferral(b.dataset.code); break;
     case 'copynum': navigator.clipboard.writeText(payNum()).then(() => toast('নম্বর কপি হয়েছে।')); break;
     case 'copyphone': navigator.clipboard.writeText(lastContact).then(() => toast('নম্বর কপি হয়েছে।')); break;
   }
