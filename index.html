@@ -76,6 +76,11 @@ main{max-width:760px;margin:0 auto}
 .hero-btn.ghost{background:transparent;color:#fff}
 .hero-ic{position:absolute;right:12px;top:10px;width:76px;height:76px;color:#7FB2DA;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.9;pointer-events:none}
 
+.refband{width:calc(100% - 32px);margin:12px 16px 0;background:#2563EB;border:0;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;text-align:left}
+.refband .rb-txt{display:flex;flex-direction:column;color:#fff}
+.refband .rb-txt small{color:#DBEAFE;font-size:.82rem;margin-top:2px}
+.refband .rb-cta{background:#fff;color:#2563EB;border-radius:8px;padding:8px 14px;font-weight:700;font-size:.85rem;white-space:nowrap}
+
 /* home: subject cards */
 .sec-h{font-size:1.05rem;font-weight:600;padding:18px 16px 8px}
 .subjects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0 16px}
@@ -89,6 +94,9 @@ main{max-width:760px;margin:0 auto}
 .filters{padding:14px 16px 0;display:grid;gap:8px}
 .filters input{width:100%;padding:10px 14px;border-radius:12px;border:.5px solid #C9D3DF;background:#fff;color:var(--ink)}
 .filters input::placeholder{color:#8794A3}
+.two-select{display:flex;gap:8px}
+.two-select select{flex:1;min-width:0;width:100%;padding:10px 14px;border-radius:12px;border:.5px solid #C9D3DF;background:#fff;color:var(--ink);appearance:auto}
+.two select{width:100%;padding:10px 12px;border:1.5px solid #C9D3DF;border-radius:10px;background:#fff;color:var(--ink)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chips button{white-space:nowrap;border:.5px solid #C9D3DF;background:#fff;color:var(--ink);border-radius:999px;padding:6px 16px;cursor:pointer}
@@ -272,6 +280,14 @@ dialog textarea{min-height:96px;resize:vertical}
       </div>
     </div>
 
+    <button type="button" class="refband" data-act="gotoreferral">
+      <span class="rb-txt">
+        <b>বন্ধুকে রেফার করুন 🎁</b>
+        <small>জয়েন করালেই পয়েন্ট জিতুন</small>
+      </span>
+      <span class="rb-cta">আয় করুন</span>
+    </button>
+
     <h2 class="sec-h">বিষয়সমূহ</h2>
     <div class="subjects">
       <button class="sub s1" data-act="subj" data-s="গণিত"><span class="si"><svg class="ic"><use href="#i-math"/></svg></span>গণিত</button>
@@ -294,7 +310,10 @@ dialog textarea{min-height:96px;resize:vertical}
         <button type="button" data-type="offer">টিউশন দিতে চাই</button>
         <button type="button" data-type="book">বই শেয়ার / বিনিময়</button>
       </div>
-      <input id="fDistrict" list="dl-district" placeholder="জেলা বা এলাকা" aria-label="জেলা বা এলাকা">
+      <div class="two-select">
+        <select id="fDistrict" aria-label="জেলা বাছাই করুন"><option value="">সব জেলা</option></select>
+        <select id="fArea" aria-label="এলাকা বাছাই করুন"><option value="">সব এলাকা</option></select>
+      </div>
     </div>
 
     <div class="feed-head" id="feedHead">
@@ -322,17 +341,6 @@ dialog textarea{min-height:96px;resize:vertical}
 </nav>
 
 <div id="toast" role="status" aria-live="polite"></div>
-
-<datalist id="dl-district">
-  <option value="ঢাকা"><option value="গাজীপুর"><option value="নারায়ণগঞ্জ"><option value="নরসিংদী"><option value="মানিকগঞ্জ"><option value="মুন্সীগঞ্জ"><option value="শরীয়তপুর"><option value="মাদারীপুর"><option value="গোপালগঞ্জ"><option value="ফরিদপুর"><option value="রাজবাড়ী"><option value="কিশোরগঞ্জ"><option value="টাঙ্গাইল">
-  <option value="ময়মনসিংহ"><option value="নেত্রকোনা"><option value="জামালপুর"><option value="শেরপুর">
-  <option value="চট্টগ্রাম"><option value="কক্সবাজার"><option value="কুমিল্লা"><option value="ব্রাহ্মণবাড়িয়া"><option value="চাঁদপুর"><option value="ফেনী"><option value="নোয়াখালী"><option value="লক্ষ্মীপুর"><option value="খাগড়াছড়ি"><option value="রাঙ্গামাটি"><option value="বান্দরবান">
-  <option value="সিলেট"><option value="মৌলভীবাজার"><option value="হবিগঞ্জ"><option value="সুনামগঞ্জ">
-  <option value="রাজশাহী"><option value="নাটোর"><option value="নওগাঁ"><option value="চাঁপাইনবাবগঞ্জ"><option value="পাবনা"><option value="সিরাজগঞ্জ"><option value="বগুড়া"><option value="জয়পুরহাট">
-  <option value="রংপুর"><option value="দিনাজপুর"><option value="নীলফামারী"><option value="গাইবান্ধা"><option value="কুড়িগ্রাম"><option value="লালমনিরহাট"><option value="ঠাকুরগাঁও"><option value="পঞ্চগড়">
-  <option value="খুলনা"><option value="বাগেরহাট"><option value="সাতক্ষীরা"><option value="যশোর"><option value="নড়াইল"><option value="মাগুরা"><option value="ঝিনাইদহ"><option value="কুষ্টিয়া"><option value="চুয়াডাঙ্গা"><option value="মেহেরপুর">
-  <option value="বরিশাল"><option value="ভোলা"><option value="পটুয়াখালী"><option value="পিরোজপুর"><option value="বরগুনা"><option value="ঝালকাঠি">
-</datalist>
 
 <!-- AUTH -->
 <dialog id="dAuth">
@@ -408,8 +416,8 @@ dialog textarea{min-height:96px;resize:vertical}
       <div><label for="pLevel">শ্রেণি</label><input id="pLevel" maxlength="40" placeholder="যেমন: ৯ম শ্রেণি"></div>
     </div>
     <div class="two">
-      <div><label for="pDistrict">জেলা</label><input id="pDistrict" list="dl-district" maxlength="40" required></div>
-      <div><label for="pArea">এলাকা</label><input id="pArea" maxlength="60" placeholder="থানা / মহল্লা"></div>
+      <div><label for="pDistrict">জেলা</label><select id="pDistrict" required><option value="">জেলা বাছাই করুন</option></select></div>
+      <div><label for="pArea">এলাকা / থানা</label><select id="pArea"><option value="">এলাকা বাছাই করুন</option></select></div>
     </div>
     <label for="pBudget">বেতন / মূল্য</label>
     <input id="pBudget" maxlength="40" placeholder="যেমন: ৪০০০ টাকা/মাস বা আলোচনা সাপেক্ষে">
@@ -509,6 +517,97 @@ const toBn = s => String(s).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'
 const enDigits = s => String(s).replace(/[০-৯]/g, d => '০১২৩৪৫৬৭৮৯'.indexOf(d));
 
 const TYPES = { wanted: 'টিউটর চাই', offer: 'টিউশন দিতে চাই', book: 'বই শেয়ার / বিনিময়' };
+
+/* ---------- বাংলাদেশের জেলা ও উপজেলা/থানা তালিকা (কাস্কেডিং ড্রপডাউন) ---------- */
+const BD_LOCATIONS = {
+  "ঢাকা": ["ঢাকা উত্তর","ঢাকা দক্ষিণ","ধামরাই","দোহার","কেরানীগঞ্জ","নবাবগঞ্জ","সাভার","উত্তরা","মিরপুর","মোহাম্মদপুর","ধানমন্ডি","গুলশান","বাড্ডা","যাত্রাবাড়ী","তেজগাঁও","রমনা","পল্টন","খিলগাঁও","শাহবাগ","নিউমার্কেট","লালবাগ","ওয়ারী","সূত্রাপুর","ডেমরা","কদমতলী","শ্যামপুর","কামরাঙ্গীরচর","হাজারীবাগ","আদাবর","কাফরুল","পল্লবী","ক্যান্টনমেন্ট","বিমানবন্দর","তুরাগ"],
+  "গাজীপুর": ["গাজীপুর সদর","কালিয়াকৈর","কাপাসিয়া","শ্রীপুর","কালীগঞ্জ","টঙ্গী"],
+  "নারায়ণগঞ্জ": ["নারায়ণগঞ্জ সদর","আড়াইহাজার","বন্দর","রূপগঞ্জ","সোনারগাঁ"],
+  "মানিকগঞ্জ": ["মানিকগঞ্জ সদর","সাটুরিয়া","সিংগাইর","শিবালয়","হরিরামপুর","ঘিওর","দৌলতপুর"],
+  "মুন্সীগঞ্জ": ["মুন্সীগঞ্জ সদর","শ্রীনগর","সিরাজদিখান","লৌহজং","গজারিয়া","টঙ্গিবাড়ী"],
+  "নরসিংদী": ["নরসিংদী সদর","বেলাবো","মনোহরদী","পলাশ","রায়পুরা","শিবপুর"],
+  "টাঙ্গাইল": ["টাঙ্গাইল সদর","বাসাইল","ভূঞাপুর","দেলদুয়ার","ঘাটাইল","গোপালপুর","কালিহাতি","মধুপুর","মির্জাপুর","নাগরপুর","সখীপুর","ধনবাড়ী"],
+  "কিশোরগঞ্জ": ["কিশোরগঞ্জ সদর","বাজিতপুর","ভৈরব","হোসেনপুর","ইটনা","করিমগঞ্জ","কটিয়াদি","কুলিয়ারচর","মিঠামইন","নিকলী","পাকুন্দিয়া","তাড়াইল","অষ্টগ্রাম"],
+  "ফরিদপুর": ["ফরিদপুর সদর","আলফাডাঙ্গা","বোয়ালমারী","ভাঙ্গা","চরভদ্রাসন","মধুখালী","নগরকান্দা","সদরপুর","সালথা"],
+  "গোপালগঞ্জ": ["গোপালগঞ্জ সদর","কাশিয়ানী","কোটালীপাড়া","মুকসুদপুর","টুঙ্গিপাড়া"],
+  "মাদারীপুর": ["মাদারীপুর সদর","কালকিনি","রাজৈর","শিবচর"],
+  "রাজবাড়ী": ["রাজবাড়ী সদর","বালিয়াকান্দি","গোয়ালন্দ","পাংশা","কালুখালী"],
+  "শরীয়তপুর": ["শরীয়তপুর সদর","ডামুড্যা","গোসাইরহাট","নড়িয়া","ভেদরগঞ্জ","জাজিরা"],
+  "চট্টগ্রাম": ["চট্টগ্রাম সদর","আনোয়ারা","বাঁশখালী","বোয়ালখালী","চন্দনাইশ","ফটিকছড়ি","হাটহাজারী","লোহাগাড়া","মিরসরাই","পটিয়া","রাঙ্গুনিয়া","রাউজান","সাতকানিয়া","সীতাকুণ্ড","সন্দ্বীপ","কর্ণফুলী","পাঁচলাইশ","কোতোয়ালী","ডবলমুরিং","আগ্রাবাদ","পাহাড়তলী"],
+  "কক্সবাজার": ["কক্সবাজার সদর","চকরিয়া","কুতুবদিয়া","মহেশখালী","পেকুয়া","রামু","টেকনাফ","উখিয়া"],
+  "বান্দরবান": ["বান্দরবান সদর","আলীকদম","লামা","নাইক্ষ্যংছড়ি","রুমা","রোয়াংছড়ি","থানচি"],
+  "রাঙামাটি": ["রাঙামাটি সদর","বাঘাইছড়ি","বরকল","বিলাইছড়ি","জুরাছড়ি","কাপ্তাই","কাউখালী","লংগদু","নানিয়ারচর","রাজস্থলী"],
+  "খাগড়াছড়ি": ["খাগড়াছড়ি সদর","দিঘীনালা","লক্ষ্মীছড়ি","মহালছড়ি","মানিকছড়ি","মাটিরাঙ্গা","পানছড়ি","রামগড়"],
+  "ফেনী": ["ফেনী সদর","ছাগলনাইয়া","দাগনভূঞা","ফুলগাজী","পরশুরাম","সোনাগাজী"],
+  "নোয়াখালী": ["নোয়াখালী সদর","বেগমগঞ্জ","চাটখিল","কোম্পানীগঞ্জ","হাতিয়া","কবিরহাট","সেনবাগ","সোনাইমুড়ী","সুবর্ণচর"],
+  "লক্ষ্মীপুর": ["লক্ষ্মীপুর সদর","কমলনগর","রায়পুর","রামগঞ্জ","রামগতি"],
+  "কুমিল্লা": ["কুমিল্লা সদর","বরুড়া","ব্রাহ্মণপাড়া","চান্দিনা","চৌদ্দগ্রাম","দাউদকান্দি","দেবিদ্বার","হোমনা","লাকসাম","মুরাদনগর","নাঙ্গলকোট","সদর দক্ষিণ","তিতাস","মেঘনা","মনোহরগঞ্জ","বুড়িচং"],
+  "ব্রাহ্মণবাড়িয়া": ["ব্রাহ্মণবাড়িয়া সদর","আখাউড়া","বাঞ্ছারামপুর","বিজয়নগর","কসবা","নাসিরনগর","নবীনগর","সরাইল"],
+  "চাঁদপুর": ["চাঁদপুর সদর","ফরিদগঞ্জ","হাইমচর","হাজীগঞ্জ","কচুয়া","মতলব দক্ষিণ","মতলব উত্তর","শাহরাস্তি"],
+  "সিলেট": ["সিলেট সদর","বালাগঞ্জ","বিয়ানীবাজার","বিশ্বনাথ","কোম্পানীগঞ্জ","ফেঞ্চুগঞ্জ","গোলাপগঞ্জ","গোয়াইনঘাট","জৈন্তাপুর","কানাইঘাট","জকিগঞ্জ","ওসমানীনগর","দক্ষিণ সুরমা"],
+  "মৌলভীবাজার": ["মৌলভীবাজার সদর","বড়লেখা","জুড়ী","কমলগঞ্জ","কুলাউড়া","রাজনগর","শ্রীমঙ্গল"],
+  "হবিগঞ্জ": ["হবিগঞ্জ সদর","আজমিরীগঞ্জ","বাহুবল","বানিয়াচং","চুনারুঘাট","লাখাই","মাধবপুর","নবীগঞ্জ","শায়েস্তাগঞ্জ"],
+  "সুনামগঞ্জ": ["সুনামগঞ্জ সদর","বিশ্বম্ভরপুর","ছাতক","দিরাই","দোয়ারাবাজার","ধর্মপাশা","জগন্নাথপুর","জামালগঞ্জ","শাল্লা","তাহিরপুর"],
+  "রাজশাহী": ["রাজশাহী সদর","বাগমারা","বাঘা","চারঘাট","দুর্গাপুর","গোদাগাড়ী","মোহনপুর","পবা","পুঠিয়া","তানোর"],
+  "নাটোর": ["নাটোর সদর","বাগাতিপাড়া","বড়াইগ্রাম","গুরুদাসপুর","লালপুর","নলডাঙ্গা","সিংড়া"],
+  "নওগাঁ": ["নওগাঁ সদর","আত্রাই","বদলগাছী","ধামইরহাট","মহাদেবপুর","মান্দা","নিয়ামতপুর","পত্নীতলা","পোরশা","রাণীনগর","সাপাহার"],
+  "চাঁপাইনবাবগঞ্জ": ["চাঁপাইনবাবগঞ্জ সদর","ভোলাহাট","গোমস্তাপুর","নাচোল","শিবগঞ্জ"],
+  "পাবনা": ["পাবনা সদর","আটঘরিয়া","বেড়া","ভাঙ্গুড়া","চাটমোহর","ফরিদপুর","ঈশ্বরদী","সাঁথিয়া","সুজানগর"],
+  "সিরাজগঞ্জ": ["সিরাজগঞ্জ সদর","বেলকুচি","চৌহালী","কামারখন্দ","কাজীপুর","রায়গঞ্জ","শাহজাদপুর","তাড়াশ","উল্লাপাড়া"],
+  "বগুড়া": ["বগুড়া সদর","আদমদীঘি","ধুনট","দুপচাঁচিয়া","গাবতলী","কাহালু","নন্দীগ্রাম","সারিয়াকান্দি","শাজাহানপুর","শেরপুর","শিবগঞ্জ","সোনাতলা"],
+  "জয়পুরহাট": ["জয়পুরহাট সদর","আক্কেলপুর","কালাই","ক্ষেতলাল","পাঁচবিবি"],
+  "খুলনা": ["খুলনা সদর","বটিয়াঘাটা","দাকোপ","দিঘলিয়া","ডুমুরিয়া","কয়রা","পাইকগাছা","ফুলতলা","রূপসা","তেরখাদা"],
+  "বাগেরহাট": ["বাগেরহাট সদর","চিতলমারী","ফকিরহাট","কচুয়া","মংলা","মোরেলগঞ্জ","রামপাল","শরণখোলা"],
+  "সাতক্ষীরা": ["সাতক্ষীরা সদর","আশাশুনি","দেবহাটা","কলারোয়া","কালিগঞ্জ","শ্যামনগর","তালা"],
+  "যশোর": ["যশোর সদর","অভয়নগর","বাঘারপাড়া","চৌগাছা","ঝিকরগাছা","কেশবপুর","মণিরামপুর","শার্শা"],
+  "মাগুরা": ["মাগুরা সদর","মহম্মদপুর","শালিখা","শ্রীপুর"],
+  "নড়াইল": ["নড়াইল সদর","কালিয়া","লোহাগড়া"],
+  "ঝিনাইদহ": ["ঝিনাইদহ সদর","হরিণাকুণ্ডু","কালীগঞ্জ","কোটচাঁদপুর","মহেশপুর","শৈলকুপা"],
+  "কুষ্টিয়া": ["কুষ্টিয়া সদর","ভেড়ামারা","দৌলতপুর","খোকসা","কুমারখালী","মিরপুর"],
+  "চুয়াডাঙ্গা": ["চুয়াডাঙ্গা সদর","আলমডাঙ্গা","দামুড়হুদা","জীবননগর"],
+  "মেহেরপুর": ["মেহেরপুর সদর","গাংনী","মুজিবনগর"],
+  "বরিশাল": ["বরিশাল সদর","আগৈলঝাড়া","বাবুগঞ্জ","বাকেরগঞ্জ","বানারীপাড়া","গৌরনদী","হিজলা","মুলাদী","মেহেন্দিগঞ্জ","উজিরপুর"],
+  "ভোলা": ["ভোলা সদর","বোরহানউদ্দিন","চরফ্যাশন","দৌলতখান","লালমোহন","মনপুরা","তজুমদ্দিন"],
+  "পটুয়াখালী": ["পটুয়াখালী সদর","বাউফল","দশমিনা","গলাচিপা","কলাপাড়া","মির্জাগঞ্জ","দুমকি","রাঙ্গাবালী"],
+  "পিরোজপুর": ["পিরোজপুর সদর","ভান্ডারিয়া","কাউখালী","মঠবাড়িয়া","নাজিরপুর","নেছারাবাদ","জিয়ানগর"],
+  "বরগুনা": ["বরগুনা সদর","আমতলী","বামনা","বেতাগী","পাথরঘাটা","তালতলী"],
+  "ঝালকাঠি": ["ঝালকাঠি সদর","কাঠালিয়া","নলছিটি","রাজাপুর"],
+  "ময়মনসিংহ": ["ময়মনসিংহ সদর","ভালুকা","ফুলবাড়িয়া","গফরগাঁও","গৌরীপুর","হালুয়াঘাট","ঈশ্বরগঞ্জ","মুক্তাগাছা","নান্দাইল","ফুলপুর","তারাকান্দা","ত্রিশাল"],
+  "জামালপুর": ["জামালপুর সদর","বকশীগঞ্জ","দেওয়ানগঞ্জ","ইসলামপুর","মাদারগঞ্জ","মেলান্দহ","সরিষাবাড়ী"],
+  "নেত্রকোণা": ["নেত্রকোণা সদর","আটপাড়া","বারহাট্টা","দুর্গাপুর","কলমাকান্দা","কেন্দুয়া","খালিয়াজুরী","মদন","মোহনগঞ্জ","পূর্বধলা"],
+  "শেরপুর": ["শেরপুর সদর","ঝিনাইগাতী","নকলা","নালিতাবাড়ী","শ্রীবরদী"],
+  "রংপুর": ["রংপুর সদর","বদরগঞ্জ","গংগাচড়া","কাউনিয়া","মিঠাপুকুর","পীরগাছা","পীরগঞ্জ","তারাগঞ্জ"],
+  "দিনাজপুর": ["দিনাজপুর সদর","বিরল","বিরামপুর","বিরচন্দ্রপুর","বোচাগঞ্জ","চিরিরবন্দর","ফুলবাড়ী","ঘোড়াঘাট","হাকিমপুর","কাহারোল","খানসামা","নবাবগঞ্জ","পার্বতীপুর"],
+  "গাইবান্ধা": ["গাইবান্ধা সদর","ফুলছড়ি","গোবিন্দগঞ্জ","পলাশবাড়ী","সাদুল্লাপুর","সাঘাটা","সুন্দরগঞ্জ"],
+  "কুড়িগ্রাম": ["কুড়িগ্রাম সদর","ভুরুঙ্গামারী","চর রাজিবপুর","চিলমারী","ফুলবাড়ী","নাগেশ্বরী","রাজারহাট","রৌমারী","উলিপুর"],
+  "লালমনিরহাট": ["লালমনিরহাট সদর","আদিতমারী","কালীগঞ্জ","হাতীবান্ধা","পাটগ্রাম"],
+  "নীলফামারী": ["নীলফামারী সদর","ডিমলা","জলঢাকা","কিশোরগঞ্জ","সৈয়দপুর","ডোমার"],
+  "পঞ্চগড়": ["পঞ্চগড় সদর","আটোয়ারী","বোদা","দেবীগঞ্জ","তেঁতুলিয়া"],
+  "ঠাকুরগাঁও": ["ঠাকুরগাঁও সদর","বালিয়াডাঙ্গী","হরিপুর","পীরগঞ্জ","রাণীশংকৈল"]
+};
+const DISTRICTS = Object.keys(BD_LOCATIONS);
+
+function fillOptions(sel, list, placeholder) {
+  sel.innerHTML = `<option value="">${placeholder}</option>` + list.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+}
+function populateDistrictSelects() {
+  fillOptions($('#fDistrict'), DISTRICTS, 'সব জেলা');
+  fillOptions($('#pDistrict'), DISTRICTS, 'জেলা বাছাই করুন');
+}
+function wireLocationSelects() {
+  populateDistrictSelects();
+  $('#fDistrict').addEventListener('change', e => {
+    const d = e.target.value;
+    fillOptions($('#fArea'), d ? (BD_LOCATIONS[d] || []) : [], 'সব এলাকা');
+    if (d) saveDistrict(d);
+    renderFeed();
+  });
+  $('#fArea').addEventListener('change', renderFeed);
+  $('#pDistrict').addEventListener('change', e => {
+    const d = e.target.value;
+    fillOptions($('#pArea'), d ? (BD_LOCATIONS[d] || []) : [], 'এলাকা বাছাই করুন');
+  });
+}
 const ROLES = { student: 'শিক্ষার্থী', teacher: 'শিক্ষক', parent: 'অভিভাবক' };
 const PAY_STATUS = { pending: 'যাচাই চলছে', approved: 'অনুমোদিত', rejected: 'বাতিল' };
 const AVC = [['#CECBF6', '#3C3489'], ['#9FE1CB', '#085041'], ['#F5C4B3', '#712B13'], ['#B5D4F4', '#0C447C'], ['#FAC775', '#633806']];
@@ -613,7 +712,7 @@ async function loadSettings() {
 }
 
 function init() {
-  setFavicon(); renderNear(); applySettings();
+  setFavicon(); renderNear(); applySettings(); wireLocationSelects();
   if (!CONFIGURED) { $('#cfgWarn').hidden = false; renderFeed(); return; }
   if (typeof firebase === 'undefined') {
     $('#cfgWarn').innerHTML = 'Firebase লোড হয়নি। ইন্টারনেট চেক করুন, অথবা সাইটটি নিজের GitHub Pages লিংকে খুলুন (Claude-এর প্রিভিউতে Firebase চলে না)।';
@@ -660,12 +759,22 @@ function makeReferralCode(uid, name) {
   const base = (name || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 4);
   return (base || 'PORA') + uid.slice(-4).toUpperCase();
 }
+async function findReferrer(code, myUid) {
+  if (!code) return null;
+  try {
+    const q = await db.collection('users').where('referralCode', '==', code).limit(1).get();
+    if (q.empty) return null;
+    const id = q.docs[0].id;
+    return id === myUid ? null : id;
+  } catch (e) { return null; }
+}
 async function ensureProfile(u) {
   if (creating) return; creating = true;
   const p = pendingProfile || {};
   const finalName = (p.name || u.displayName || 'ব্যবহারকারী').slice(0, 60);
   try {
-    await db.collection('users').doc(u.uid).set({
+    const referrerId = p.enteredReferral ? await findReferrer(p.enteredReferral, u.uid) : null;
+    const doc = {
       name: finalName,
       role: p.role || 'student',
       contact: (p.phone || contactOf(u.email)).slice(0, 100),
@@ -675,8 +784,10 @@ async function ensureProfile(u) {
       referralPoints: 0,
       referredUsers: [],
       createdAt: TS()
-    });
-    if (p.enteredReferral) await applyReferralCode(u.uid, p.enteredReferral);
+    };
+    if (referrerId) doc.referredBy = referrerId;
+    await db.collection('users').doc(u.uid).set(doc);
+    if (referrerId) creditReferrer(referrerId, u.uid);
   } catch (e) { toast('প্রোফাইল তৈরি হয়নি: ' + errMsg(e)); }
   finally { creating = false; pendingProfile = null; }
 }
@@ -823,10 +934,11 @@ function card(p, near) {
 }
 
 function renderFeed() {
-  const t = $('#fType').value, d = $('#fDistrict').value.trim(), s = $('#fSubject').value.trim().toLowerCase();
+  const t = $('#fType').value, d = $('#fDistrict').value, ar = $('#fArea').value, s = $('#fSubject').value.trim().toLowerCase();
   let list = allPosts.filter(p => p.status !== 'closed'
     && (!t || p.type === t)
-    && (!d || ((p.district || '') + ' ' + (p.area || '')).includes(d))
+    && (!d || p.district === d)
+    && (!ar || p.area === ar)
     && (!s || ((p.subject || '') + ' ' + (p.title || '') + ' ' + (p.level || '')).toLowerCase().includes(s)));
   /* জেলা ফিল্টার না থাকলে নিজের এলাকার পোস্ট আগে দেখাবে */
   let nearIds = new Set();
@@ -839,8 +951,7 @@ function renderFeed() {
     : `<div class="empty"><p>${allPosts.length ? 'এই ফিল্টারে কোনো পোস্ট পাওয়া যায়নি।' : 'এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনার হতে পারে।'}</p><button class="btn" data-act="newpost">পোস্ট করুন</button></div>`;
   if (allPosts.length >= postLimit) $('#feed').innerHTML += '<div class="empty"><button class="btn line" data-act="more">আরও পোস্ট দেখুন</button></div>';
 }
-['#fDistrict', '#fSubject'].forEach(id => $(id).addEventListener('input', renderFeed));
-$('#fDistrict').addEventListener('change', e => saveDistrict(e.target.value));
+['#fSubject'].forEach(id => $(id).addEventListener('input', renderFeed));
 $('#typeChips').addEventListener('click', e => {
   const b = e.target.closest('button[data-type]'); if (!b) return;
   $('#fType').value = b.dataset.type;
@@ -933,7 +1044,10 @@ function openPost() {
   const def = profile.role === 'teacher' ? 'offer' : 'wanted';
   $(`#pTypes input[value=${def}]`).checked = true;
   if (!$('#pPhone').value && normPhone(profile.contact || '')) $('#pPhone').value = profile.contact;
-  if (!$('#pDistrict').value && myDistrict()) $('#pDistrict').value = myDistrict();
+  if (!$('#pDistrict').value && myDistrict()) {
+    $('#pDistrict').value = myDistrict();
+    fillOptions($('#pArea'), BD_LOCATIONS[myDistrict()] || [], 'এলাকা বাছাই করুন');
+  }
   syncTypeFields();
   $('#dPost').showModal();
 }
@@ -1123,15 +1237,8 @@ async function sharePost(id) {
 }
 
 /* ---------- referral system ---------- */
-async function applyReferralCode(newUid, code) {
-  if (!code) return;
+async function creditReferrer(referrerId, newUid) {
   try {
-    const q = await db.collection('users').where('referralCode', '==', code).limit(1).get();
-    if (q.empty) return;
-    const refDoc = q.docs[0];
-    const referrerId = refDoc.id;
-    if (referrerId === newUid) return;
-    await db.collection('users').doc(newUid).update({ referredBy: referrerId });
     await db.collection('users').doc(referrerId).update({
       referralCount: FV.increment(1),
       referralPoints: FV.increment(10),
@@ -1291,6 +1398,7 @@ document.addEventListener('click', async e => {
     case 'dismiss': try { await db.collection('reports').doc(id).delete(); renderAdmin(); } catch (err) { toast(errMsg(err)); } break;
     case 'admindel': if (confirm('পোস্টটি মুছে ফেলবেন?')) { if (await deletePost(id, [db.collection('reports').doc(b.dataset.rid)])) renderAdmin(); } break;
     case 'shareref': shareReferral(b.dataset.code); break;
+    case 'gotoreferral': if (!me) { openAuth('signup'); } else { show('profile'); } break;
     case 'copynum': navigator.clipboard.writeText(payNum()).then(() => toast('নম্বর কপি হয়েছে।')); break;
     case 'copyphone': navigator.clipboard.writeText(lastContact).then(() => toast('নম্বর কপি হয়েছে।')); break;
   }
@@ -1300,4 +1408,4 @@ init();
 </script>
 <script src="extra.js"></script>
 </body>
-</html>
+  </html>
