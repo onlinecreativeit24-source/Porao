@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "251968287983",
+    "project_id": "porao-dd00d",
+    "storage_bucket": "porao-dd00d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251968287983:android:a74e1932a739904847171a",
+        "android_client_info": {
+          "package_name": "com.porao.porao"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "251968287983-cn34gg0tk4jgqimbdoomkrvddd1600sr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKKgz43BCg8ALXa4VDNG5lS_3pRuHA6JY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "251968287983-cn34gg0tk4jgqimbdoomkrvddd1600sr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
