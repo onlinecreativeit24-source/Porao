@@ -224,6 +224,19 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={[s.banner, { backgroundColor: '#F59E0B', marginTop: 14 }]}
+          onPress={() => navigation.navigate('Recharge')}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={s.bTitle}>💰 কয়েন: {user?.coins ?? 0}টি</Text>
+            <Text style={s.bSub}>bKash / Nagad / Rocket দিয়ে রিচার্জ করুন</Text>
+          </View>
+          <View style={s.bBtn}>
+            <Text style={s.bBtnText}>রিচার্জ</Text>
+          </View>
+        </TouchableOpacity>
+
         <TouchableOpacity style={s.banner} onPress={() => navigation.navigate('Referral')}>
           <View style={{ flex: 1 }}>
             <Text style={s.bTitle}>বন্ধুকে রেফার করুন</Text>
