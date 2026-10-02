@@ -7,6 +7,9 @@ import AuthScreen from '../screens/AuthScreen';
 import HomeScreen from '../screens/HomeScreen';
 import CreatePostScreen from '../screens/CreatePostScreen';
 import ReferralScreen from '../screens/ReferralScreen';
+import ChatScreen from '../screens/ChatScreen';
+import VerifyIDScreen from '../screens/VerifyIDScreen';
+import AdminVerifyScreen from '../screens/AdminVerifyScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +28,13 @@ export default function AppNavigator() {
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen name="CreatePost" component={CreatePostScreen} options={{ title: 'নতুন পোস্ট' }} />
             <Stack.Screen name="Referral" component={ReferralScreen} options={{ title: 'রেফারেল' }} />
+            <Stack.Screen
+              name="ChatScreen"
+              component={ChatScreen}
+              options={({ route }) => ({ title: route.params?.otherUserName || 'মেসেজ' })}
+            />
+            <Stack.Screen name="VerifyID" component={VerifyIDScreen} options={{ title: 'আইডি ভেরিফিকেশন' }} />
+            <Stack.Screen name="AdminVerify" component={AdminVerifyScreen} options={{ title: 'পেন্ডিং ভেরিফিকেশন' }} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
