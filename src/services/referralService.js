@@ -4,7 +4,6 @@
 // Requires: firebase (auth + firestore) already initialized in your project
 
 import {
-  getFirestore,
   doc,
   setDoc,
   getDoc,
@@ -18,7 +17,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 
-const db = getFirestore();
+import { db } from '../firebase/firebase';
 
 // ---------- CONFIG ----------
 // পরিবর্তন করে তোমার রিওয়ার্ড নিয়ম বসাও
