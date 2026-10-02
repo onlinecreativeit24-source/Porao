@@ -211,6 +211,19 @@ export default function HomeScreen({ navigation }) {
           ))}
         </View>
 
+        <TouchableOpacity
+          style={[s.banner, { backgroundColor: '#16A34A', marginTop: 14 }]}
+          onPress={() => navigation.navigate('VerifyID')}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={s.bTitle}>🆔 আইডি ভেরিফাই করুন</Text>
+            <Text style={s.bSub}>ভেরিফায়েড ব্যাজ পান, বেশি বিশ্বাসযোগ্য হোন</Text>
+          </View>
+          <View style={s.bBtn}>
+            <Text style={s.bBtnText}>শুরু করুন</Text>
+          </View>
+        </TouchableOpacity>
+
         <TouchableOpacity style={s.banner} onPress={() => navigation.navigate('Referral')}>
           <View style={{ flex: 1 }}>
             <Text style={s.bTitle}>বন্ধুকে রেফার করুন</Text>
