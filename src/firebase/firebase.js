@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
@@ -25,5 +26,6 @@ if (Platform.OS === 'web' || !isNew) {
   });
 }
 
-export { auth };
+export { app, auth };
 export const db = getFirestore(app);
+export const functions = getFunctions(app, 'asia-south1');
