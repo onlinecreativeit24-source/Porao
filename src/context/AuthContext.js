@@ -6,7 +6,9 @@ import {
   updateProfile, signOut
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { Platform } from 'react-native';
 import { auth, db } from '../firebase/firebase';
+import { applyReferralCode } from '../services/referralService';
 
 export const AuthContext = createContext();
 
@@ -72,21 +74,32 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const loginWithGoogle = async (role) => {
+  const loginWithGoogle = async (role, referralCode) => {
+    if (Platform.OS !== 'web') {
+      throw new Error('মোবাইলে Google লগইন এখনো চালু হয়নি।');
+    }
     const cred = await signInWithPopup(auth, new GoogleAuthProvider());
     await saveProfile(cred.user, role);
+    if (referralCode) {
+      try { await applyReferralCode(cred.user.uid, referralCode); }
+      catch (e) { console.warn('রেফারেল কোড কাজ করেনি:', e.message); }
+    }
   };
 
   const login = (email, pass) =>
     signInWithEmailAndPassword(auth, email, pass);
 
-  const signup = async (name, email, pass, role) => {
+  const signup = async (name, email, pass, role, referralCode) => {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     if (name) {
       await updateProfile(cred.user, { displayName: name });
       setUser((prev) => (prev && prev.uid === cred.user.uid ? { ...prev, name } : prev));
     }
     await saveProfile(cred.user, role, name);
+    if (referralCode) {
+      try { await applyReferralCode(cred.user.uid, referralCode); }
+      catch (e) { console.warn('রেফারেল কোড কাজ করেনি:', e.message); }
+    }
   };
 
   const resetPassword = (email) => sendPasswordResetEmail(auth, email);
