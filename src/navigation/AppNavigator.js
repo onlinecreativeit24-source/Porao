@@ -10,6 +10,7 @@ import ReferralScreen from '../screens/ReferralScreen';
 import ChatScreen from '../screens/ChatScreen';
 import VerifyIDScreen from '../screens/VerifyIDScreen';
 import AdminVerifyScreen from '../screens/AdminVerifyScreen';
+import RechargeScreen from '../screens/RechargeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ export default function AppNavigator() {
             />
             <Stack.Screen name="VerifyID" component={VerifyIDScreen} options={{ title: 'আইডি ভেরিফিকেশন' }} />
             <Stack.Screen name="AdminVerify" component={AdminVerifyScreen} options={{ title: 'পেন্ডিং ভেরিফিকেশন' }} />
+            <Stack.Screen name="Recharge" component={RechargeScreen} options={{ title: 'কয়েন রিচার্জ' }} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
