@@ -1,6 +1,6 @@
 /* mod8.js – ভেরিফায়েড ব্যাজ:
    - ফিডের পোস্টে ও "সেরা শিক্ষক" তালিকায় ভেরিফায়েড অ্যাকাউন্টের পাশে ✔ ব্যাজ দেখায়
-   - "সেরা শিক্ষক" তালিকায় ভেরিফায়েড শিক্ষক ওপরে দেখায়
+   - "সেরা শিক্ষক" তালিকায় ভেরিফায়েড শিক্ষক ওপরে থাকে (আঁকার আগেই সাজানো, তাই লাফায় না)
    - ফিডের পোস্টের ক্রম বদলায় না (নতুন পোস্ট সবার ওপরে থাকে)
    - অ্যাডমিন অনুমোদন/বাতিল করলে সর্বজনীন ভেরিফাইড-তালিকা (settings/verifiedUsers) আপডেট হয় */
 (function () {
@@ -12,14 +12,18 @@
   `;
   document.head.appendChild(st);
 
+  function vKey() { return Array.from(verifiedSet).sort().join(','); }
+
   async function loadVerified() {
     try {
       var s = await db.collection('settings').doc('verifiedUsers').get();
       var d = s.exists ? s.data() : {};
       var ns = new Set();
       Object.keys(d).forEach(function (k) { if (d[k]) ns.add(k); });
+      var before = vKey();
       verifiedSet = ns;
-    } catch (e) { /* ignore */ }
+      return before !== vKey(); /* তালিকা বদলেছে কি না */
+    } catch (e) { return false; }
   }
 
   /* ---------- ফিড: শুধু ব্যাজ, ক্রম বদলানো হয় না ---------- */
@@ -64,33 +68,42 @@
   var feedEl = document.getElementById('feed');
   if (feedEl) new MutationObserver(function () { setTimeout(processFeed, 30); }).observe(feedEl, { childList: true });
 
-  /* ---------- সেরা শিক্ষক তালিকা: ব্যাজ + ভেরিফায়েড আগে ---------- */
-  var tutorBusy = false;
-  function processTutors() {
-    if (tutorBusy) return; tutorBusy = true;
+  /* ---------- সেরা শিক্ষক তালিকা: আঁকার আগেই সাজানো + ব্যাজ ---------- */
+  var origRenderTutors = renderTutors;
+  renderTutors = function () {
     try {
-      var box = document.getElementById('tutorList'); if (!box) return;
-      var nodes = box.querySelectorAll(':scope > .tutor');
-      if (typeof tutors === 'undefined' || !nodes.length || nodes.length !== tutors.length) return;
-      var pairs = [];
-      for (var i = 0; i < nodes.length; i++) pairs.push({ el: nodes[i], t: tutors[i], v: verifiedSet.has(tutors[i].id) });
-      pairs.forEach(function (pr) {
-        if (pr.v && !pr.el.querySelector('.vmini')) {
-          var nameEl = pr.el.querySelector('.grow b');
-          if (nameEl) { var b = document.createElement('span'); b.className = 'vmini'; b.title = 'ভেরিফায়েড শিক্ষক'; b.textContent = '✔'; nameEl.appendChild(b); }
-        }
-      });
-      var sorted = pairs.slice().sort(function (a, b) { return (b.v ? 1 : 0) - (a.v ? 1 : 0); });
-      var changed = sorted.some(function (pr, i) { return pr.el !== pairs[i].el; });
-      if (changed) sorted.forEach(function (pr) { box.appendChild(pr.el); });
+      if (typeof tutors !== 'undefined' && tutors.length) {
+        /* স্থিতিশীল সাজানো: ভেরিফায়েড আগে, বাকিদের রেটিং-ক্রম অপরিবর্তিত */
+        tutors.sort(function (a, b) { return (verifiedSet.has(b.id) ? 1 : 0) - (verifiedSet.has(a.id) ? 1 : 0); });
+      }
     } catch (e) { /* ignore */ }
-    finally { tutorBusy = false; }
-  }
-  var tBox = document.getElementById('tutorList');
-  if (tBox) new MutationObserver(function () { setTimeout(processTutors, 30); }).observe(tBox, { childList: true });
+    origRenderTutors();
+    try {
+      var nodes = document.querySelectorAll('#tutorList > .tutor');
+      if (typeof tutors !== 'undefined' && nodes.length === tutors.length) {
+        for (var i = 0; i < nodes.length; i++) {
+          if (verifiedSet.has(tutors[i].id) && !nodes[i].querySelector('.vmini')) {
+            var nameEl = nodes[i].querySelector('.grow b');
+            if (nameEl) {
+              var b = document.createElement('span');
+              b.className = 'vmini';
+              b.title = 'ভেরিফায়েড শিক্ষক';
+              b.textContent = '✔';
+              nameEl.appendChild(b);
+            }
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+  };
 
-  /* ---------- শুরুতে ও নিয়মিত রিফ্রেশ ---------- */
-  function refreshAll() { loadVerified().then(function () { processFeed(); processTutors(); }); }
+  /* ---------- শুরুতে ও নিয়মিত রিফ্রেশ (তালিকা বদলালে তবেই আবার আঁকা) ---------- */
+  function refreshAll() {
+    loadVerified().then(function (changed) {
+      processFeed();
+      if (changed) renderTutors();
+    });
+  }
   refreshAll();
   setInterval(refreshAll, 2 * 60 * 1000);
 
