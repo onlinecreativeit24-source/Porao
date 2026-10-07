@@ -1,6 +1,7 @@
-/* mod8.js – ভেরিফায়েড ব্যাজ ও অগ্রাধিকার:
+/* mod8.js – ভেরিফায়েড ব্যাজ:
    - ফিডের পোস্টে ও "সেরা শিক্ষক" তালিকায় ভেরিফায়েড অ্যাকাউন্টের পাশে ✔ ব্যাজ দেখায়
-   - ভেরিফায়েড অ্যাকাউন্টের পোস্ট/প্রোফাইল তালিকার ওপরে দেখায়
+   - "সেরা শিক্ষক" তালিকায় ভেরিফায়েড শিক্ষক ওপরে দেখায়
+   - ফিডের পোস্টের ক্রম বদলায় না (নতুন পোস্ট সবার ওপরে থাকে)
    - অ্যাডমিন অনুমোদন/বাতিল করলে সর্বজনীন ভেরিফাইড-তালিকা (settings/verifiedUsers) আপডেট হয় */
 (function () {
   var verifiedSet = new Set();
@@ -21,7 +22,7 @@
     } catch (e) { /* ignore */ }
   }
 
-  /* ---------- ফিড: ব্যাজ + ভেরিফায়েড আগে ---------- */
+  /* ---------- ফিড: শুধু ব্যাজ, ক্রম বদলানো হয় না ---------- */
   function computeFeedList() {
     var t = $('#fType').value, d = $('#fDistrict').value.trim(), s = $('#fSubject').value.trim().toLowerCase();
     var list = allPosts.filter(function (p) {
@@ -45,20 +46,17 @@
       var nodes = feed.querySelectorAll(':scope > .post');
       var list = computeFeedList();
       if (!nodes.length || nodes.length !== list.length) return;
-      var pairs = [];
-      for (var i = 0; i < nodes.length; i++) pairs.push({ el: nodes[i], p: list[i], v: verifiedSet.has(list[i].uid) });
-      pairs.forEach(function (pr) {
-        if (pr.v && !pr.el.querySelector('.vmini')) {
-          var who = pr.el.querySelector('.who');
-          if (who) { var b = document.createElement('span'); b.className = 'vmini'; b.title = 'ভেরিফায়েড অ্যাকাউন্ট'; b.textContent = '✔ ভেরিফায়েড'; who.appendChild(b); }
+      for (var i = 0; i < nodes.length; i++) {
+        if (verifiedSet.has(list[i].uid) && !nodes[i].querySelector('.vmini')) {
+          var who = nodes[i].querySelector('.who');
+          if (who) {
+            var b = document.createElement('span');
+            b.className = 'vmini';
+            b.title = 'ভেরিফায়েড অ্যাকাউন্ট';
+            b.textContent = '✔ ভেরিফায়েড';
+            who.appendChild(b);
+          }
         }
-      });
-      var sorted = pairs.slice().sort(function (a, b) { return (b.v ? 1 : 0) - (a.v ? 1 : 0); });
-      var changed = sorted.some(function (pr, i) { return pr.el !== pairs[i].el; });
-      if (changed) {
-        var ref = null;
-        for (var c = feed.firstChild; c; c = c.nextSibling) { if (!(c.classList && c.classList.contains('post'))) { ref = c; break; } }
-        sorted.forEach(function (pr) { feed.insertBefore(pr.el, ref); });
       }
     } catch (e) { /* নিরাপদভাবে বাদ দিন */ }
     finally { feedBusy = false; }
